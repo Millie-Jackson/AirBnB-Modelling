@@ -1,0 +1,30 @@
+my_list = []
+my_list.append(1)
+my_list.append(2)
+my_list.append(3)
+my_list.append(4)
+my_list.append(5)
+
+for i in range(len(my_list)):
+    print(bool(my_list[i]==1))
+    print(bool(my_list[i]==6))
+    print(bool(my_list[i]!=7))
+
+my_number_1 = 1
+my_number_2 = 2
+
+print(my_number_1 == my_number_2)
+print(my_number_1 is my_number_2)
+
+# is checks if they are the same object not if they equal the same variables
+my_list_1 = [1, 2, 3, 4, 5]
+my_list_2 = [1, 2, 3, 4, 5]
+
+print(my_list_1 == my_list_2)
+print(my_list_1 is my_list_2)
+
+my_dict = {}
+my_dict_2 = {"Key_1": 1, "Key_2": 2}
+
+print(bool(my_dict))
+print(bool(my_dict_2))

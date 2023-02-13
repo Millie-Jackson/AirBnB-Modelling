@@ -1,0 +1,2 @@
+How (and how not) To Run python Files From VSCode
+https://www.youtube.com/watch?v=DMw-7sDbwAM
