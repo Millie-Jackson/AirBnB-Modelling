@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<!-- saved from url=(0043)https://realpython.com/if-name-main-python/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <link href="https://cdn.realpython.com/" rel="preconnect">
+    <link href="https://files.realpython.com/" rel="preconnect">
+
+    <title>What Does if __name__ == "__main__" Do in Python? – Real Python</title>
+    <meta name="author" content="Real Python">
+    <meta name="description" content="In this tutorial, you&#39;ll learn all about Python&#39;s name-main idiom. You&#39;ll learn what it does in Python, how it works, when to use it, when to avoid it, and how to refer to it.">
+    <meta name="keywords" content="">
+
+    
+  
+  
+    <link rel="preload" as="image" href="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/The-Name-Main-Idiom_Watermarked.9d5e12c539b3.jpg&amp;w=1921&amp;h=1081&amp;q=1&amp;mode=scale&amp;sig=6891dd97e2b054f74c9f1c9be9f3594e373d477b">
+  
+
+
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover">
+
+    
+      <link rel="stylesheet" href="./What Does if __name__ == ___main___ Do in Python_files/realpython.min.8a347b972cab.css">
+      <link rel="stylesheet" href="./What Does if __name__ == ___main___ Do in Python_files/font.5ac42994de49.css">
+      <link rel="stylesheet" href="./What Does if __name__ == ___main___ Do in Python_files/glightbox.min.9b438b29cef1.css" as="style" onload="this.onload=null;this.rel=&#39;stylesheet&#39;"><noscript><link rel="stylesheet" href="https://cdn.realpython.com/static/glightbox.min.9b438b29cef1.css"></noscript>
+    
+
+    
+  
+
+
+    
+    
+      <link rel="canonical" href="https://realpython.com/if-name-main-python/">
+
+      
+      
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:image" content="https://files.realpython.com/media/The-Name-Main-Idiom_Watermarked.9d5e12c539b3.jpg">
+        <meta property="og:image" content="https://files.realpython.com/media/The-Name-Main-Idiom_Watermarked.9d5e12c539b3.jpg">
+      
+      <meta name="twitter:creator" content="@realpython">
+      <meta name="twitter:site" content="@realpython">
+      <meta property="og:title" content="What Does if __name__ == &quot;__main__&quot; Do in Python? – Real Python">
+      <meta property="og:type" content="article">
+      <meta property="og:url" content="https://realpython.com/if-name-main-python/">
+      <meta property="og:description" content="In this tutorial, you&#39;ll learn all about Python&#39;s name-main idiom. You&#39;ll learn what it does in Python, how it works, when to use it, when to avoid it, and how to refer to it.">
+    
+
+    <link href="https://cdn.realpython.com/static/favicon.68cbf4197b0c.png" rel="icon">
+    <link href="https://realpython.com/atom.xml" rel="alternate" title="Real Python" type="application/atom+xml">
+    <link rel="manifest" href="https://realpython.com/manifest.json">
+
+    
+
+    
+    
+
+    
+    <script src="./What Does if __name__ == ___main___ Do in Python_files/2220911568135371" async=""></script><script async="" src="./What Does if __name__ == ___main___ Do in Python_files/fbevents.js"></script><script async="" src="./What Does if __name__ == ___main___ Do in Python_files/analytics.js"></script><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-35184939-1', 'auto', {'allowLinker': true});
+
+  
+
+  
+
+  
+  
+  ga('set', {
+    dimension1: false,
+    dimension2: false
+  });
+  
+
+  ga('send', 'pageview');
+  
+</script>
+
+
+<script async="" src="./What Does if __name__ == ___main___ Do in Python_files/js"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7L6L5F6Y6');
+</script>
+
+  <script src="./What Does if __name__ == ___main___ Do in Python_files/count-data.js"></script><script src="./What Does if __name__ == ___main___ Do in Python_files/OneSignalPageSDKES6.js" async=""></script><link rel="stylesheet" href="./What Does if __name__ == ___main___ Do in Python_files/OneSignalSDKStyles.css"><script src="./What Does if __name__ == ___main___ Do in Python_files/embed.js" data-timestamp="1676463400900"></script><link rel="prefetch" as="style" href="https://c.disquscdn.com/next/embed/styles/lounge.9b94011356c373132df5fbae0291f59d.css"><link rel="prefetch" as="script" href="https://c.disquscdn.com/next/embed/common.bundle.4ba4d839a8c58443b0a3c9c44262d3b7.js"><link rel="prefetch" as="script" href="https://c.disquscdn.com/next/embed/lounge.bundle.265c9fb0a7a327d6ee20063bc838cc5e.js"><link rel="prefetch" as="script" href="https://disqus.com/next/config.js"><script async="" id="dsq_recs_scr" src="./What Does if __name__ == ___main___ Do in Python_files/recommendations.js"></script><link rel="prefetch" as="style" href="https://c.disquscdn.com/next/recommendations/styles/recommendations.10022a97346f1c6e3798931bbd8e4bb5.css"><link rel="prefetch" as="script" href="https://c.disquscdn.com/next/recommendations/common.bundle.ee9c33b24a56672a5987fadb46fbba34.js"><link rel="prefetch" as="script" href="https://c.disquscdn.com/next/recommendations/recommendations.bundle.bb3216316047d5c61d9dafa6240fbf39.js"><link rel="prefetch" as="script" href="https://disqus.com/next/config.js"></head>
+  <body>
+    
+      
+
+
+<nav class="navbar fixed-top navbar-expand-lg navbar-dark flex-column ">
+  <div class="container flex-row">
+
+    <a class="navbar-brand" href="https://realpython.com/">
+      <img src="./What Does if __name__ == ___main___ Do in Python_files/real-python-logo.893c30edea53.svg" width="165" height="40" class="d-inline-block align-top" alt="Real Python">
+    </a>
+
+    
+    <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="navbar-collapse navbar-nav-scroll collapse" id="navbarSupportedContent" role="navigation" aria-label="Main Navigation" style="">
+
+      <ul class="navbar-nav mr-2">
+
+        <li class="nav-item">
+          <a class="nav-link" href="https://realpython.com/start-here/">Start&nbsp;Here</a>
+        </li>
+
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="https://realpython.com/if-name-main-python/#" id="navbarDropdownLibrary" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="fa fa-graduation-cap" aria-hidden="true"></span> Learn Python
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownLibrary">
+            <a class="dropdown-item" href="https://realpython.com/search?kind=article&amp;kind=course&amp;order=newest" style="color: #ff7e73; line-height: 110%;"><i class="fa fa-fw mr-1 fa-graduation-cap" aria-hidden="true"></i> Python Tutorials →<br><small class="text-secondary">In-depth articles and video courses</small></a>
+            
+            <a class="dropdown-item" href="https://realpython.com/learning-paths/" style="color: #ffc873; line-height: 110%;"><i class="fa fa-fw mr-1 fa-map-o" aria-hidden="true"></i> Learning Paths →<br><small class="text-secondary">Guided study plans for accelerated learning</small></a>
+            <a class="dropdown-item" href="https://realpython.com/quizzes/" style="color: #abe0e5; line-height: 110%;"><i class="fa fa-fw mr-1 fa-trophy" aria-hidden="true"></i> Quizzes →<br><small class="text-secondary">Check your learning progress</small></a>
+            <a class="dropdown-item" href="https://realpython.com/tutorials/all/" style="color: #ccc; line-height: 110%;"><i class="fa fa-fw mr-1 fa-tags" aria-hidden="true"></i> Browse Topics →<br><small class="text-secondary">Focus on a specific area or skill level</small></a>
+            <a class="dropdown-item" href="https://realpython.com/community/" style="color: #e5c6ab; line-height: 110%;"><i class="fa fa-fw mr-1 fa-slack" aria-hidden="true"></i> Community Chat →<br><small class="text-secondary">Learn with other Pythonistas</small></a>
+            <a class="dropdown-item" href="https://realpython.com/office-hours/" style="color: #e5c6ab; line-height: 110%;"><i class="fa fa-fw mr-1 fa-users" aria-hidden="true"></i> Office Hours →<br><small class="text-secondary">Live Q&amp;A calls with Python experts</small></a>
+            <a class="dropdown-item" href="https://realpython.com/podcasts/rpp/" style="color: #b8abe5; line-height: 110%;"><i class="fa fa-fw mr-1 fa-podcast" aria-hidden="true"></i> Podcast →<br><small class="text-secondary">Hear what’s new in the world of Python</small></a>
+            <a class="dropdown-item pb-3" href="https://realpython.com/products/books/" style="color: #abe5b1; line-height: 110%;"><i class="fa fa-fw mr-1 fa-book" aria-hidden="true"></i> Books →<br><small class="text-secondary">Round out your knowledge and learn offline</small></a>
+            
+              <a class="dropdown-item border-top text-warning" href="https://realpython.com/account/join/"><i class="fa fa-fw fa-star text-warning" aria-hidden="true"></i> Unlock All Content →</a>
+            
+          </div>
+        </li>
+
+        
+
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="https://realpython.com/if-name-main-python/#" id="navbarDropdownMore" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            More
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownMore">
+            <a class="dropdown-item" href="https://realpython.com/products/">Python Learning Resources</a>
+            <a class="dropdown-item" href="https://realpython.com/newsletter/">Python Newsletter</a>
+            <a class="dropdown-item" href="https://www.pythonjobshq.com/" target="_blank">Python Job Board</a>
+            <a class="dropdown-item" href="https://realpython.com/team/">Meet the Team</a>
+            <a class="dropdown-item" href="https://realpython.com/write-for-us/">Become a Tutorial Writer</a>
+            <a class="dropdown-item" href="https://realpython.com/become-an-instructor/">Become a Video Instructor</a>
+          </div>
+        </li>
+
+      </ul> 
+
+      
+      <div class="d-block d-lg-none"> 
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="https://realpython.com/search" title="Search"><span class="d-block d-lg-none"><i class="fa fa-search" aria-hidden="true"></i> Search</span><span class="d-none d-lg-block"><i class="fa fa-search" aria-hidden="true"></i></span></a>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="d-none d-lg-flex align-items-center mr-2 flex-fill">
+        <form class="form-inline w-100" action="https://realpython.com/search" method="GET">
+          <a class="js-search-form-submit position-absolute" href="https://realpython.com/search" title="Search"><i class="fa fa-search fa-fw text-muted pl-2" aria-hidden="true"></i></a>
+          <input class="search-field form-control form-control-md mr-sm-1 mr-lg-2 w-100" style="padding-left: 2rem;" maxlength="50" type="search" placeholder="Search" aria-label="Search" name="q" autocomplete="off">
+          <input type="hidden" name="_from" value="nav">
+        </form>
+      </div>
+      
+
+      <ul class="navbar-nav ml-auto">
+        
+          <li class="nav-item form-inline">
+            <a class="ml-2 ml-lg-0 btn btn-sm btn-primary px-3" href="https://realpython.com/account/join/">Join</a>
+          </li>
+          <li class="nav-item">
+            <a class="btn text-light" href="https://realpython.com/account/login/?next=%2Fif-name-main-python%2F">Sign‑In</a>
+          </li>
+        
+      </ul>
+
+    
+    </div>
+
+  </div>
+
+  
+
+</nav>
+
+    
+
+    <div class="container main-content">
+      
+
+      
+  <div class="row justify-content-center">
+
+    <div class="col-md-11 col-lg-8 article with-headerlinks">
+      
+
+  
+    <figure class="embed-responsive embed-responsive-16by9 rounded">
+      
+        <img class="js-img-loader card-img-top m-0 p-0 embed-responsive-item" style="object-fit: contain;" alt="What Does if __name__ == &quot;__main__&quot; Do in Python?" width="1920" height="1080" src="./What Does if __name__ == ___main___ Do in Python_files/The-Name-Main-Idiom_Watermarked.9d5e12c539b3.jpg" data-src="https://files.realpython.com/media/The-Name-Main-Idiom_Watermarked.9d5e12c539b3.jpg" data-srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/The-Name-Main-Idiom_Watermarked.9d5e12c539b3.jpg&amp;w=480&amp;sig=163dc9a398666872d4079f3eb7e49914b9ebc104 480w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/The-Name-Main-Idiom_Watermarked.9d5e12c539b3.jpg&amp;w=960&amp;sig=345b356dcbe389e26ed4f7c7f9e07a1fd8b882b0 960w, https://files.realpython.com/media/The-Name-Main-Idiom_Watermarked.9d5e12c539b3.jpg 1920w" sizes="75vw" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/The-Name-Main-Idiom_Watermarked.9d5e12c539b3.jpg&amp;w=480&amp;sig=163dc9a398666872d4079f3eb7e49914b9ebc104 480w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/The-Name-Main-Idiom_Watermarked.9d5e12c539b3.jpg&amp;w=960&amp;sig=345b356dcbe389e26ed4f7c7f9e07a1fd8b882b0 960w, https://files.realpython.com/media/The-Name-Main-Idiom_Watermarked.9d5e12c539b3.jpg 1920w">
+      
+    </figure>
+  
+
+  <h1>What Does if __name__ == "__main__" Do in Python?</h1>
+  <div class="mb-0">
+    
+      <span class="text-muted">by <a class="text-muted" href="https://realpython.com/if-name-main-python/#author">Martin Breuss</a>
+    
+    
+      <span class="ml-2 fa fa-clock-o"></span> Sep 21, 2022
+    
+    
+      <span class="ml-2 mr-1 fa fa-comments"></span><a class="text-muted" href="https://realpython.com/if-name-main-python/#reader-comments"><span class="disqus-comment-count" data-disqus-identifier="https://realpython.com/if-name-main-python/">2 Comments</span></a>
+    
+    
+    <span class="ml-2 fa fa-tags" aria-hidden="true"></span>
+    
+      <a href="https://realpython.com/tutorials/best-practices/" class="badge badge-light text-muted">best-practices</a>
+    
+      <a href="https://realpython.com/tutorials/intermediate/" class="badge badge-light text-muted">intermediate</a>
+    
+    <div class="d-sm-flex flex-row justify-content-between my-3 text-center">
+      <div class="jsCompletionStatusWidget btn-group mb-0">
+  <button title="Click to mark as completed" class="jsBtnCompletion btn btn-secondary border-right" style="border-top-right-radius: 0; border-bottom-right-radius: 0;">Mark as Completed</button>
+  <button title="Add bookmark" class="jsBtnBookmark btn btn-secondary border-left"><i class="fa fa-fw fa-bookmark-o"></i></button>
+</div>
+
+      
+      
+        <div class="align-self-center my-2">
+          
+<span>
+  <a target="_blank" rel="nofollow" href="https://twitter.com/intent/tweet/?text=Check%20out%20this%20%23Python%20tutorial:%20What%20Does%20if%20__name__%20%3D%3D%20%22__main__%22%20Do%20in%20Python%3F%20by%20@realpython&amp;url=https%3A//realpython.com/if-name-main-python/" class="mr-1 badge badge-twitter text-light mb-1"><i class="mr-1 fa fa-twitter text-light"></i>Tweet</a>
+  <a target="_blank" rel="nofollow" href="https://facebook.com/sharer/sharer.php?u=https%3A//realpython.com/if-name-main-python/" class="mr-1 badge badge-facebook text-light mb-1"><i class="mr-1 fa fa-facebook text-light"></i>Share</a>
+  
+  <a target="_blank" rel="nofollow" href="mailto:?subject=Python%20article%20for%20you&amp;body=Check%20out%20this%20Python%20tutorial:%0A%0AWhat%20Does%20if%20__name__%20%3D%3D%20%22__main__%22%20Do%20in%20Python%3F%0A%0Ahttps%3A//realpython.com/if-name-main-python/" class="badge badge-red text-light mb-1"><i class="mr-1 fa fa-envelope text-light"></i>Email</a>
+</span>
+
+        </div>
+      
+    </div>
+  </span></div>
+
+  
+
+  <div class="article-body">
+    
+      <div class="bg-light sidebar-module sidebar-module-inset" id="toc">
+        <p class="h3 mb-2 text-muted">Table of Contents</p>
+        <div class="toc">
+<ul>
+<li><a href="https://realpython.com/if-name-main-python/#in-short-it-allows-you-to-execute-code-when-the-file-runs-as-a-script-but-not-when-its-imported-as-a-module">In Short: It Allows You to Execute Code When the File Runs as a Script, but Not When It’s Imported as a Module</a></li>
+<li><a href="https://realpython.com/if-name-main-python/#how-does-the-name-main-idiom-work">How Does the Name-Main Idiom Work?</a></li>
+<li><a href="https://realpython.com/if-name-main-python/#when-should-you-use-the-name-main-idiom-in-python">When Should You Use the Name-Main Idiom in Python?</a></li>
+<li><a href="https://realpython.com/if-name-main-python/#when-should-you-avoid-the-name-main-idiom">When Should You Avoid the Name-Main Idiom?</a></li>
+<li><a href="https://realpython.com/if-name-main-python/#in-what-way-should-you-include-the-name-main-idiom">In What Way Should You Include the Name-Main Idiom?</a></li>
+<li><a href="https://realpython.com/if-name-main-python/#is-the-idiom-boilerplate-code-that-should-be-simplified">Is the Idiom Boilerplate Code That Should Be Simplified?</a></li>
+<li><a href="https://realpython.com/if-name-main-python/#conclusion">Conclusion</a></li>
+</ul>
+</div>
+
+      </div>
+    
+
+    
+    <div class="sidebar-module sidebar-module-inset p-0" style="overflow:hidden;">
+      
+<div style="display:block;position:relative;">
+  <div style="display:block;width:100%;padding-top:12.5%;"></div>
+  <div class="rpad rounded border" data-unit="8x1" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;"><a href="https://srv.realpython.net/click/26099365690/?c=58233388337&amp;p=58946116052&amp;r=87737" rel="nofollow" target="_blank"><img src="./What Does if __name__ == ___main___ Do in Python_files/e6efe2479be7b2b829348eb5c8075f8e" style="max-width: 100%; max-height: 100%; width: 100%;"></a></div>
+</div>
+<a class="small text-muted" href="https://realpython.com/account/join/" rel="nofollow"><i class="fa fa-info-circle mr-1" aria-hidden="true"></i>Remove ads</a>
+
+
+    </div>
+    
+
+    
+
+    <p>You’ve likely encountered Python’s <code>if __name__ == "__main__"</code> idiom when reading other people’s code. No wonder—<a href="https://github.com/search?q=__name__+%3D%3D+%22__main__%22&amp;type=code">it’s widespread</a>! You might have even used <code>if __name__ == "__main__"</code> in your own scripts. But did you use it correctly?</p>
+<p>Maybe you’ve programmed in a <a href="https://en.wikipedia.org/wiki/List_of_C-family_programming_languages">C-family language</a> like <a href="https://realpython.com/java-vs-python/">Java</a> before, and you wonder whether this construct is a clumsy accessory to using a <code>main()</code> function as an <a href="https://en.wikipedia.org/wiki/Entry_point#Contemporary">entry point</a>.</p>
+<p>Syntactically, Python’s <code>if __name__ == "__main__"</code> idiom is just a normal <a href="https://realpython.com/python-conditional-statements/">conditional block</a>:</p>
+<div class="highlight python"><pre><span></span><code><span class="linenos"> 1</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+<span class="linenos"> 2</span>    <span class="o">...</span>
+</code></pre></div>
+<p>The indented block starting in line 2 contains all the code that Python will execute when the conditional statement in line 1 evaluates to <code>True</code>. In the code example above, the specific code logic that you’d put in the conditional block is represented with a placeholder <a href="https://realpython.com/python-ellipsis/">ellipsis</a> (<code>...</code>).</p>
+<p>So—if there’s nothing special about the <code>if __name__ == "__main__"</code> idiom, then why does it <em>look</em> confusing, and why does it continue to spark discussion in the Python community?</p>
+<p>If the idiom still seems a little cryptic, and you’re not completely sure <strong>what</strong> it does, <strong>why</strong> you might want it, and <strong>when</strong> to use it, then you’ve come to the right place! In this tutorial, you’ll learn all about Python’s <code>if __name__ == "__main__"</code> idiom—starting with what it really does in Python, and ending with a suggestion for a quicker way to refer to it.</p>
+<div class="alert alert-warning" role="alert">
+<p><strong markdown="1">Source Code:</strong> <a href="https://realpython.com/bonus/if-name-main-python-code/" class="alert-link" data-toggle="modal" data-target="#modal-if-name-main-python-code" data-focus="false" markdown="1">Click here to download the free source code</a> that you’ll use to understand the name-main idiom.</p>
+</div>
+<section class="section2" id="in-short-it-allows-you-to-execute-code-when-the-file-runs-as-a-script-but-not-when-its-imported-as-a-module"><h2>In Short: It Allows You to Execute Code When the File Runs as a Script, but Not When It’s Imported as a Module<a class="headerlink" href="https://realpython.com/if-name-main-python/#in-short-it-allows-you-to-execute-code-when-the-file-runs-as-a-script-but-not-when-its-imported-as-a-module" title="Permanent link"></a></h2>
+<p>For most practical purposes, you can think of the conditional block that you open with <code>if __name__ == "__main__"</code> as a way to store code that should only run when your file is executed as a script.</p>
+<p>You’ll see what that means in a moment. For now, say you have the following file:</p>
+<div class="highlight python"><pre><span></span><code><span class="linenos"> 1</span><span class="c1"># echo.py</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="k">def</span> <span class="nf">echo</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">repetitions</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="linenos"> 4</span>    <span class="sd">"""Imitate a real-world echo."""</span>
+<span class="linenos"> 5</span>    <span class="n">echoed_text</span> <span class="o">=</span> <span class="s2">""</span>
+<span class="linenos"> 6</span>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">repetitions</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+<span class="linenos"> 7</span>        <span class="n">echoed_text</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">text</span><span class="p">[</span><span class="o">-</span><span class="n">i</span><span class="p">:]</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+<span class="linenos"> 8</span>    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">echoed_text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">."</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+<span class="linenos">11</span>    <span class="n">text</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">"Yell something at a mountain: "</span><span class="p">)</span>
+<span class="linenos">12</span>    <span class="nb">print</span><span class="p">(</span><span class="n">echo</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+</code></pre></div>
+<p>In this example, you define a function, <code>echo()</code>, that mimics a real-world echo by gradually printing fewer and fewer of the final letters of the input text.</p>
+<p>Below that, in lines 10 to 12, you use the <code>if __name__ == "__main__"</code> idiom. This code starts with the conditional statement <code>if __name__ == "__main__"</code> in line 10. In the indented lines, 11 and 12, you then collect user input and call <code>echo()</code> with that input. These two lines will execute when you run <code>echo.py</code> as a script from your command line:</p>
+<div class="highlight sh"><pre><span></span><code><span class="gp">$ </span>python echo.py
+<span class="go">Yell something at a mountain: HELLOOOO ECHOOOOOOOOOO</span>
+<span class="go">ooo</span>
+<span class="go">oo</span>
+<span class="go">o</span>
+<span class="go">.</span>
+</code></pre></div>
+<p>When you run the file as a script by passing the file object to your Python interpreter, the expression <code>__name__ == "__main__"</code> returns <code>True</code>. The code block under <code>if</code> then runs, so Python collects user input and calls <code>echo()</code>.</p>
+<p>Try it out yourself! You can download all the code files that you’ll use in this tutorial from the link below:</p>
+<div class="alert alert-warning" role="alert">
+<p><strong markdown="1">Source Code:</strong> <a href="https://realpython.com/bonus/if-name-main-python-code/" class="alert-link" data-toggle="modal" data-target="#modal-if-name-main-python-code" data-focus="false" markdown="1">Click here to download the free source code</a> that you’ll use to understand the name-main idiom.</p>
+</div>
+<p>At the same time, if you import <code>echo()</code> in another module or a console session, then the nested code won’t run:</p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">echo</span> <span class="kn">import</span> <span class="n">echo</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">echo</span><span class="p">(</span><span class="s2">"Please help me I'm stuck on a mountain"</span><span class="p">))</span>
+<span class="go">ain</span>
+<span class="go">in</span>
+<span class="go">n</span>
+<span class="go">.</span>
+</code></pre></div>
+<p>In this case, you want to use <code>echo()</code> in the context of another script or interpreter session, so you won’t need to collect user input. Running <code>input()</code> would mess with your code by producing a side effect when importing <code>echo</code>.</p>
+<p>When you nest the code that’s specific to the script usage of your file under the <code>if __name__ == "__main__"</code> idiom, then you avoid running code that’s irrelevant for imported modules.</p>
+<p>Nesting code under <code>if __name__ == "__main__"</code> allows you to cater to different use cases:</p>
+<ul>
+<li><strong>Script:</strong> When run as a script, your code prompts the user for input, calls <code>echo()</code>, and prints the result.</li>
+<li><strong>Module:</strong> When you import <code>echo</code> as a module, then <code>echo()</code> gets defined, but no code executes. You provide <code>echo()</code> to the main code session without any side effects.</li>
+</ul>
+<p>By implementing the <code>if __name__ == "__main__"</code> idiom in your code, you set up an additional entry point that allows you to use <code>echo()</code> right from the command line.</p>
+<p>There you go! You’ve now covered the most important information about this topic. Still, there’s more to find out, and there are some subtleties that can help you build a deeper understanding of this code specifically and Python more generally.</p>
+<p>Read on to learn more about <a href="https://realpython.com/if-name-main-python/#is-the-idiom-boilerplate-code-that-should-be-simplified">the name-main idiom</a>, as this tutorial will refer to it for short.</p>
+<div><div class="rounded border border-light" style="display:block;position:relative;"><div style="display:block;width:100%;padding-top:12.5%;"></div><div class="rpad rounded border" data-unit="8x1" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;"><a href="https://srv.realpython.net/click/58257184031/?c=31941813441&amp;p=58946116052&amp;r=18633" rel="nofollow" target="_blank"><img src="./What Does if __name__ == ___main___ Do in Python_files/16bf1efe41b538fae54711c58c701f0e" style="max-width: 100%; max-height: 100%; width: 100%;"></a></div></div><a class="small text-muted" href="https://realpython.com/account/join/" rel="nofollow"><i aria-hidden="true" class="fa fa-info-circle mr-1"></i>Remove ads</a></div></section><section class="section2" id="how-does-the-name-main-idiom-work"><h2>How Does the Name-Main Idiom Work?<a class="headerlink" href="https://realpython.com/if-name-main-python/#how-does-the-name-main-idiom-work" title="Permanent link"></a></h2>
+<p>At its core, the idiom is a <a href="https://realpython.com/python-conditional-statements/">conditional statement</a> that checks whether the value of the variable <code>__name__</code> is equal to the string <code>"__main__"</code>:</p>
+<ul>
+<li>If the <code>__name__ == "__main__"</code> expression is <code>True</code>, then the indented code following the conditional statement executes.</li>
+<li>If the <code>__name__ == "__main__"</code> expression is <code>False</code>, then Python skips the indented code.</li>
+</ul>
+<p>But when is <code>__name__</code> equal to the string <code>"__main__"</code>? In the previous section, you learned that this is the case when you run your Python file as a script from the command line. While that covers most real-life use cases, maybe you want to go deeper.</p>
+<p>Python sets the <a href="https://realpython.com/python-scope-legb-rule/#globals">global <code>__name__</code></a> of a module equal to <code>"__main__"</code> if the Python interpreter runs your code in the <strong>top-level code environment</strong>:</p>
+<blockquote>
+<p>“Top-level code” is the first user-specified Python module that starts running. It’s “top-level” because it imports all other modules that the program needs. (<a href="https://docs.python.org/3/library/__main__.html#what-is-the-top-level-code-environment">Source</a>)</p>
+</blockquote>
+<p>To better understand what that means, you’ll set up a small practical example. Create a Python file, call it <code>namemain.py</code>, and add one line of code:</p>
+<div class="highlight python"><pre><span></span><code><span class="c1"># namemain.py</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="vm">__name__</span><span class="p">))</span>
+</code></pre></div>
+<p>Your new file contains only a single line of code that prints the value and <a href="https://realpython.com/python-data-types/">type</a> of the global <code>__name__</code> to the console.</p>
+<p>Spin up your terminal and <a href="https://realpython.com/run-python-scripts/">run the Python file as a script</a>:</p>
+<div class="highlight sh"><pre><span></span><code><span class="gp">$ </span>python namemain.py
+<span class="go">__main__ &lt;class 'str'&gt;</span>
+</code></pre></div>
+<p>The output shows you that the value of <code>__name__</code> is the <a href="https://realpython.com/python-strings/">Python string</a> <code>"__main__"</code> if you run your file as a script.</p>
+<div class="alert alert-primary" role="alert">
+<p><strong>Note:</strong> In the top-level code environment, the value of <code>__name__</code> is always <code>"__main__"</code>. The top-level code environment is often a module that you pass to the Python interpreter as a file argument, as you saw above. However, there are other options that can constitute the top-level code environment:</p>
+<ul>
+<li>The scope of an interactive prompt</li>
+<li>The Python module or package passed to the Python interpreter with <a href="https://docs.python.org/3/using/cmdline.html?highlight=command%20line#cmdoption-m">the <code>-m</code> option</a>, which stands for <em>module</em></li>
+<li>Python code read by the Python interpreter from standard input</li>
+<li>Python code passed to the Python interpreter with <a href="https://docs.python.org/3/using/cmdline.html?highlight=command%20line#cmdoption-c">the <code>-c</code> option</a>, which stands for <em>command</em></li>
+</ul>
+<p>If you’re curious to learn more about these options, then check out the Python documentation on <a href="https://docs.python.org/3/library/__main__.html#what-is-the-top-level-code-environment">what the top-level code environment is</a>. The documentation illustrates each of these bullet points with a concise code snippet.</p>
+</div>
+<p>Now you know the value of <code>__name__</code> when your code is executed in the top-level code environment.</p>
+<p>But a conditional statement can only produce different results when the condition has a chance to evaluate in different ways. So, when is your code <em>not</em> run in the top-level code environment, and what happens to the value of <code>__name__</code> in that case?</p>
+<p>The code in your file isn’t run in the top-level code environment if you <a href="https://realpython.com/python-import/">import</a> your module. In that case, Python sets <code>__name__</code> to the module’s name.</p>
+<p>To try this out, start a Python console and import the code from <code>namemain.py</code> as a module:</p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">namemain</span>
+<span class="go">namemain &lt;class 'str'&gt;</span>
+</code></pre></div>
+<p>Python executes the code stored in the global namespace of <code>namemain.py</code> during the import, which means it’ll call <code>print(__name__, type(__name__))</code> and write the output to the console.</p>
+<p>In this case, however, the value of the module’s <code>__name__</code> is different. It points to <code>"namemain"</code>, a string that’s equal to the module’s name.</p>
+<div class="alert alert-primary" role="alert">
+<p><strong>Note:</strong> You can import any file that contains Python code as a module, and Python will run the code in your file during import. The name of the module will usually be the filename without the file extension for Python files (<code>.py</code>).</p>
+</div>
+<p>You just learned that for your top-level code environment, <code>__name__</code> is always <code>"__main__"</code>, so go ahead and confirm that within your interpreter session. Also check where the string <code>"namemain"</code> comes from:</p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="vm">__name__</span>
+<span class="go">'__main__'</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">namemain</span><span class="o">.</span><span class="vm">__name__</span>
+<span class="go">'namemain'</span>
+</code></pre></div>
+<p>The global <code>__name__</code> has the value <code>"__main__"</code>, and <code>.__name__</code> for the imported <code>namemain</code> module has the value <code>"namemain"</code>, which is the module’s name as a string.</p>
+<div class="alert alert-primary" role="alert">
+<p><strong>Note:</strong> Most of the time, the top-level code environment will be the Python script that you execute and where you’re importing other modules. However, in this example, you can see that the top-level code environment isn’t strictly tied to a script run and can also be, for example, an interpreter session.</p>
+</div>
+<p>Now you know that the value of <code>__name__</code> will have one of two values depending on where it lives:</p>
+<ul>
+<li>In <strong>the top-level code environment</strong>, the value of <code>__name__</code> is <strong><code>"__main__"</code></strong>.</li>
+<li>In an <strong>imported module</strong>, the value of <code>__name__</code> is the <strong>module’s name</strong> as a string.</li>
+</ul>
+<p>Because Python follows these rules, you can find out whether or not a module is running in the top-level code environment. You do this by checking the value of <code>__name__</code> with a conditional statement, which brings you full circle to the name-main idiom:</p>
+<div class="highlight python"><pre><span></span><code><span class="c1"># namemain.py</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="vm">__name__</span><span class="p">))</span>
+
+<span class="hll"><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+</span><span class="hll">    <span class="nb">print</span><span class="p">(</span><span class="s2">"Nested code only runs in the top-level code environment"</span><span class="p">)</span>
+</span></code></pre></div>
+<p>With this conditional check in place, you can declare code that only executes when the module is run in the top-level code environment.</p>
+<p>Add the idiom to <code>namemain.py</code> as shown in the code block above, then run the file as a script once more:</p>
+<div class="highlight sh"><pre><span></span><code><span class="gp">$ </span>python namemain.py
+<span class="go">__main__ &lt;class 'str'&gt;</span>
+<span class="go">Nested code only runs in the top-level code environment</span>
+</code></pre></div>
+<p>When running your code as a script, both calls to <code>print()</code> execute.</p>
+<p>Next, start a new interpreter session and import <code>namemain</code> as a module once more:</p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">namemain</span>
+<span class="go">namemain &lt;class 'str'&gt;</span>
+</code></pre></div>
+<p>When you import your file as a module, the code that you nested under <code>if __name__ == "__main__"</code> doesn’t execute.</p>
+<p>Now that you know how the name-main idiom works in Python, you may wonder when and how exactly you should use it in your code—and when to avoid it!</p>
+<div><div class="rounded border border-light" style="display:block;position:relative;"><div style="display:block;width:100%;padding-top:12.5%;"></div><div class="rpad rounded border" data-unit="8x1" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;"><a href="https://srv.realpython.net/click/2142316168/?c=50610331919&amp;p=58946116052&amp;r=64109" rel="nofollow" target="_blank"><img src="./What Does if __name__ == ___main___ Do in Python_files/c75ad5c06078a2b00c305659dda76f56" style="max-width: 100%; max-height: 100%; width: 100%;"></a></div></div><a class="small text-muted" href="https://realpython.com/account/join/" rel="nofollow"><i aria-hidden="true" class="fa fa-info-circle mr-1"></i>Remove ads</a></div></section><section class="section2" id="when-should-you-use-the-name-main-idiom-in-python"><h2>When Should You Use the Name-Main Idiom in Python?<a class="headerlink" href="https://realpython.com/if-name-main-python/#when-should-you-use-the-name-main-idiom-in-python" title="Permanent link"></a></h2>
+<p>You use this idiom when you want to create an additional entry point for your script, so that your file is accessible as a stand-alone script as well as an importable module. You might want that when your script needs to collect user input.</p>
+<p>In the <a href="https://realpython.com/if-name-main-python/#in-short-it-allows-you-to-execute-code-when-the-file-runs-as-a-script-but-not-when-its-imported-as-a-module">first section</a> of this tutorial, you used the name-main idiom together with <code>input()</code> to collect user input when running <code>echo.py</code> as a script. That’s a great reason to use the name-main idiom!</p>
+<p>There are also other ways to collect user input directly from the command line. For example, you could create a command-line entry point for a small Python script with <code>sys.argv</code> and the name-main idiom:</p>
+<div class="highlight python"><pre><span></span><code><span class="linenos"> 1</span><span class="c1"># echo.py</span>
+<span class="linenos"> 2</span>
+<span class="hll"><span class="linenos"> 3</span><span class="kn">import</span> <span class="nn">sys</span>
+</span><span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="k">def</span> <span class="nf">echo</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">repetitions</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="linenos"> 6</span>    <span class="sd">"""Imitate a real-world echo."""</span>
+<span class="linenos"> 7</span>    <span class="n">echoed_text</span> <span class="o">=</span> <span class="s2">""</span>
+<span class="linenos"> 8</span>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">repetitions</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+<span class="linenos"> 9</span>        <span class="n">echoed_text</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">text</span><span class="p">[</span><span class="o">-</span><span class="n">i</span><span class="p">:]</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+<span class="linenos">10</span>    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">echoed_text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">."</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+<span class="hll"><span class="linenos">13</span>    <span class="n">text</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+</span><span class="hll"><span class="linenos">14</span>    <span class="nb">print</span><span class="p">(</span><span class="n">echo</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+</span></code></pre></div>
+<p>Instead of collecting user input with <code>input()</code>, you changed the code in <code>echo.py</code> so that your users can provide the text as arguments directly from the command line:</p>
+<div class="highlight sh"><pre><span></span><code><span class="gp">$ </span>python echo.py HELLOOOOO ECHOOOO
+<span class="go">ooo</span>
+<span class="go">oo</span>
+<span class="go">o</span>
+<span class="go">.</span>
+</code></pre></div>
+<p>Python collects an arbitrary number of words into <code>sys.argv</code>, which is a list of strings that represents all inputs. Each word is considered a new argument when a whitespace character separates it from the others.</p>
+<p>By taking the code execution that handles user input and nesting it in the name-main idiom, you provide an additional entry point to your script.</p>
+<p>If you want to create an entry point for a <a href="https://realpython.com/python-modules-packages/#python-packages">package</a>, then you should create a dedicated <a href="https://docs.python.org/3/library/__main__.html#main-py-in-python-packages"><code>__main__.py</code></a> file for that purpose. This file represents an entry point that Python invokes when you run your package using the <a href="https://docs.python.org/3/using/cmdline.html#cmdoption-m"><code>-m</code> option</a>:</p>
+<div class="highlight sh"><pre><span></span><code><span class="gp">$ </span>python -m venv venv
+</code></pre></div>
+<p>When you create a <a href="https://realpython.com/python-virtual-environments-a-primer/">virtual environment</a> using the <code>venv</code> module, as shown above, then you run code defined in a <code>__main__.py</code> file. The <code>-m</code> option followed by the module name <code>venv</code> invokes <a href="https://github.com/python/cpython/blob/3.10/Lib/venv/__main__.py"><code>__main__.py</code> from the <code>venv</code> module</a>.</p>
+<p>Because <code>venv</code> is a package rather than a small command-line interface (CLI) script, it has a dedicated <code>__main__.py</code> file as its entry point.</p>
+<!-- TODO: Add collapsible section about when to use name-main in `__main__.py` -->
+
+<div class="alert alert-primary" role="alert">
+<p><strong>Note:</strong> There are additional advantages of nesting code, such as user input collection, under the name-main idiom. Because that nested code doesn’t execute during module imports, you can <a href="https://realpython.com/python-testing/">run unit tests</a> from a separate testing module on your functions without producing side effects.</p>
+<p>Side effects could otherwise occur because a testing module needs to import your module to run tests against your code.</p>
+</div>
+<p>In the wild, you may encounter many more reasons for using the name-main idiom in Python code. However, collecting user input, either through standard input or the command-line, is the primary suggested reason for using it.</p>
+</section><section class="section2" id="when-should-you-avoid-the-name-main-idiom"><h2>When Should You Avoid the Name-Main Idiom?<a class="headerlink" href="https://realpython.com/if-name-main-python/#when-should-you-avoid-the-name-main-idiom" title="Permanent link"></a></h2>
+<p>Now that you’ve learned when to use the name-main idiom, it’s time to find out when it’s <em>not</em> the best idea to use it. You may be surprised to learn that in many cases, there are better options than nesting your code under <code>if __name__ == "__main__"</code> in Python.</p>
+<p>Sometimes, developers use the name-main idiom to add <strong>test runs</strong> to a script that combines code functionality and tests in the same file:</p>
+<div class="highlight python"><pre><span></span><code><span class="c1"># adder.py</span>
+
+<span class="kn">import</span> <span class="nn">unittest</span>
+
+<span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+
+<span class="k">class</span> <span class="nc">TestAdder</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">test_add_adds_two_numbers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+</code></pre></div>
+<p>With this setup, you can run tests against your code when you execute it as a script:</p>
+<div class="highlight sh"><pre><span></span><code><span class="gp">$ </span>python adder.py
+<span class="go">.</span>
+<span class="go">----------------------------------------------------------------------</span>
+<span class="go">Ran 1 test in 0.000s</span>
+
+<span class="go">OK</span>
+</code></pre></div>
+<p>Because you ran the file as a script, <code>__name__</code> was equal to <code>"__main__"</code>, the conditional expression returned <code>True</code>, and Python called <code>unittest.main()</code>. The tiny test suite ran, and your test succeeded.</p>
+<p>At the same time, you didn’t create any unexpected code execution when importing your code as a module:</p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">adder</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adder</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">3</span>
+</code></pre></div>
+<p>It’s still possible to import the module and use the function that you’ve defined there. The unit test won’t run unless you execute the module in the top-level code environment.</p>
+<p>While this works for small files, it’s generally not considered good practice. It’s not advised to mix tests and code in the same file. Instead, write your tests in a separate file. Following this advice generally makes for a more organized code base. This approach also removes any overhead, such as the need to import <code>unittest</code> in your main script file.</p>
+<p>Another reason that some programmers use the name-main idiom is to include a <strong>demonstration</strong> of what their code can do:</p>
+<div class="highlight python"><pre><span></span><code><span class="c1"># echo_demo.py</span>
+
+<span class="k">def</span> <span class="nf">echo</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">repetitions</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">"""Imitate a real-world echo."""</span>
+    <span class="n">echoed_text</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">repetitions</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">echoed_text</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">text</span><span class="p">[</span><span class="o">-</span><span class="n">i</span><span class="p">:]</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">echoed_text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">."</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'Example call: echo("HELLO", repetitions=2)'</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="si">{</span><span class="s1">'-'</span> <span class="o">*</span> <span class="mi">42</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">echo</span><span class="p">(</span><span class="s2">"HELLO"</span><span class="p">,</span> <span class="n">repetitions</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+</code></pre></div>
+<p>Again, your users can still import the module without any side effects. Additionally, when they run <code>echo_demo.py</code> as a script, they get a peek at its functionality:</p>
+<div class="highlight sh"><pre><span></span><code><span class="gp">$ </span>python echo_demo.py
+<span class="go">Example call: echo("HELLO", repetitions=2)</span>
+<span class="go">------------------------------------------</span>
+<span class="go">lo</span>
+<span class="go">o</span>
+<span class="go">.</span>
+</code></pre></div>
+<p>You may find such demo code executions in the name-main idiom, but there are arguably much better ways to demonstrate how to use your program. You can write detailed docstrings with example runs that can double as doctests, and you can compose proper documentation for your project.</p>
+<p>The previous two examples cover two common suboptimal use cases of the name-main idiom. There are also other scenarios when it’s best to <em>avoid</em> the name-main idiom in Python:</p>
+<ul>
+<li>
+<p><strong>A pure script:</strong> If you write a script that’s <em>meant</em> to be run as a script, then you can put your code execution into the global namespace without nesting it in the name-main idiom. You <em>can</em> use Python as a scripting language because it doesn’t enforce strong <a href="https://realpython.com/oop-in-python-vs-java/">object-oriented patterns</a>. You don’t have to stick to design patterns from other languages when you program in Python.</p>
+</li>
+<li>
+<p><strong>A complex command-line program:</strong> If you write a <em>larger</em> command-line application, then it’s best to create a separate file as your entry point. You then import the code from your module there instead of handling user input with the name-main idiom. For more complex command-line programs, you’ll also benefit from using the built-in <a href="https://realpython.com/command-line-interfaces-python-argparse/"><code>argparse</code> module</a> instead of <code>sys.argv</code>.</p>
+</li>
+</ul>
+<p>Maybe you’ve used the name-main idiom for one of these suboptimal purposes before. If you want to learn more about how to <a href="https://realpython.com/courses/writing-idiomatic-python/">write more idiomatic Python</a> for each of these scenarios, then follow the provided links:</p>
+<div class="table-responsive">
+<table class="table table-hover">
+<thead>
+<tr>
+<th>❌ Suboptimal Use Case</th>
+<th>✅ Better Alternative</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Test code execution</td>
+<td><a href="https://realpython.com/python-testing/#where-to-write-the-test">Create a dedicated testing module</a></td>
+</tr>
+<tr>
+<td>Demonstrate code</td>
+<td>Build <a href="https://realpython.com/python-project-documentation-with-mkdocs/">project documentation</a> and include examples in <a href="https://realpython.com/documenting-python-code/">your docstrings</a></td>
+</tr>
+<tr>
+<td>Create a pure script</td>
+<td><a href="https://realpython.com/run-python-scripts/">Run as a script</a></td>
+</tr>
+<tr>
+<td>Provide a complex CLI program entry point</td>
+<td><a href="https://realpython.com/site-connectivity-checker-python/#step-3-create-your-website-connectivity-checkers-cli">Create a dedicated CLI module</a></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Even though you now know when to avoid the name-main idiom, you might still wonder about how to best use it in a valid scenario.</p>
+<div><div class="rounded border border-light" style="display:block;position:relative;"><div style="display:block;width:100%;padding-top:12.5%;"></div><div class="rpad rounded border" data-unit="8x1" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;"><a href="https://srv.realpython.net/click/34417270454/?c=10466391474&amp;p=58946116052&amp;r=49393" rel="nofollow" target="_blank"><img src="./What Does if __name__ == ___main___ Do in Python_files/6ffb9d655931714d22f6f628f1dd999c" style="max-width: 100%; max-height: 100%; width: 100%;"></a></div></div><a class="small text-muted" href="https://realpython.com/account/join/" rel="nofollow"><i aria-hidden="true" class="fa fa-info-circle mr-1"></i>Remove ads</a></div></section><section class="section2" id="in-what-way-should-you-include-the-name-main-idiom"><h2>In What Way Should You Include the Name-Main Idiom?<a class="headerlink" href="https://realpython.com/if-name-main-python/#in-what-way-should-you-include-the-name-main-idiom" title="Permanent link"></a></h2>
+<p>The name-main idiom in Python is <a href="https://realpython.com/if-name-main-python/#how-does-the-name-main-idiom-work">just a conditional statement</a>, so you could use it anywhere in your file—even more than once! For most use cases, however, you’ll put <em>one</em> name-main idiom at the <em>bottom</em> of your script:</p>
+<div class="highlight python"><pre><span></span><code><span class="c1"># All your code</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="o">...</span>
+</code></pre></div>
+<p>You put the name-main idiom at the end of your script because the entry point for a Python script is always the top of the file. If you put the name-main idiom at the bottom of your file, then all your functions and classes get defined before Python evaluates the conditional expression.</p>
+<div class="alert alert-primary" role="alert">
+<p><strong>Note:</strong> In Python, the code in a function or class body doesn’t run during definition. That code only executes when you <a href="https://realpython.com/defining-your-own-python-function/#function-calls-and-definition">call a function</a> or <a href="https://realpython.com/python3-object-oriented-programming/#instantiate-an-object-in-python">instantiate a class</a>.</p>
+</div>
+<p>However, although it’s uncommon to use more than one name-main idiom in a script, there may be a reason to do so in some cases. Python’s style guide document, <a href="https://realpython.com/python-pep8/">PEP 8</a>, is clear about where to put all your import statements:</p>
+<blockquote>
+<p>Imports are always put at the top of the file, just after any module comments and docstrings, and before module globals and constants. (<a href="https://peps.python.org/pep-0008/#imports">Source</a>)</p>
+</blockquote>
+<p>This is why you imported <code>sys</code> at the top of the file in <code>echo.py</code>:</p>
+<div class="highlight python"><pre><span></span><code><span class="c1"># echo.py</span>
+
+<span class="hll"><span class="kn">import</span> <span class="nn">sys</span>
+</span>
+<span class="k">def</span> <span class="nf">echo</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">repetitions</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">"""Imitate a real-world echo."""</span>
+    <span class="n">echoed_text</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">repetitions</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">echoed_text</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">text</span><span class="p">[</span><span class="o">-</span><span class="n">i</span><span class="p">:]</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">echoed_text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">."</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">echo</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+</code></pre></div>
+<p>However, you don’t even need to import <code>sys</code> at all when you simply want to import <code>echo</code> as a module.</p>
+<p>To address this and still stick with the style suggestions defined in PEP 8, you could use a second name-main idiom. By nesting the import of <code>sys</code> in a name-main idiom, you can keep all imports at the top of the file but avoid importing <code>sys</code> when you won’t need to use it:</p>
+<div class="highlight python"><pre><span></span><code><span class="c1"># echo.py</span>
+
+<span class="hll"><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+</span><span class="hll">    <span class="kn">import</span> <span class="nn">sys</span>
+</span>
+<span class="k">def</span> <span class="nf">echo</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">repetitions</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">"""Imitate a real-world echo."""</span>
+    <span class="n">echoed_text</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">repetitions</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">echoed_text</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">text</span><span class="p">[</span><span class="o">-</span><span class="n">i</span><span class="p">:]</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">echoed_text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">."</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">echo</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+</code></pre></div>
+<p>You nested the import of <code>sys</code> under <em>another</em> name-main idiom. That way, you keep the import statement at the top of your file, but you avoid importing <code>sys</code> when you use <code>echo</code> as a module.</p>
+<div class="alert alert-primary" role="alert">
+<p><strong>Note:</strong> You likely won’t encounter this setup frequently, but it serves as an example of when it <em>may</em> be helpful to use multiple name-main idioms in one file.</p>
+<p>Still, readability counts, so keeping the import statement at the top without the second name-main idiom will often be the better choice. However, a second name-main idiom might come in handy if you’re working in an environment with <a href="https://realpython.com/micropython/">restricted resources</a>.</p>
+</div>
+<p>As you learned earlier in the tutorial, there are fewer occasions <a href="https://realpython.com/if-name-main-python/#when-should-you-use-the-name-main-idiom-in-python">to use the name-main idiom</a> than you might expect. For most of those use cases, putting one of these conditional checks at the bottom of your script will be your best choice.</p>
+<p>Finally, you may wonder what code should go into the conditional code block. The Python documentation offers clear guidance about the idiomatic usage of the name-main idiom in that regard:</p>
+<blockquote>
+<p>Putting as few statements as possible in the block below <code>if __name___ == '__main__'</code> can improve code clarity and correctness. (<a href="https://docs.python.org/3/library/__main__.html#idiomatic-usage">Source</a>)</p>
+</blockquote>
+<p>Keep the code under your name-main idiom to a minimum! When you start putting multiple lines of code nested under the name-main idiom, then you should instead <a href="https://realpython.com/python-main-function/">define a <code>main()</code> function</a> and call that function:</p>
+<div class="highlight python"><pre><span></span><code><span class="c1"># echo.py</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="k">def</span> <span class="nf">echo</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">repetitions</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">"""Imitate a real-world echo."""</span>
+    <span class="n">echoed_text</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">repetitions</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">echoed_text</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">text</span><span class="p">[</span><span class="o">-</span><span class="n">i</span><span class="p">:]</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">echoed_text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">."</span>
+
+<span class="hll"><span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span class="hll">    <span class="n">text</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+</span><span class="hll">    <span class="nb">print</span><span class="p">(</span><span class="n">echo</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+<span class="hll">    <span class="n">main</span><span class="p">()</span>
+</span></code></pre></div>
+<p>This design pattern gives you the advantage that the code under the name-main idiom is clear and concise. Additionally, it makes it possible to call <code>main()</code> even if you’ve imported your code as a module, for example to unit test its functions.</p>
+<div class="alert alert-primary" role="alert">
+<p><strong>Note:</strong> Defining <code>main()</code> in Python means something different from in other languages, such as <a href="https://realpython.com/oop-in-python-vs-java/">Java</a> and C. In Python, naming this function <em>main</em> is just a convention. You could name the function anything—and as you’ve seen before, you don’t even need to use it at all.</p>
+<p>Other object-oriented languages define a <code>main()</code> function as the entry point for a program. In that case, the interpreter implicitly calls a function named <code>main()</code>, and your program won’t work without it.</p>
+</div>
+<p>In this section, you’ve learned that you should probably write the name-main idiom at the bottom of your script.</p>
+<p>If you have multiple lines of code that you’re planning to nest under <code>if __name__ == "__main__"</code>, then it’s better to refactor that code into a <code>main()</code> function that you call from the conditional block under the name-main idiom.</p>
+<p>Now that you know how you can use the name-main idiom, you may wonder why it looks more cryptic than other Python code that you’re used to.</p>
+<div><div class="rounded border border-light" style="display:block;position:relative;"><div style="display:block;width:100%;padding-top:12.5%;"></div><div class="rpad rounded border" data-unit="8x1" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;"><a href="https://srv.realpython.net/click/25704732821/?c=10466391474&amp;p=58946116052&amp;r=85603" rel="nofollow" target="_blank"><img src="./What Does if __name__ == ___main___ Do in Python_files/6f3ee504e80b141bffc9616003e3fff6" style="max-width: 100%; max-height: 100%; width: 100%;"></a></div></div><a class="small text-muted" href="https://realpython.com/account/join/" rel="nofollow"><i aria-hidden="true" class="fa fa-info-circle mr-1"></i>Remove ads</a></div></section><section class="section2" id="is-the-idiom-boilerplate-code-that-should-be-simplified"><h2>Is the Idiom Boilerplate Code That Should Be Simplified?<a class="headerlink" href="https://realpython.com/if-name-main-python/#is-the-idiom-boilerplate-code-that-should-be-simplified" title="Permanent link"></a></h2>
+<p>If you’re coming from a different object-oriented programming language, you might think that Python’s name-main idiom is an entry point akin to the <code>main()</code> functions in Java or C, but clumsier:</p>
+<figure class="js-lightbox"><a href="./What Does if __name__ == ___main___ Do in Python_files/namemain.webp" target="_blank"><img loading="lazy" class="img-fluid mx-auto d-block w-66" src="./What Does if __name__ == ___main___ Do in Python_files/namemain.webp" width="1000" height="1118" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/namemain.19d27b02755e.a38f654f963f.jpg&amp;w=250&amp;sig=bad0355b412d00bb6643a863489398ecb6eb2c9e 250w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/namemain.19d27b02755e.a38f654f963f.jpg&amp;w=500&amp;sig=9aa93495ec07edf54dfb42337631f1a44fc3c9a9 500w, https://files.realpython.com/media/namemain.19d27b02755e.a38f654f963f.jpg 1000w" sizes="75vw" alt="The Power Rangers and Teletubby meme with text about main functions and Python&#39;s if __name__ equal to &quot;__main__&quot;" data-asset="4543"></a><figcaption class="figure-caption text-center">Meme based on a web comic (Image: <a href="https://www.instagram.com/p/CH-kflgjCCZ/" target="_blank">Mike Organisciak</a>)</figcaption></figure>
+
+<p>While definitely funny and relatable, <a href="https://www.facebook.com/ooteensmemes/photos/a.1896576983938701/2301143760148686/">this meme</a> is misleading because it implies that the name-main idiom is comparable to <code>main()</code> entry point functions in other languages.</p>
+<p>Python’s name-main idiom isn’t special. It’s just a conditional check. It may look cryptic at first, especially when you’re starting to work with Python and you’re used to Python’s slim and elegant syntax. After all, the name-main idiom includes a dunder variable from the global namespace, and a string that’s a dunder value as well.</p>
+<p>So it’s not the type of entry point that <em>main</em> represents in other languages. But why does it look the way it does? You may have copied and pasted the idiom many times, or even typed it out, and wondered why Python doesn’t have a more concise syntax for it.</p>
+<p>If you browse the archives of the <a href="https://mail.python.org/archives/list/python-ideas@python.org/">Python-ideas mailing list</a>, <a href="https://peps.python.org/#abandoned-withdrawn-and-rejected-peps">rejected PEPs</a>, and the <a href="https://discuss.python.org/search?q=if%20__name__%20%3D%3D%20__main__%20%23ideas">Python discussion forum</a>, then you’ll find a number of attempts to change the idiom.</p>
+<p>If you read some of these discussions, then you’ll notice that many seasoned Pythonistas argue that the idiom isn’t cryptic and shouldn’t be changed. They give multiple reasons:</p>
+<ul>
+<li><strong>It’s short:</strong> Most suggested changes save only two lines of code.</li>
+<li><strong>It has a limited use case:</strong> You should only use it if you need to run a file both as a module as well as a script. You shouldn’t need to use it very often.</li>
+<li><strong>It exposes complexity:</strong> Dunder variables and function are a big part of Python once you <a href="https://realpython.com/cpython-source-code-guide/">peek a bit deeper</a>. That can make the current idiom an entry point for learners that sparks curiosity and gives them a first look under the hood of Python’s syntax.</li>
+<li><strong>It maintains backward compatibility:</strong> The name-main idiom has been a de facto standard in the language for a long time, which means that changing it would break backward compatibility.</li>
+</ul>
+<p>Okay, so you’re stuck with <code>if __name__ == "__main__"</code> for the time being. It seems like it’d be helpful to find a good way to refer to it consistently and concisely!</p>
+<p>Expand the section below for a bit of context and a few suggestions on how you could talk about the name-main idiom without twisting your tongue or knotting your fingers:</p>
+<div class="card mb-3" id="collapse_card50bc15">
+<div class="card-header border-0">
+<p class="m-0">
+    <button class="btn w-100" data-toggle="collapse" data-target="#collapse50bc15" aria-expanded="false" aria-controls="collapse50bc15" markdown="1"><span class="float-left" markdown="1">What Can You Call It?</span><span class="float-right text-muted">Show/Hide</span></button>
+  </p>
+</div>
+<div class="collapse js-collapsible-section" data-parent="#collapse_card50bc15" id="collapse50bc15">
+<div class="card-body">
+<p>You’ll probably discuss using the name-main idiom at some point in your Python career. It’s a long expression to write and even more cumbersome to say out loud, so you might as well find a good way to talk about it.</p>
+<p>There are different ways to refer to it in the Python community. Most mentions online include the whole <code>if __name__ == "__main__"</code> expression followed by a word:</p>
+<ul>
+<li>The <code>if __name__ == "__main__"</code> convention (<a href="https://mail.python.org/pipermail/python-dev/2006-March/062965.html">Source</a>)</li>
+<li>The <code>if __name__ == "__main__"</code> expression (<a href="https://docs.python.org/3/library/__main__.html">Source</a>)</li>
+<li>The <code>if __name__ ...</code> idiom (<a href="https://mail.python.org/archives/list/python-ideas@python.org/message/JHW7WPSBNRXE4CQZ4PUPBHBPKICH7IDO/">Source</a>)</li>
+<li>The <code>if __name__ == "__main__": ...</code> idiom (<a href="https://peps.python.org/pep-3122/">Source</a>)</li>
+<li>The <code>if __name__ == "__main__"</code> idiom (<a href="https://mail.python.org/archives/list/python-ideas@python.org/message/I736HMSWPQ4O7HXL3LFGVCJ56GIEELRN/">Source</a>)</li>
+<li>The executable stanza (<a href="https://mail.python.org/pipermail/python-dev/2006-March/062967.html">Source</a>)</li>
+</ul>
+<p>As you may notice, there’s no strict convention around how to talk about <code>if __name__ == "__main__"</code>, but you probably won’t do wrong if you follow the general consensus of calling it <strong>the <code>if __name__ == "__main__"</code> idiom</strong>.</p>
+<p>If you want to promote standardizing a shorter name for the idiom, then tell your friends to call it <strong>the name-main idiom</strong>. That’s what we’ll be calling it at Real Python! If you find the term useful, then maybe it’ll catch on.</p>
+</div>
+</div>
+</div>
+<p>If you’re curious, take a plunge into some of the linked discussions in the various Python community channels to learn more about why developers argue for keeping the name-main idiom as it is.</p>
+</section><section class="section2" id="conclusion"><h2>Conclusion<a class="headerlink" href="https://realpython.com/if-name-main-python/#conclusion" title="Permanent link"></a></h2>
+<p>You’ve learned what the <code>if __name__ == "__main__"</code> idiom does in Python. It allows you to write code that executes when you run the file as a script, but not when you import it as a module. It’s best to use it when you want to collect user input during a script run and avoid side effects when importing your module—for example, to unit test its functions.</p>
+<p>You also got to know some common but suboptimal use cases and learned about better and more idiomatic approaches that you can take in those scenarios. Maybe you’ve accepted Python’s name-main idiom after learning more about it, but if you still dislike it, then it’s good to know that you can probably replace its use in most cases.</p>
+<p>When do you use the name-main idiom in your Python code? While reading this tutorial, did you discover a way to replace it, or is there a good use case that we missed? Share your thoughts in the comments below.</p>
+<div class="alert alert-warning" role="alert">
+<p><strong markdown="1">Source Code:</strong> <a href="https://realpython.com/bonus/if-name-main-python-code/" class="alert-link" data-toggle="modal" data-target="#modal-if-name-main-python-code" data-focus="false" markdown="1">Click here to download the free source code</a> that you’ll use to understand the name-main idiom.</p>
+</div>
+</section>
+
+    
+      
+      <div class="text-center my-3">
+        <div class="jsCompletionStatusWidget btn-group mb-0">
+  <button title="Click to mark as completed" class="jsBtnCompletion btn btn-secondary border-right" style="border-top-right-radius: 0; border-bottom-right-radius: 0;">Mark as Completed</button>
+  <button title="Add bookmark" class="jsBtnBookmark btn btn-secondary border-left"><i class="fa fa-fw fa-bookmark-o"></i></button>
+</div>
+
+        <span class="ml-2"><div class="btn-group mb-0">
+  <a class="btn btn-secondary border-right px-3" style="border-top-right-radius: 0; border-bottom-right-radius: 0;" title="Liked it" aria-label="Thumbs up (liked it)" href="https://realpython.com/feedback/survey/article/if-name-main-python/liked/?from=article-footer" target="_blank"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i></a>
+  <a class="btn btn-secondary border-left px-3" aria-label="Thumbs down (disliked it)" title="Disliked it" href="https://realpython.com/feedback/survey/article/if-name-main-python/disliked/?from=article-footer" target="_blank"><i class="fa fa-thumbs-o-down" aria-hidden="true"></i></a>
+</div>
+</span>
+      </div>
+    
+
+    
+  </div>
+
+  
+    
+
+<div class="card mt-4 mb-4 bg-secondary">
+  <p class="card-header h3 text-center bg-light">🐍 Python Tricks 💌</p>
+  <div class="card-body">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 col-sm-7">
+          <p>Get a short &amp; sweet <strong>Python Trick</strong> delivered to your inbox every couple of days. No spam ever. Unsubscribe any time. Curated by the Real Python team.</p>
+        </div>
+        <div class="col-xs-12 col-sm-5">
+          <img loading="lazy" class="img-fluid rounded mb-3" src="./What Does if __name__ == ___main___ Do in Python_files/pytrick-dict-merge.4201a0125a5e.png" width="738" height="490" alt="Python Tricks Dictionary Merge">
+        </div>
+      </div>
+      <div class="row mb-3">
+        <form class="col-12" action="https://realpython.com/optins/process/" method="post">
+          <input type="hidden" name="csrfmiddlewaretoken" value="okfsKbk6lxWeJQpCLVcpZGJk0yB063QYMsupy9iAA3MACHYIMZxORBfpAXTim8F3">
+          <input type="hidden" name="slug" value="static-python-tricks-footer">
+          <div class="form-group">
+            <input name="email" type="email" class="form-control form-control-lg" placeholder="Email Address" required="">
+          </div>
+          <button name="submit" type="submit" class="btn btn-primary btn-lg btn-block">Send Me Python Tricks »</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  
+
+  
+
+
+
+<div class="card mt-3" id="author">
+  <p class="card-header h3">About <strong>Martin Breuss</strong></p>
+  <div class="card-body">
+    <div class="container p-0">
+      <div class="row">
+        <div class="col-12 col-md-3 align-self-center">
+          <a href="https://realpython.com/team/mbreuss/"><img loading="lazy" src="./What Does if __name__ == ___main___ Do in Python_files/saved_resource" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/martin_breuss_python_square.efb2b07faf9f.jpg&amp;w=114&amp;h=114&amp;mode=crop&amp;sig=1a2362c5f4fdf6550020fa2edf1cbed47bffdf53 114w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/martin_breuss_python_square.efb2b07faf9f.jpg&amp;w=228&amp;h=228&amp;mode=crop&amp;sig=83e21635985e51035377eed031afa8feae263333 228w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/martin_breuss_python_square.efb2b07faf9f.jpg&amp;w=456&amp;h=456&amp;mode=crop&amp;sig=f73f6ae668249c7ab9ff74c61ea5ae7c5d360d54 456w" sizes="25vw" width="456" height="456" class="d-block d-md-none rounded-circle img-fluid w-33 mb-0 mx-auto" alt="Martin Breuss"></a>
+          <a href="https://realpython.com/team/mbreuss/"><img loading="lazy" src="./What Does if __name__ == ___main___ Do in Python_files/saved_resource" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/martin_breuss_python_square.efb2b07faf9f.jpg&amp;w=114&amp;h=114&amp;mode=crop&amp;sig=1a2362c5f4fdf6550020fa2edf1cbed47bffdf53 114w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/martin_breuss_python_square.efb2b07faf9f.jpg&amp;w=228&amp;h=228&amp;mode=crop&amp;sig=83e21635985e51035377eed031afa8feae263333 228w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/martin_breuss_python_square.efb2b07faf9f.jpg&amp;w=456&amp;h=456&amp;mode=crop&amp;sig=f73f6ae668249c7ab9ff74c61ea5ae7c5d360d54 456w" sizes="25vw" width="456" height="456" class="d-none d-md-block rounded-circle img-fluid w-100 mb-0" alt="Martin Breuss"></a>
+        </div>
+        <div class="col mt-3">
+          <p>Martin likes automation, goofy jokes, and snakes, all of which fit into the Python community. He enjoys learning and exploring and is up for talking about it, too. He writes and records content for Real Python and CodingNomads.</p>
+          <a href="https://realpython.com/team/mbreuss/" class="card-link">» More about Martin</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <hr class="my-0">
+  <div class="card-body pb-0">
+    <div class="container">
+      <div class="row">
+        <p><em>Each tutorial at Real Python is created by a team of developers so that it meets our high quality standards. The team members who worked on this tutorial are:</em></p>
+      </div>
+
+      
+        
+          <div class="row align-items-center w-100 mx-auto">
+        
+
+        <div class="col-4 col-sm-2 align-self-center">
+          
+            <a href="https://realpython.com/team/asantos/"><img loading="lazy" src="./What Does if __name__ == ___main___ Do in Python_files/saved_resource(1)" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/PP.9b8b026f75b8.jpg&amp;w=239&amp;h=239&amp;mode=crop&amp;sig=11667a6dd5c29e4c9363f18be59360551af5eddc 239w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/PP.9b8b026f75b8.jpg&amp;w=479&amp;h=479&amp;mode=crop&amp;sig=1541e1ec541357813def826d8507c0565164b701 479w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/PP.9b8b026f75b8.jpg&amp;w=959&amp;h=959&amp;mode=crop&amp;sig=70bedc2eab90a227eb9a657c415689c3eb1eca4f 959w" sizes="10vw" width="456" height="456" class="rounded-circle img-fluid w-100" alt="Aldren Santos"></a>
+          
+        </div>
+        <div class="col pl-0 d-none d-sm-block">
+          <a href="https://realpython.com/team/asantos/" class="card-link small"><p>Aldren</p></a>
+        </div>
+
+        
+
+        
+      
+        
+
+        <div class="col-4 col-sm-2 align-self-center">
+          
+            <a href="https://realpython.com/team/gahjelle/"><img loading="lazy" src="./What Does if __name__ == ___main___ Do in Python_files/saved_resource(2)" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/gahjelle.470149ee709e.jpg&amp;w=200&amp;h=200&amp;mode=crop&amp;sig=c6390201e73d3e09429d73da5bb29c17ab10403a 200w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/gahjelle.470149ee709e.jpg&amp;w=400&amp;h=400&amp;mode=crop&amp;sig=fcea459ee24a7b320573cadee324cf75509dc1d6 400w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/gahjelle.470149ee709e.jpg&amp;w=800&amp;h=800&amp;mode=crop&amp;sig=e9b761c6cf1359953014dba05554f5424eb116e1 800w" sizes="10vw" width="456" height="456" class="rounded-circle img-fluid w-100" alt="Geir Arne Hjelle"></a>
+          
+        </div>
+        <div class="col pl-0 d-none d-sm-block">
+          <a href="https://realpython.com/team/gahjelle/" class="card-link small"><p>Geir Arne</p></a>
+        </div>
+
+        
+
+        
+      
+        
+
+        <div class="col-4 col-sm-2 align-self-center">
+          
+            <a href="https://realpython.com/team/icurrie/"><img loading="lazy" src="./What Does if __name__ == ___main___ Do in Python_files/saved_resource(3)" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/5sK42VEQ_-_Copy_-_Copy.b8a1a4a9ca1f.jpeg&amp;w=120&amp;h=120&amp;mode=crop&amp;sig=dad2ef3ce2a9504ccb3e27c807c67dac1e732aaf 120w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/5sK42VEQ_-_Copy_-_Copy.b8a1a4a9ca1f.jpeg&amp;w=240&amp;h=240&amp;mode=crop&amp;sig=39b9aa97e3dea6c4876a002cd66ed641f95a2881 240w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/5sK42VEQ_-_Copy_-_Copy.b8a1a4a9ca1f.jpeg&amp;w=480&amp;h=480&amp;mode=crop&amp;sig=79a608b4af0343081a2e28f28509c74db868ac56 480w" sizes="10vw" width="456" height="456" class="rounded-circle img-fluid w-100" alt="Ian Currie"></a>
+          
+        </div>
+        <div class="col pl-0 d-none d-sm-block">
+          <a href="https://realpython.com/team/icurrie/" class="card-link small"><p>Ian</p></a>
+        </div>
+
+        
+
+        
+          </div>
+        
+      
+        
+          <div class="row align-items-center w-100 mx-auto">
+        
+
+        <div class="col-4 col-sm-2 align-self-center">
+          
+            <a href="https://realpython.com/team/kfinegan/"><img loading="lazy" src="./What Does if __name__ == ___main___ Do in Python_files/saved_resource(4)" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/VZxEtUor_400x400.7169c68e3950.jpg&amp;w=100&amp;h=100&amp;mode=crop&amp;sig=d9cf1b0b2fe0e552070ab0b5a15b72c54464c74c 100w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/VZxEtUor_400x400.7169c68e3950.jpg&amp;w=200&amp;h=200&amp;mode=crop&amp;sig=4e6d62ae536e46bd62dac2b283f8ea57536c1c5e 200w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/VZxEtUor_400x400.7169c68e3950.jpg&amp;w=400&amp;h=400&amp;mode=crop&amp;sig=dfa9b806107d5d44e9a4750b9618a2614153164b 400w" sizes="10vw" width="456" height="456" class="rounded-circle img-fluid w-100" alt="Kate Finegan"></a>
+          
+        </div>
+        <div class="col pl-0 d-none d-sm-block">
+          <a href="https://realpython.com/team/kfinegan/" class="card-link small"><p>Kate</p></a>
+        </div>
+
+        
+          
+          
+            <div class="col-4 col-sm-2 align-self-center"></div>
+            <div class="col pl-0 d-none d-sm-block"></div>
+            <div class="col-4 col-sm-2 align-self-center"></div>
+            <div class="col pl-0 d-none d-sm-block"></div>
+          
+        
+
+        
+          </div>
+        
+      
+    </div>
+  </div>
+  
+
+</div>
+
+
+
+
+
+  
+    
+
+<div class="bg-light rounded py-4 my-4 shadow shadow-sm mx-n2">
+  
+  <div class="col-12 text-center d-block d-md-none">
+    <p class="h2 mb-3">Master <u><span class="marker-highlight">Real-World Python Skills</span></u> With Unlimited Access to Real&nbsp;Python</p>
+    <p class="mb-1"><img loading="lazy" class="w-75" src="./What Does if __name__ == ___main___ Do in Python_files/lesson-locked.f5105cfd26db.svg" width="510" height="260"></p>
+    <p class="mx-auto w-75 mb-3 small"><strong>Join us and get access to thousands of tutorials, hands-on video courses, and a community of expert&nbsp;Pythonistas:</strong></p>
+    <p class="mb-0"><a href="https://realpython.com/account/join/?utm_source=rp_article_footer&amp;utm_content=if-name-main-python" class="btn btn-primary btn-sm px-4 mb-0">Level Up Your Python Skills »</a>
+  </p></div>
+
+  
+  <div class="col-12 text-center d-none d-md-block">
+    <p class="h2 mb-2">Master <u><span class="marker-highlight">Real-World Python Skills</span></u><br>With Unlimited Access to Real&nbsp;Python</p>
+    <p class="mb-2"><img loading="lazy" class="w-50 mb-2" src="./What Does if __name__ == ___main___ Do in Python_files/lesson-locked.f5105cfd26db.svg" width="510" height="260"></p>
+    <p class="mx-auto w-50 mb-3"><strong>Join us and get access to thousands of tutorials, hands-on video courses, and a community of expert Pythonistas:</strong></p>
+    <p><a href="https://realpython.com/account/join/?utm_source=rp_article_footer&amp;utm_content=if-name-main-python" class="btn btn-primary btn-lg px-4">Level Up Your Python Skills »</a>
+  </p></div>
+</div>
+
+  
+
+  
+  <div class="card mt-4" id="reader-comments">
+    <p class="card-header h3">What Do You Think?</p>
+    
+    <div class="text-center mt-3 mb-0 p-0">
+      <div class="mb-2">
+        <strong class="mr-2">Rate this article:</strong>
+        <div class="btn-group mb-0">
+  <a class="btn btn-secondary border-right px-3" style="border-top-right-radius: 0; border-bottom-right-radius: 0;" title="Liked it" aria-label="Thumbs up (liked it)" href="https://realpython.com/feedback/survey/article/if-name-main-python/liked/?from=article-comments" target="_blank"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i></a>
+  <a class="btn btn-secondary border-left px-3" aria-label="Thumbs down (disliked it)" title="Disliked it" href="https://realpython.com/feedback/survey/article/if-name-main-python/disliked/?from=article-comments" target="_blank"><i class="fa fa-thumbs-o-down" aria-hidden="true"></i></a>
+</div>
+
+      </div>
+      
+<span>
+  <a target="_blank" rel="nofollow" href="https://twitter.com/intent/tweet/?text=Check%20out%20this%20%23Python%20tutorial:%20What%20Does%20if%20__name__%20%3D%3D%20%22__main__%22%20Do%20in%20Python%3F%20by%20@realpython&amp;url=https%3A//realpython.com/if-name-main-python/" class="mr-1 badge badge-twitter text-light mb-1"><i class="mr-1 fa fa-twitter text-light"></i>Tweet</a>
+  <a target="_blank" rel="nofollow" href="https://facebook.com/sharer/sharer.php?u=https%3A//realpython.com/if-name-main-python/" class="mr-1 badge badge-facebook text-light mb-1"><i class="mr-1 fa fa-facebook text-light"></i>Share</a>
+  
+  <a target="_blank" rel="nofollow" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A//realpython.com/if-name-main-python/" class="mr-1 badge badge-linkedin text-light mb-1"><i class="mr-1 fa fa-linkedin text-light"></i>Share</a>
+  
+  <a target="_blank" rel="nofollow" href="mailto:?subject=Python%20article%20for%20you&amp;body=Check%20out%20this%20Python%20tutorial:%0A%0AWhat%20Does%20if%20__name__%20%3D%3D%20%22__main__%22%20Do%20in%20Python%3F%0A%0Ahttps%3A//realpython.com/if-name-main-python/" class="badge badge-red text-light mb-1"><i class="mr-1 fa fa-envelope text-light"></i>Email</a>
+</span>
+
+    </div>
+    
+    <div class="card-body">
+      <p>What’s your #1 takeaway or favorite thing you learned? How are you going to put your newfound skills to use? Leave a comment below and let us know.</p>
+
+      <div class="alert alert-dark">
+        <p class="mb-0"><strong>Commenting Tips:</strong> The most useful comments are those written with the goal of learning from or helping out other students. <a href="https://realpython.com/python-beginner-tips/#tip-9-ask-good-questions" target="_blank">Get tips for asking good questions</a> and <a href="https://support.realpython.com/" target="_blank">get answers to common questions in our support portal</a>.</p><hr>Looking for a real-time conversation? Visit the <a href="https://realpython.com/community/" target="_blank">Real Python Community Chat</a> or join the next <a href="https://realpython.com/office-hours/" target="_blank">“Office&nbsp;Hours” Live Q&amp;A Session</a>. Happy Pythoning!<p></p>
+
+      </div>
+
+      <div id="disqus_recommendations" style="margin-bottom: 12px;"><iframe id="dsq-app155" name="dsq-app155" allowtransparency="true" frameborder="0" scrolling="no" tabindex="0" title="Disqus" width="100%" src="./What Does if __name__ == ___main___ Do in Python_files/saved_resource.html" style="width: 100% !important; border: none !important; overflow: hidden !important; height: 269px !important; display: inline !important; box-sizing: border-box !important;" horizontalscrolling="no" verticalscrolling="no"></iframe></div><div class="mb-4" id="disqus_thread"><iframe id="dsq-app8698" name="dsq-app8698" allowtransparency="true" frameborder="0" scrolling="no" tabindex="0" title="Disqus" width="100%" src="./What Does if __name__ == ___main___ Do in Python_files/saved_resource(5).html" style="width: 1px !important; min-width: 100% !important; border: none !important; overflow: hidden !important; height: 895px !important;" horizontalscrolling="no" verticalscrolling="no"></iframe></div>
+      
+    </div>
+  </div>
+
+  <div class="card mt-4 mb-4">
+    <p class="card-header h3">Keep Learning</p>
+    <div class="card-body">
+      <p class="mb-0">Related Tutorial Categories:
+      
+        <a href="https://realpython.com/tutorials/best-practices/" class="badge badge-light text-muted">best-practices</a>
+      
+        <a href="https://realpython.com/tutorials/intermediate/" class="badge badge-light text-muted">intermediate</a>
+      
+      </p>
+      
+    </div>
+  </div>
+
+  
+    
+
+<div class="modal fade" tabindex="-1" role="dialog" id="rprw">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header border-0">
+        <div class="col-12 col-lg-9 mx-auto modal-title text-center my-2">
+          <h2 class="my-0">Keep reading Real&nbsp;Python by creating a free account or signing&nbsp;in:</h2>
+        </div>
+      </div>
+
+      
+      <div class="modal-body bg-light">
+        <div class="col-12 text-center">
+
+          <div class="col-12 col-lg-8 mx-auto mb-2 mt-3">
+            <a href="https://realpython.com/account/signup/?intent=continue_reading&amp;utm_source=rp&amp;utm_medium=web&amp;utm_campaign=rwn&amp;utm_content=v1&amp;next=%2Fif-name-main-python%2F"><img loading="lazy" class="w-100" src="./What Does if __name__ == ___main___ Do in Python_files/lesson-locked.f5105cfd26db.svg" width="510" height="260" alt="Keep reading"></a>
+          </div>
+
+          <p><a href="https://realpython.com/account/signup/?intent=continue_reading&amp;utm_source=rp&amp;utm_medium=web&amp;utm_campaign=rwn&amp;utm_content=v1&amp;next=%2Fif-name-main-python%2F" class="btn btn-primary btn-lg px-5">Continue »</a></p>
+
+        </div>
+      </div>
+      
+
+      <div class="modal-footer border-0">
+        <p class="text-center text-muted mt-2 mb-1">Already have an account? <a href="https://realpython.com/account/login/?next=/if-name-main-python/">Sign-In</a></p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+    <script src="./What Does if __name__ == ___main___ Do in Python_files/rw.38bf29157dfe.js" async=""></script>
+  
+
+
+    </div>
+
+    <aside class="col-md-7 col-lg-4">
+      
+  
+
+
+
+<div class="card mb-3 bg-secondary">
+  <form class="card-body" action="https://realpython.com/optins/process/" method="post">
+    <div class="form-group">
+      <p class="h5 text-muted text-center">— FREE Email Series —</p>
+      <p class="h3 text-center">🐍 Python Tricks 💌</p>
+      <p><img loading="lazy" class="img-fluid rounded" src="./What Does if __name__ == ___main___ Do in Python_files/pytrick-dict-merge.4201a0125a5e.png" width="738" height="490" alt="Python Tricks Dictionary Merge"></p>
+    </div>
+    <div class="form-group">
+      <input type="hidden" name="csrfmiddlewaretoken" value="okfsKbk6lxWeJQpCLVcpZGJk0yB063QYMsupy9iAA3MACHYIMZxORBfpAXTim8F3">
+      <input type="hidden" name="slug" value="static-python-tricks-sidebar">
+      <input type="email" class="form-control form-control-md" name="email" placeholder="Email…" required="">
+    </div>
+    <button type="submit" name="submit" class="btn btn-primary btn-md btn-block">Get Python Tricks »</button>
+    <p class="mb-0 mt-2 text-muted text-center">🔒 No spam. Unsubscribe any time.</p>
+  </form>
+</div>
+
+
+  
+
+
+<div class="sidebar-module sidebar-module-inset border">
+  <p class="h4"><a class="link-unstyled" href="https://realpython.com/tutorials/all/">All Tutorial Topics</a></p>
+    
+      <a href="https://realpython.com/tutorials/advanced/" class="badge badge-light text-muted">advanced</a> 
+    
+      <a href="https://realpython.com/tutorials/api/" class="badge badge-light text-muted">api</a> 
+    
+      <a href="https://realpython.com/tutorials/basics/" class="badge badge-light text-muted">basics</a> 
+    
+      <a href="https://realpython.com/tutorials/best-practices/" class="badge badge-light text-muted">best-practices</a> 
+    
+      <a href="https://realpython.com/tutorials/community/" class="badge badge-light text-muted">community</a> 
+    
+      <a href="https://realpython.com/tutorials/databases/" class="badge badge-light text-muted">databases</a> 
+    
+      <a href="https://realpython.com/tutorials/data-science/" class="badge badge-light text-muted">data-science</a> 
+    
+      <a href="https://realpython.com/tutorials/devops/" class="badge badge-light text-muted">devops</a> 
+    
+      <a href="https://realpython.com/tutorials/django/" class="badge badge-light text-muted">django</a> 
+    
+      <a href="https://realpython.com/tutorials/docker/" class="badge badge-light text-muted">docker</a> 
+    
+      <a href="https://realpython.com/tutorials/flask/" class="badge badge-light text-muted">flask</a> 
+    
+      <a href="https://realpython.com/tutorials/front-end/" class="badge badge-light text-muted">front-end</a> 
+    
+      <a href="https://realpython.com/tutorials/gamedev/" class="badge badge-light text-muted">gamedev</a> 
+    
+      <a href="https://realpython.com/tutorials/gui/" class="badge badge-light text-muted">gui</a> 
+    
+      <a href="https://realpython.com/tutorials/intermediate/" class="badge badge-light text-muted">intermediate</a> 
+    
+      <a href="https://realpython.com/tutorials/machine-learning/" class="badge badge-light text-muted">machine-learning</a> 
+    
+      <a href="https://realpython.com/tutorials/projects/" class="badge badge-light text-muted">projects</a> 
+    
+      <a href="https://realpython.com/tutorials/python/" class="badge badge-light text-muted">python</a> 
+    
+      <a href="https://realpython.com/tutorials/testing/" class="badge badge-light text-muted">testing</a> 
+    
+      <a href="https://realpython.com/tutorials/tools/" class="badge badge-light text-muted">tools</a> 
+    
+      <a href="https://realpython.com/tutorials/web-dev/" class="badge badge-light text-muted">web-dev</a> 
+    
+      <a href="https://realpython.com/tutorials/web-scraping/" class="badge badge-light text-muted">web-scraping</a> 
+    
+</div>
+
+
+
+  
+<div class="sidebar-module sidebar-module-inset p-0" style="overflow:hidden;">
+  
+<div style="display:block;position:relative;">
+  <div style="display:block;width:100%;padding-top:100%;"></div>
+  <div class="rpad" data-unit="1x1" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;"><a href="https://srv.realpython.net/click/38831820629/?c=58233388337&amp;p=58946116052&amp;r=40909" rel="nofollow" target="_blank"><img src="./What Does if __name__ == ___main___ Do in Python_files/98d76273cffb5d606d53dc52c527bbf8" style="max-width: 100%; max-height: 100%; width: 100%;"></a></div>
+</div>
+
+
+</div>
+
+
+
+  <div class="sidebar-sticky ">
+    
+      <div class="bg-light sidebar-module sidebar-module-inset" id="sidebar-toc">
+        <p class="h4 text-muted"><a class="link-unstyled" href="https://realpython.com/if-name-main-python/#toc">Table of Contents</a></p>
+        <div class="toc">
+<ul>
+<li class=""><a href="https://realpython.com/if-name-main-python/#in-short-it-allows-you-to-execute-code-when-the-file-runs-as-a-script-but-not-when-its-imported-as-a-module">In Short: It Allows You to Execute Code When the File Runs as a Script, but Not When It’s Imported as a Module</a></li>
+<li class=""><a href="https://realpython.com/if-name-main-python/#how-does-the-name-main-idiom-work">How Does the Name-Main Idiom Work?</a></li>
+<li class=""><a href="https://realpython.com/if-name-main-python/#when-should-you-use-the-name-main-idiom-in-python">When Should You Use the Name-Main Idiom in Python?</a></li>
+<li class=""><a href="https://realpython.com/if-name-main-python/#when-should-you-avoid-the-name-main-idiom">When Should You Avoid the Name-Main Idiom?</a></li>
+<li class="active"><a href="https://realpython.com/if-name-main-python/#in-what-way-should-you-include-the-name-main-idiom">In What Way Should You Include the Name-Main Idiom?</a></li>
+<li class=""><a href="https://realpython.com/if-name-main-python/#is-the-idiom-boilerplate-code-that-should-be-simplified">Is the Idiom Boilerplate Code That Should Be Simplified?</a></li>
+<li class=""><a href="https://realpython.com/if-name-main-python/#conclusion">Conclusion</a></li>
+</ul>
+</div>
+
+      </div>
+    
+
+    <div class="sidebar-module sidebar-module-inset text-center my-3 py-0">
+      <div class="jsCompletionStatusWidget btn-group mb-0">
+  <button title="Click to mark as completed" class="jsBtnCompletion btn btn-secondary border-right" style="border-top-right-radius: 0; border-bottom-right-radius: 0;">Mark as Completed</button>
+  <button title="Add bookmark" class="jsBtnBookmark btn btn-secondary border-left"><i class="fa fa-fw fa-bookmark-o"></i></button>
+</div>
+
+      <div class="my-2">
+        <div class="btn-group mb-0">
+  <a class="btn btn-secondary border-right px-3" style="border-top-right-radius: 0; border-bottom-right-radius: 0;" title="Liked it" aria-label="Thumbs up (liked it)" href="https://realpython.com/feedback/survey/article/if-name-main-python/liked/?from=article-sidebar" target="_blank"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i></a>
+  <a class="btn btn-secondary border-left px-3" aria-label="Thumbs down (disliked it)" title="Disliked it" href="https://realpython.com/feedback/survey/article/if-name-main-python/disliked/?from=article-sidebar" target="_blank"><i class="fa fa-thumbs-o-down" aria-hidden="true"></i></a>
+</div>
+
+      </div>
+    </div>
+
+    
+      <div class="sidebar-module sidebar-module-inset text-center my-3 py-0">
+        
+<span>
+  <a target="_blank" rel="nofollow" href="https://twitter.com/intent/tweet/?text=Check%20out%20this%20%23Python%20tutorial:%20What%20Does%20if%20__name__%20%3D%3D%20%22__main__%22%20Do%20in%20Python%3F%20by%20@realpython&amp;url=https%3A//realpython.com/if-name-main-python/" class="mr-1 badge badge-twitter text-light mb-1"><i class="mr-1 fa fa-twitter text-light"></i>Tweet</a>
+  <a target="_blank" rel="nofollow" href="https://facebook.com/sharer/sharer.php?u=https%3A//realpython.com/if-name-main-python/" class="mr-1 badge badge-facebook text-light mb-1"><i class="mr-1 fa fa-facebook text-light"></i>Share</a>
+  
+  <a target="_blank" rel="nofollow" href="mailto:?subject=Python%20article%20for%20you&amp;body=Check%20out%20this%20Python%20tutorial:%0A%0AWhat%20Does%20if%20__name__%20%3D%3D%20%22__main__%22%20Do%20in%20Python%3F%0A%0Ahttps%3A//realpython.com/if-name-main-python/" class="badge badge-red text-light mb-1"><i class="mr-1 fa fa-envelope text-light"></i>Email</a>
+</span>
+
+      </div>
+    
+
+    
+
+    
+      <div class="sidebar-module sidebar-module-inset p-0" style="overflow:hidden;">
+        
+<div style="display:block;position:relative;">
+  <div style="display:block;width:100%;padding-top:25%;"></div>
+  <div class="rpad" data-unit="4x1" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;"><a href="https://srv.realpython.net/click/64754707389/?c=31941813441&amp;p=58946116052&amp;r=82794" rel="nofollow" target="_blank"><img src="./What Does if __name__ == ___main___ Do in Python_files/257f65e32c1713399c59dacea36eb818" style="max-width: 100%; max-height: 100%; width: 100%;"></a></div>
+</div>
+
+
+      </div>
+    
+
+    
+  </div>
+
+
+    </aside>
+
+  </div>
+
+    </div>
+
+    
+    
+
+    
+    
+      
+        
+          <div class="modal fade" id="modal-if-name-main-python-code" tabindex="-1" aria-labelledby="modal-if-name-main-python-code-title" aria-describedby="modal-if-name-main-python-code-desc">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header bg-light pt-3 pb-2">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-12">
+              <div class="progress" style="height: .5rem;" aria-hidden="true">
+                <div class="progress-bar progress-bar-striped progress-bar-animated w-75" role="progressbar"></div>
+              </div>
+            </div>
+            <div class="col-12">
+              <p id="modal-if-name-main-python-code-desc" class="text-muted text-center mb-0 mt-2">Almost there! Complete this form and click the button below to gain instant access:</p>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+
+      <div class="modal-body m-4">
+        <div class="container-fluid">
+          <div class="row align-items-center">
+            <div class="col-12 col-lg-4 mb-4">
+              
+                <img loading="lazy" class="img-fluid rounded" src="./What Does if __name__ == ___main___ Do in Python_files/The-Name-Main-Idiom_Watermarked.9d5e12c539b3.jpg" width="1920" height="1080" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/The-Name-Main-Idiom_Watermarked.9d5e12c539b3.jpg&amp;w=480&amp;sig=163dc9a398666872d4079f3eb7e49914b9ebc104 480w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/The-Name-Main-Idiom_Watermarked.9d5e12c539b3.jpg&amp;w=960&amp;sig=345b356dcbe389e26ed4f7c7f9e07a1fd8b882b0 960w, https://files.realpython.com/media/The-Name-Main-Idiom_Watermarked.9d5e12c539b3.jpg 1920w" sizes="50vw" alt="What Does if __name__ == &quot;__main__&quot; Do in Python?">
+              
+            </div>
+            <div class="col">
+              <p id="modal-if-name-main-python-code-title" class="text-center h3 mb-4">What Does if __name__ == "__main__" Do in Python? (Source Code)</p>
+
+              <form class="col-12" action="https://realpython.com/optins/process/" method="post">
+                <input type="hidden" name="csrfmiddlewaretoken" value="okfsKbk6lxWeJQpCLVcpZGJk0yB063QYMsupy9iAA3MACHYIMZxORBfpAXTim8F3">
+                <input type="hidden" name="slug" value="if-name-main-python-code">
+                <input type="hidden" name="source_path" value="/if-name-main-python/"> 
+                <div class="form-group">
+                  <input type="email" name="email" class="form-control" placeholder="Email Address" required="" autofocus="">
+                </div>
+                <button name="submit" type="submit" class="btn btn-primary btn-block text-wrap">Send Code »</button>
+                <p class="mb-0 mt-2 text-muted text-center"><small>🔒 No spam. We take your privacy seriously.</small></p>
+              </form>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+        
+      
+    
+
+    
+      <footer class="footer">
+  <div class="container">
+    
+      <div class="mx-auto mt-4 mb-0" style="max-width: 768px;">
+        
+<div style="display:block;position:relative;">
+  <div style="display:block;width:100%;padding-top:12.5%;"></div>
+  <div class="rpad rounded border" data-unit="8x1" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;"><a href="https://srv.realpython.net/click/12280765222/?c=10466391474&amp;p=58946116052&amp;r=20815" rel="nofollow" target="_blank"><img src="./What Does if __name__ == ___main___ Do in Python_files/28d978cf3e7797b78e9cba11b65bc2c6" style="max-width: 100%; max-height: 100%; width: 100%;"></a></div>
+</div>
+<a class="small text-muted" href="https://realpython.com/account/join/" rel="nofollow"><i class="fa fa-info-circle mr-1" aria-hidden="true"></i>Remove ads</a>
+
+
+      </div>
+    
+
+    <p class="text-center text-muted w-75 mx-auto">© 2012–2023 Real&nbsp;Python&nbsp;⋅ <a href="https://realpython.com/newsletter/">Newsletter</a>&nbsp;⋅ <a href="https://realpython.com/podcasts/rpp/">Podcast</a>&nbsp;⋅ <a href="https://www.youtube.com/realpython">YouTube</a>&nbsp;⋅ <a href="https://twitter.com/realpython">Twitter</a>&nbsp;⋅ <a href="https://facebook.com/LearnRealPython">Facebook</a>&nbsp;⋅ <a href="https://www.instagram.com/realpython/">Instagram</a>&nbsp;⋅ <a href="https://realpython.com/">Python&nbsp;Tutorials</a>&nbsp;⋅ <a href="https://realpython.com/search">Search</a>&nbsp;⋅ <a href="https://realpython.com/privacy-policy/">Privacy Policy</a>&nbsp;⋅ <a href="https://realpython.com/energy-policy/">Energy Policy</a>&nbsp;⋅ <a href="https://realpython.com/sponsorships/">Advertise</a>&nbsp;⋅ <a href="https://realpython.com/contact/">Contact</a><br>❤️ Happy Pythoning!</p>
+  </div>
+</footer>
+
+    
+
+    
+    
+    <script>
+      (function(document, history, location) {
+        var HISTORY_SUPPORT = !!(history && history.pushState);
+
+        var anchorScrolls = {
+          ANCHOR_REGEX: /^#[^ ]+$/,
+          OFFSET_HEIGHT_PX: 120,
+
+          /**
+           * Establish events, and fix initial scroll position if a hash is provided.
+           */
+          init: function() {
+            this.scrollToCurrent();
+            window.addEventListener('hashchange', this.scrollToCurrent.bind(this));
+            document.body.addEventListener('click', this.delegateAnchors.bind(this));
+          },
+
+          /**
+           * Return the offset amount to deduct from the normal scroll position.
+           * Modify as appropriate to allow for dynamic calculations
+           */
+          getFixedOffset: function() {
+            return this.OFFSET_HEIGHT_PX;
+          },
+
+          /**
+           * If the provided href is an anchor which resolves to an element on the
+           * page, scroll to it.
+           * @param  {String} href
+           * @return {Boolean} - Was the href an anchor.
+           */
+          scrollIfAnchor: function(href, pushToHistory) {
+            var match, rect, anchorOffset;
+
+            if(!this.ANCHOR_REGEX.test(href)) {
+              return false;
+            }
+
+            match = document.getElementById(href.slice(1));
+
+            if(match) {
+              rect = match.getBoundingClientRect();
+              anchorOffset = window.pageYOffset + rect.top - this.getFixedOffset();
+              window.scrollTo(window.pageXOffset, anchorOffset);
+
+              // Add the state to history as-per normal anchor links
+              if(HISTORY_SUPPORT && pushToHistory) {
+                history.pushState({}, document.title, location.pathname + href);
+              }
+            }
+
+            return !!match;
+          },
+
+          /**
+           * Attempt to scroll to the current location's hash.
+           */
+          scrollToCurrent: function() {
+            this.scrollIfAnchor(window.location.hash);
+          },
+
+          /**
+           * If the click event's target was an anchor, fix the scroll position.
+           */
+          delegateAnchors: function(e) {
+            var elem = e.target;
+
+            // 
+            if (elem.dataset.toggle === "tab") {
+              return;
+            }
+
+            if(
+              elem.nodeName === 'A' &&
+              this.scrollIfAnchor(elem.getAttribute('href'), true)
+            ) {
+              e.preventDefault();
+            }
+          }
+        };
+
+        window.addEventListener(
+          'DOMContentLoaded', anchorScrolls.init.bind(anchorScrolls)
+        );
+      })(window.document, window.history, window.location);
+    </script>
+    
+
+    
+    <script>
+      (function() {
+        var isAndroid = navigator.userAgent.toLowerCase().indexOf("android") > -1;
+        if (!isAndroid) {
+          return;
+        }
+
+        var styles = `
+        @font-face {
+          font-family: 'DejaVu Sans Mono';
+          font-weight: normal;
+          font-style: normal;
+          font-display: swap;
+          src: url('https://cdn.realpython.com/static/mfonts/dejavu-sans-mono.33f00225f915.woff2') format('woff2'),
+               url('https://cdn.realpython.com/static/mfonts/dejavu-sans-mono.0da77d3739f3.woff') format('woff'),
+               url('https://cdn.realpython.com/static/mfonts/dejavu-sans-mono.c2356fc49835.ttf') format('truetype');
+        }
+        code, kbd, pre, samp {
+          font-family: 'DejaVu Sans Mono', monospace;
+        }
+        `
+
+        var styleSheet = document.createElement("style")
+        styleSheet.type = "text/css"
+        styleSheet.innerText = styles
+        document.head.appendChild(styleSheet)
+      })();
+    </script>
+
+    
+    
+    <script src="./What Does if __name__ == ___main___ Do in Python_files/jquery.min.00727d1d5d9c.js"></script>
+    <script src="./What Does if __name__ == ___main___ Do in Python_files/popper.min.47dc3aaf2942.js"></script>
+    <script src="./What Does if __name__ == ___main___ Do in Python_files/bootstrap.min.a3b2689424c3.js"></script>
+
+    
+    
+
+    <script>
+    (function() {
+      document.querySelectorAll(".js-search-form-submit").forEach(function(el) {
+        el.addEventListener("click", function(e) {
+          e.preventDefault();
+          e.currentTarget.parentElement.submit();
+        })
+      });
+    })();
+    </script>
+    <script src="./What Does if __name__ == ___main___ Do in Python_files/repl-toggle.925bef973b9c.js" async=""></script>
+    <script src="./What Does if __name__ == ___main___ Do in Python_files/lightbox.bab438c0f968.js" async=""></script>
+    <script src="./What Does if __name__ == ___main___ Do in Python_files/platforms-ui.b11202dc6079.js" async=""></script>
+
+    
+
+    
+    
+
+    
+    <script>
+      
+      $(".modal").on('shown.bs.modal', function (ev) {
+        $(ev.currentTarget).find('a.btn, input[type="email"]').focus();
+      })
+    </script>
+    
+
+    
+
+    
+    
+
+    
+
+<script>window.rp_prop_id = '58946116052';</script>
+<script src="./What Does if __name__ == ___main___ Do in Python_files/tag.js" async=""></script>
+
+
+
+<script>
+(function(){
+  var imgpump = function(el) {
+    var hdLoaded = el.getAttribute('src') === el.getAttribute('data-src');
+    if (hdLoaded) {
+      el.classList.remove('placeholder-blur');
+    } else {
+      el.setAttribute('srcset', el.getAttribute('data-srcset'));
+      el.setAttribute('src', el.getAttribute('data-src'));
+    }
+  };
+
+  document.querySelectorAll('.js-img-loader').forEach(function(el) {
+    el.addEventListener("load", function() { imgpump(el) });
+    if (el.complete && el.naturalHeight !== 0) {
+      imgpump(el);
+    }
+  });
+})();
+</script>
+
+<script src="./What Does if __name__ == ___main___ Do in Python_files/toc-refresh.76a102c7d921.js" async=""></script>
+
+<script id="js-context" type="application/json">{"is_completed": false, "is_bookmarked": false, "api_article_bookmark_url": "/api/v1/articles/if-name-main-python/bookmark/", "api_article_completion_status_url": "/api/v1/articles/if-name-main-python/completion_status/"}</script>
+<script src="./What Does if __name__ == ___main___ Do in Python_files/completion-status.0689aa7a4df0.js" async=""></script>
+
+
+
+
+
+
+  
+    <script id="dsq-count-scr" src="./What Does if __name__ == ___main___ Do in Python_files/count.js" async=""></script>
+    <script>
+      var disqus_config = function () {
+        this.page.url = 'https://realpython.com/if-name-main-python/';
+        this.page.identifier = 'https://realpython.com/if-name-main-python/';
+        this.callbacks.onReady = [function() {
+          if (window.onDisqusReady) {
+            window.onDisqusReady();
+          }
+        }];
+      };
+      var disqus_script_url = 'https://realpython.disqus.com/embed.js';
+    </script>
+    <script src="./What Does if __name__ == ___main___ Do in Python_files/lazy-disqus.07ee9079f4a3.js" defer=""></script>
+  
+
+
+  
+  
+  <script src="./What Does if __name__ == ___main___ Do in Python_files/OneSignalSDK.js" async=""></script>
+  <script>
+    var OneSignal = window.OneSignal || [];
+    OneSignal.push(function() {
+      OneSignal.init({
+        appId: "c0081e20-a523-42bb-b0ac-04c5a9e8bf40"
+      });
+    });
+  </script>
+  
+
+  
+  <script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "What Does if __name__ \u003D\u003D \u0022__main__\u0022 Do in Python?",
+    
+    "image": {
+      "@type": "ImageObject",
+      "url": "https://files.realpython.com/media/The-Name-Main-Idiom_Watermarked.9d5e12c539b3.jpg",
+      "width": 1920,
+      "height": 1080
+    },
+    
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://realpython.com/if-name-main-python/"
+    },
+    "datePublished": "2022-09-21T14:00:00+00:00",
+    "dateModified": "2022-09-16T15:43:20.551610+00:00",
+     "publisher": {
+      "@type": "Organization",
+      "name": "Real Python",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://cdn.realpython.com/static/real-python-logo-square-tiny.b2452b6d3823.png",
+        "width": 60,
+        "height": 60
+      }
+    },
+    "author": {
+      "@type": "Organization",
+      "name": "Real Python",
+      "url": "https://realpython.com",
+      "logo": "https://cdn.realpython.com/static/real-python-logo-square.146e987bf77c.png"
+    },
+    "description": "In this tutorial, you\u0027ll learn all about Python\u0027s name\u002Dmain idiom. You\u0027ll learn what it does in Python, how it works, when to use it, when to avoid it, and how to refer to it."
+  }
+  </script>
+  
+
+
+    
+
+    
+
+    
+
+    
+
+    
+<script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '2220911568135371');
+  fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=2220911568135371&ev=PageView&noscript=1"
+/></noscript>
+
+
+    
+
+    
+
+  <script>(function(){var js = "window['__CF$cv$params']={r:'799dc565ff82075a',m:'8wpTt_mC4TJ0NUjtgEvl46d8TsSnquOWsNBFjaaWlT8-1676461251-0-AWRu9fnoGhm/lQmCQbqBKE7EtyEE5VHusZywRItosqo3YRrWmwKi98KpTZC609HdQSatS1L2HPJZmeFCINnfe0aXeW0Jz0HkQ0OWWTYRZKO4ngCXCPdQbgJE3ItQQ+lRmJ1EqsK8rMtNjrB8EGBMaNM=',s:[0xdc46e7ceca,0x1bdae507fd],u:'/cdn-cgi/challenge-platform/h/b'};var now=Date.now()/1000,offset=14400,ts=''+(Math.floor(now)-Math.floor(now%offset)),_cpo=document.createElement('script');_cpo.nonce='',_cpo.src='/cdn-cgi/challenge-platform/h/b/scripts/alpha/invisible.js?ts='+ts,document.getElementsByTagName('head')[0].appendChild(_cpo);";var _0xh = document.createElement('iframe');_0xh.height = 1;_0xh.width = 1;_0xh.style.position = 'absolute';_0xh.style.top = 0;_0xh.style.left = 0;_0xh.style.border = 'none';_0xh.style.visibility = 'hidden';document.body.appendChild(_0xh);function handler() {var _0xi = _0xh.contentDocument || _0xh.contentWindow.document;if (_0xi) {var _0xj = _0xi.createElement('script');_0xj.nonce = '';_0xj.innerHTML = js;_0xi.getElementsByTagName('head')[0].appendChild(_0xj);}}if (document.readyState !== 'loading') {handler();} else if (window.addEventListener) {document.addEventListener('DOMContentLoaded', handler);} else {var prev = document.onreadystatechange || function () {};document.onreadystatechange = function (e) {prev(e);if (document.readyState !== 'loading') {document.onreadystatechange = prev;handler();}};}})();</script><iframe height="1" width="1" style="position: absolute; top: 0px; left: 0px; border: none; visibility: hidden;" src="./What Does if __name__ == ___main___ Do in Python_files/saved_resource(6).html"></iframe>
+
+<div id="onesignal-bell-container" class="onesignal-bell-container onesignal-reset onesignal-bell-container-bottom-left"><div id="onesignal-bell-launcher" class="onesignal-bell-launcher onesignal-bell-launcher-md onesignal-bell-launcher-bottom-left onesignal-bell-launcher-theme-default onesignal-bell-launcher-active" style="bottom: 15px; left: 15px;"><div class="onesignal-bell-launcher-button"><svg class="onesignal-bell-svg" xmlns="http://www.w3.org/2000/svg" width="99.7" height="99.7" viewBox="0 0 99.7 99.7" style="filter: drop-shadow(0 2px 4px rgba(34,36,38,0.35));; -webkit-filter: drop-shadow(0 2px 4px rgba(34,36,38,0.35));;"><circle class="background" cx="49.9" cy="49.9" r="49.9" style="fill: rgb(208, 2, 27);"></circle><path class="foreground" d="M50.1 66.2H27.7s-2-.2-2-2.1c0-1.9 1.7-2 1.7-2s6.7-3.2 6.7-5.5S33 52.7 33 43.3s6-16.6 13.2-16.6c0 0 1-2.4 3.9-2.4 2.8 0 3.8 2.4 3.8 2.4 7.2 0 13.2 7.2 13.2 16.6s-1 11-1 13.3c0 2.3 6.7 5.5 6.7 5.5s1.7.1 1.7 2c0 1.8-2.1 2.1-2.1 2.1H50.1zm-7.2 2.3h14.5s-1 6.3-7.2 6.3-7.3-6.3-7.3-6.3z" style="fill: rgb(255, 255, 255);"></path><ellipse class="stroke" cx="49.9" cy="49.9" rx="37.4" ry="36.9" style="stroke: rgb(255, 255, 255);"></ellipse></svg></div><div class="onesignal-bell-launcher-badge" style="filter: drop-shadow(0 2px 4px rgba(34,36,38,0));; -webkit-filter: drop-shadow(0 2px 4px rgba(34,36,38,0));;"></div><div class="onesignal-bell-launcher-message"><div class="onesignal-bell-launcher-message-body">Receive a notification when we post a new tutorial</div></div><div class="onesignal-bell-launcher-dialog" style="filter: drop-shadow(0px 2px 2px rgba(34,36,38,.15));; -webkit-filter: drop-shadow(0px 2px 2px rgba(34,36,38,.15));;"><div class="onesignal-bell-launcher-dialog-body"></div></div></div></div><iframe style="display: none;" src="./What Does if __name__ == ___main___ Do in Python_files/saved_resource(7).html"></iframe><iframe style="display: none;" src="./What Does if __name__ == ___main___ Do in Python_files/saved_resource(8).html"></iframe></body></html>
