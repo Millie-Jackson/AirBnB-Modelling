@@ -1,14 +1,54 @@
 import pandas as pd
 
+'''
+Functions:
+        remove_rows_with_missing_ratings(): Removes the rows with missing values
+        combine_description_strings(): Combines the list of strings from the descriptions column into one string.
+        set_default_feature_values(): Replace empty values from guests, beds, bathrooms an bedrooms with 1.
+        clean_tabular_data(): Calls all the data cleaning functions on the tabular data.
+'''
 
 
 def remove_rows_with_missing_ratings(df) -> None:
-    '''Removes the rows with missing values.
+    '''
+    Removes the rows with missing values.
+    Puts all the ratings columns into a separate dataframe
+    Forces all values into floats
+    Checks for NaN values (bool)
+    Counts how many Nan values there are
+    Drops all the NaN values
+    Resets the index
+    # Adds separate dataframe to df
     Takes a dataset as a dataframe.
-    Returns a dataset as a dataframe.'''
 
-    '''# Remove rows with missing values
-    df["Missing_Values"] = df[].apply(lambda x : x.drop())'''
+        Parameters:
+                df (dataframe): dataframe of tabular AirBnB data
+        Returns:
+                df (dataframe): dataframe with all the NaN rating values removed
+    '''
+
+    # Put all the ratings columns in one dataframe
+    df_ratings = df[["ID", "Accuracy_rating", "Communication_rating", "Location_rating", "Check-in_rating", "Value_rating"]]
+
+    # Force values into floats (not needed in airbnb but here for future databases)
+    df_ratings = df_ratings.apply(pd.to_numeric, errors='coerce')
+
+    # Check if there are NaN values in the dataframe (returns bool)
+    found_NaN_ratings = df_ratings.isnull().values.any()
+
+    if found_NaN_ratings == True:
+        print("The following missing ratings have been found and removed")
+        # How many values are NaN
+        print(df_ratings.isnull().sum())
+        # Drop all the NaN values
+        df_ratings = df_ratings.dropna()
+        # Reset the index
+        df_ratings = df_ratings.reset_index(drop=True)
+    else:
+        print("No missing ratings to remove")
+
+    # NEED TO ADD df_ratings TO df
+    df = pd.merge(df, df_ratings, how="inner", on=["ID", "ID"])
 
     return df 
 
@@ -39,6 +79,7 @@ def set_default_feature_values(df) -> None:
        Returns a dataset as a dataframe.'''
     
     # Replace empty values with "TEST"
+    # Replace empty values with "1"
     #df = df.loc[df["guests"] == "0", "guests"] = "TEST"
     #df = df.loc[df["beds"] == "0", "guests"] = "TEST"
     #df = df.loc[df["bathrooms"] == "0", "guests"] = "TEST"
@@ -76,7 +117,7 @@ if __name__ == "__main__":
     df.to_csv("AirBnB/Data/tabular_data/clean_tabular_data.csv", index=False)
 
     #print(df.head(5))
-    #print(df.info())
-    print(df.describe())
+    print(df.info())
+    #print(df.describe())
 
 # END OF FILE 
