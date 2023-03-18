@@ -18,8 +18,6 @@ def remove_rows_with_missing_ratings(df) -> None:
     Counts how many Nan values there are
     Drops all the NaN values
     Resets the index
-    # Adds separate dataframe to df
-    Takes a dataset as a dataframe.
 
         Parameters:
                 df (dataframe): dataframe of tabular AirBnB data
@@ -28,7 +26,7 @@ def remove_rows_with_missing_ratings(df) -> None:
     '''
 
     # Put all the ratings columns in one dataframe
-    df_ratings = df[["ID", "Accuracy_rating", "Communication_rating", "Location_rating", "Check-in_rating", "Value_rating"]]
+    df_ratings = df[["Accuracy_rating", "Communication_rating", "Location_rating", "Check-in_rating", "Value_rating"]]
 
     # Force values into floats (not needed in airbnb but here for future databases)
     df_ratings = df_ratings.apply(pd.to_numeric, errors='coerce')
@@ -42,15 +40,10 @@ def remove_rows_with_missing_ratings(df) -> None:
         print(df_ratings.isnull().sum())
         # Drop all the NaN values
         df_ratings = df_ratings.dropna()
-        # Reset the index
-        df_ratings = df_ratings.reset_index(drop=True)
     else:
         print("No missing ratings to remove")
 
-    # NEED TO ADD df_ratings TO df
-    df = pd.merge(df, df_ratings, how="inner", on=["ID", "ID"])
-
-    return df 
+    return df_ratings 
 
 def combine_description_strings(df) -> None:
     '''Combines the list of strings from the descriptions column into one string.
@@ -60,42 +53,45 @@ def combine_description_strings(df) -> None:
        Takes in a dataset as a dataframe.
        Returns a dataset as a dataframe.'''
     
-    # Combine lists of strings into one string
-
-    # Removes empty quotes
-    #df = df.loc[df["Description"] == "", "Description"] = "TEST"
+    # Put description column into one dataframe
+    df_description = df[["Description"]]
+    print(df_description)
 
     # Removes empty descriptions
+    df_description = df_description.dropna()
 
-    # Removes "About this space" prefix"
-    #df.loc[df["Description"].str.contains("About this space")]
-    #df.loc[df["Description"] == "About this space", "Description"] = "TEST"
+    # Combine lists of strings into one string
+    df_description= df_description["Description"].apply(str)
 
-    return df 
+    # Removes "About this space" prefix" and empty quotes
+    df_description = df_description.str.replace("'About this space'," ,"")
+
+    return df_description 
 
 def set_default_feature_values(df) -> None:
     '''Replace empty values from guests, beds, bathrooms an bedrooms with 1.
        Takes in a dataset as a dataframe.
        Returns a dataset as a dataframe.'''
-    
-    # Replace empty values with "TEST"
-    # Replace empty values with "1"
-    #df = df.loc[df["guests"] == "0", "guests"] = "TEST"
-    #df = df.loc[df["beds"] == "0", "guests"] = "TEST"
-    #df = df.loc[df["bathrooms"] == "0", "guests"] = "TEST"
-    #df = df.loc[df["bedrooms"] == "0", "guests"] = "TEST"
-    #print(df["guests"] == "")
 
-    return df
+    # Put all the feature columns in one dataframe
+    df_features = df[["guests", "beds", "bathrooms", "bedrooms"]]
+
+    # Replace all NaN with 1
+    df_features = df_features.fillna(1)
+
+    return df_features
 
 def clean_tabular_data(df):
     '''Calls all the data cleaning functions on the tabular data.
        Takes in a raw dataframe.
        Returns processed data'''
     
-    remove_rows_with_missing_ratings(df)
+    #remove_rows_with_missing_ratings(df)
     combine_description_strings(df)
-    set_default_feature_values(df)
+    #set_default_feature_values(df)
+
+    # Merge all cleaned data into one dataframe
+    #cleaded_df = pd.merge(remove_rows_with_missing_ratings(df), combine_description_strings(df), set_default_feature_values(df))
 
     # Re index and remove old index 
     df = df.reset_index(drop=True, inplace=True)
@@ -106,9 +102,7 @@ def clean_tabular_data(df):
 
 if __name__ == "__main__":
     # Load the raw data
-    # TODO Do I want a default index or the ID as an index? 
     df = pd.read_csv("AirBnB/Data/tabular_data/listing.csv")
-    #df = pd.read_csv("AirBnB/Data/tabular_data/listing.csv", index_col=0)
 
     # Clean data
     clean_tabular_data(df)
@@ -117,7 +111,7 @@ if __name__ == "__main__":
     df.to_csv("AirBnB/Data/tabular_data/clean_tabular_data.csv", index=False)
 
     #print(df.head(5))
-    print(df.info())
+    #print(df.info())
     #print(df.describe())
 
 # END OF FILE 
