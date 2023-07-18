@@ -9,49 +9,47 @@ Functions:
 '''
 
 
-def remove_rows_with_missing_ratings(df) -> None:
-    '''
-    Removes the rows with missing values.
-    Puts all the ratings columns into a separate dataframe
-    Forces all values into floats
-    Checks for NaN values (bool)
-    Counts how many Nan values there are
-    Drops all the NaN values
-    Resets the index
+def remove_rows_with_missing_ratings(df)-> pd.DataFrame:
+    
+    """
+    Removes rows with missing values in the rating columns of the given dataframe.
 
-        Parameters:
-                df (dataframe): dataframe of tabular AirBnB data
-        Returns:
-                df (dataframe): dataframe with all the NaN rating values removed
-    '''
+    Parameters:
+        df (pd.DataFrame): The input dataframe containing rating columns.
+
+    Returns:
+        pd.DataFrame: A modified dataframe with rows removed for missing values in the rating columns.
+    """
 
     # Put all the ratings columns in one dataframe
     df_ratings = df[["Accuracy_rating", "Communication_rating", "Location_rating", "Check-in_rating", "Value_rating"]]
-
+  
     # Force values into floats (not needed in airbnb but here for future databases)
     df_ratings = df_ratings.apply(pd.to_numeric, errors='coerce')
 
-    # Check if there are NaN values in the dataframe (returns bool)
-    found_NaN_ratings = df_ratings.isnull().values.any()
+    # Remove missing values
+    df.dropna(subset=df_ratings.columns, inplace=True)
 
-    if found_NaN_ratings == True:
-        print("The following missing ratings have been found and removed")
-        # How many values are NaN
-        print(df_ratings.isnull().sum())
-        # Drop all the NaN values
-        df_ratings = df_ratings.dropna()
-    else:
-        print("No missing ratings to remove")
+    # Update original dataframe
+    df.update(df_ratings)
 
-    return df_ratings 
+    return df
 
 def combine_description_strings(df) -> None:
-    '''Combines the list of strings from the descriptions column into one string.
-       Removes empty quotes.
-       Removes records with empty discriptions.
-       Removes "About this space" prefix.
-       Takes in a dataset as a dataframe.
-       Returns a dataset as a dataframe.'''
+
+    """
+    Combines the strings in the 'Description' column of the DataFrame into a single string.
+
+    Args:
+        df (pandas.DataFrame): The input DataFrame containing the 'Description' column.
+
+    Returns:
+        pandas.DataFrame: The modified DataFrame with the combined description strings.
+
+    Raises:
+        None
+
+    """
     
     # Put description column into one dataframe
     df_description = df[["Description"]]
@@ -69,9 +67,20 @@ def combine_description_strings(df) -> None:
     return df_description 
 
 def set_default_feature_values(df) -> None:
-    '''Replace empty values from guests, beds, bathrooms an bedrooms with 1.
-       Takes in a dataset as a dataframe.
-       Returns a dataset as a dataframe.'''
+
+    """
+    Sets default values for the feature columns that contain missing values (NaN) in the DataFrame.
+
+    Args:
+        df (pandas.DataFrame): The input DataFrame containing feature columns.
+
+    Returns:
+        pandas.DataFrame: The modified DataFrame with the default feature values.
+
+    Raises:
+        None
+
+    """
 
     # Put all the feature columns in one dataframe
     df_features = df[["guests", "beds", "bathrooms", "bedrooms"]]
@@ -82,36 +91,39 @@ def set_default_feature_values(df) -> None:
     return df_features
 
 def clean_tabular_data(df):
-    '''Calls all the data cleaning functions on the tabular data.
-       Takes in a raw dataframe.
-       Returns processed data'''
-    
-    #remove_rows_with_missing_ratings(df)
-    combine_description_strings(df)
-    #set_default_feature_values(df)
 
-    # Merge all cleaned data into one dataframe
-    #cleaded_df = pd.merge(remove_rows_with_missing_ratings(df), combine_description_strings(df), set_default_feature_values(df))
+    df_before_update = df.copy()  # Make a copy of the original dataframe
+
+    remove_rows_with_missing_ratings(df)
+
+    # Compare if 'df' has been modified after the update
+    is_updated = not df.equals(df_before_update)
+
+    if is_updated:
+        print("The original dataframe 'df' has been updated successfully.")
+    else:
+        print("The original dataframe 'df' remains unchanged.")
 
     # Re index and remove old index 
-    df = df.reset_index(drop=True, inplace=True)
+    df.reset_index(drop=True, inplace=True)
 
-    return
+    return None
 
 
 
 if __name__ == "__main__":
     # Load the raw data
-    df = pd.read_csv("AirBnB/Data/tabular_data/listing.csv")
+    df = pd.read_csv("Data/tabular_data/listing.csv")
 
     # Clean data
     clean_tabular_data(df)
 
     # Save processed data as a .csv
-    df.to_csv("AirBnB/Data/tabular_data/clean_tabular_data.csv", index=False)
-
-    #print(df.head(5))
-    #print(df.info())
-    #print(df.describe())
+    df.to_csv("Data/tabular_data/clean_tabular_data.csv", index=False)
 
 # END OF FILE 
+
+
+
+
+
