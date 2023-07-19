@@ -1,4 +1,5 @@
 import pandas as pd
+import ast
 
 '''
 Functions:
@@ -35,36 +36,16 @@ def remove_rows_with_missing_ratings(df)-> pd.DataFrame:
 
     return df
 
-def combine_description_strings(df) -> None:
+def combine_description_strings(df)-> pd.DataFrame:
 
-    """
-    Combines the strings in the 'Description' column of the DataFrame into a single string.
-
-    Args:
-        df (pandas.DataFrame): The input DataFrame containing the 'Description' column.
-
-    Returns:
-        pandas.DataFrame: The modified DataFrame with the combined description strings.
-
-    Raises:
-        None
-
-    """
-    
-    # Put description column into one dataframe
-    df_description = df[["Description"]]
-    print(df_description)
-
-    # Removes empty descriptions
-    df_description = df_description.dropna()
-
-    # Combine lists of strings into one string
-    df_description= df_description["Description"].apply(str)
-
-    # Removes "About this space" prefix" and empty quotes
-    df_description = df_description.str.replace("'About this space'," ,"")
-
-    return df_description 
+    # Removes missing descriptions
+    df = df.dropna(subset=["Description"])
+    # Removes "About this space" prefix
+    df["Description"] = df["Description"].str.replace("'About this space', ", "")
+    # Remove empty quotes from the lists
+    df["Description"] = df["Description"].str.replace(r"['\"]\s*['\"]", "", regex=True)
+    #print(df["Description"])
+    return df
 
 def set_default_feature_values(df) -> None:
 
@@ -94,7 +75,9 @@ def clean_tabular_data(df):
 
     df_before_update = df.copy()  # Make a copy of the original dataframe
 
-    remove_rows_with_missing_ratings(df)
+    #remove_rows_with_missing_ratings(df)
+    #df = combine_description_strings(df)
+
 
     # Compare if 'df' has been modified after the update
     is_updated = not df.equals(df_before_update)
