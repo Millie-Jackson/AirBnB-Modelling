@@ -31,12 +31,28 @@ def remove_rows_with_missing_ratings(df)-> pd.DataFrame:
     # Remove missing values
     df.dropna(subset=df_ratings.columns, inplace=True)
 
-    # Update original dataframe
-    df.update(df_ratings)
-
     return df
 
 def combine_description_strings(df)-> pd.DataFrame:
+
+    """
+    Combine and clean the strings in the 'Description' column of the given DataFrame.
+
+    This function removes missing descriptions (NaN),
+    removes the prefix "'About this space', 
+    and removes empty quotes from the lists in the 'Description' column.
+
+    Parameters:
+        df (pd.DataFrame): The input DataFrame containing the 'Description' column.
+
+    Returns:
+        pd.DataFrame: A modified DataFrame with cleaned 'Description' strings.
+
+    Notes:
+        - The changes are applied directly to the original DataFrame, modifying it in place.
+        - If the 'Description' column contains actual lists, the prefix removal and empty quote
+          removal might not be necessary; verify the format of the 'Description' values beforehand.
+    """
 
     # Removes missing descriptions
     df = df.dropna(subset=["Description"])
@@ -44,7 +60,7 @@ def combine_description_strings(df)-> pd.DataFrame:
     df["Description"] = df["Description"].str.replace("'About this space', ", "")
     # Remove empty quotes from the lists
     df["Description"] = df["Description"].str.replace(r"['\"]\s*['\"]", "", regex=True)
-    #print(df["Description"])
+
     return df
 
 def set_default_feature_values(df) -> None:
@@ -68,16 +84,46 @@ def set_default_feature_values(df) -> None:
 
     # Replace all NaN with 1
     df_features = df_features.fillna(1)
-
+    
     return df_features
 
 def clean_tabular_data(df):
 
+    """
+    Clean the tabular data in the given DataFrame.
+
+    This function performs the following operations on the DataFrame:
+    1. Makes a copy of the original DataFrame to keep track of changes.
+    2. Removes rows with missing values in the rating columns.
+    3. Combines and cleans the strings in the 'Description' column.
+    4. Sets default feature values to fill missing values in the DataFrame.
+    5. Compares if the DataFrame has been modified after the updates.
+    6. Displays a message indicating whether the original DataFrame has been updated.
+    7. Reindexes the DataFrame and removes the old index.
+
+    Parameters:
+        df (pd.DataFrame): The input DataFrame to be cleaned.
+
+    Returns:
+        None
+
+    Notes:
+        - The changes are applied directly to the input DataFrame, modifying it in place.
+        - The function is designed to perform multiple cleaning steps, including combining
+          and cleaning the 'Description' column and setting default feature values.
+        - The function may print a message indicating whether the original DataFrame has
+          been updated after cleaning.
+
+    Example:
+        df = clean_tabular_data(df)
+
+    """
+
     df_before_update = df.copy()  # Make a copy of the original dataframe
 
-    #remove_rows_with_missing_ratings(df)
-    #df = combine_description_strings(df)
-
+    df = remove_rows_with_missing_ratings(df)
+    df = combine_description_strings(df)
+    df = set_default_feature_values(df)
 
     # Compare if 'df' has been modified after the update
     is_updated = not df.equals(df_before_update)
