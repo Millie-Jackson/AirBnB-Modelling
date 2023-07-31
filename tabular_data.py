@@ -63,7 +63,7 @@ def combine_description_strings(df)-> pd.DataFrame:
 
     return df
 
-def set_default_feature_values(df) -> None:
+def set_default_feature_values(df)-> pd.DataFrame:
 
     """
     Sets default values for the feature columns that contain missing values (NaN) in the DataFrame.
@@ -87,7 +87,7 @@ def set_default_feature_values(df) -> None:
     
     return df_features
 
-def clean_tabular_data(df):
+def clean_tabular_data(df) -> None:
 
     """
     Clean the tabular data in the given DataFrame.
@@ -105,12 +105,10 @@ def clean_tabular_data(df):
         df (pd.DataFrame): The input DataFrame to be cleaned.
 
     Returns:
-        None
+        pd.DataFrame: A modified DataFrame with cleaned data.
 
     Notes:
         - The changes are applied directly to the input DataFrame, modifying it in place.
-        - The function is designed to perform multiple cleaning steps, including combining
-          and cleaning the 'Description' column and setting default feature values.
         - The function may print a message indicating whether the original DataFrame has
           been updated after cleaning.
 
@@ -138,6 +136,46 @@ def clean_tabular_data(df):
 
     return None
 
+def load_airbnb(label="Price_Night") -> pd.DataFrame:
+
+    """
+    Load the cleaned Airbnb data and return numerical features and the specified column as the label.
+
+    Parameters:
+        label (str, optional): The name of the column to be used as the label. Default is "Price_Night".
+
+    Returns:
+        tuple: A tuple containing the numerical features (X) and the specified column as the label (y) as pandas DataFrames.
+
+    Raises:
+        FileNotFoundError: If the cleaned data file is not found.
+        ValueError: If the specified label column is not found in the data.
+
+    Example:
+        features, labels = load_airbnb()
+        # or specify a different label column
+        features, labels = load_airbnb(label="Another_Label_Column")
+    """
+
+    # Load cleaned data
+    try:
+        df = pd.read_csv("Data/tabular_data/clean_tabular_data.csv")
+    except FileNotFoundError:
+        raise FileNotFoundError("Cant find cleaned data file")
+
+    # Check if the label column is in the data
+    if label not in df.columns:
+        raise ValueError(f"'{label}' is not a features")
+
+    # Filter out non-numeric columns
+    features = df.select_dtypes(include=[int, float])
+
+    # Remove label column from features
+    features.drop(columns=[label], inplace=True, errors="ignore")
+    labels = df[[label]]
+
+    return features, labels
+
 
 
 if __name__ == "__main__":
@@ -150,9 +188,8 @@ if __name__ == "__main__":
     # Save processed data as a .csv
     df.to_csv("Data/tabular_data/clean_tabular_data.csv", index=False)
 
+    # Extract
+    features, labels = load_airbnb()
+
+
 # END OF FILE 
-
-
-
-
-
