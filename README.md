@@ -201,3 +201,24 @@ The project's focus on data cleaning, data analysis, and building a predictive m
 Throughout the project, I learned the importance of data preprocessing and the impact it has on the quality of analysis and model performance. It provided valuable insights into data-driven decision-making and reinforced the significance of clean, reliable data for accurate predictions.
 
 The project's hands-on nature and the exposure to a real-world dataset offered practical perspectives on data science tasks, laying a strong foundation for future data-driven projects.
+
+## Milestone 1-3
+Throughout Milestone 1, 2, and 3, I developed a data science project focused on cleaning the Airbnb data. The project encompasses multiple key functionalities and features.
+
+I have implemented a robust data cleaning process to handle missing values, data type conversion, and inconsistencies in the raw Airbnb dataset. The cleaned dataset ensures the reliability and quality of subsequent analyses. The project allows users to specify a target label column during analysis. This customization option enables users to focus on specific aspects of the rental market based on their interests. The cleaned data is saved as "clean_tabular_data.csv" to facilitate future analysis and usage. This feature ensures the availability of a reliable and cleaned dataset for further tasks. The project is designed with user-friendliness in mind, providing easy execution of data cleaning and analysis scripts. It accommodates users with varying programming experience. To promote code reusability and maintainability, the implementation follows a modular code structure. Each major feature is encapsulated in separate functions, making the code easy to understand and modify.
+
+**Python:** 
+
+I have utilized Python as the primary programming language for this project. Python's versatility, extensive libraries, and strong community support make it an ideal choice for data science tasks. Python's simplicity and readability allow for rapid development and easy debugging. Additionally, its extensive ecosystem of libraries makes it an ideal choice for data science and machine learning tasks.
+
+**Pandas:** 
+
+Pandas is a powerful library in Python for data manipulation and analysis. I have used Pandas to handle data cleaning tasks, data exploration, and data wrangling. Pandas provides intuitive data structures (DataFrames and Series) and powerful tools for data manipulation and future analysis. It simplifies complex data cleaning tasks and enables efficient data exploration.
+    
+**GitHub:** 
+
+I have utilized GitHub as the version control platform to manage the project's codebase and track changes throughout development. GitHub provides version control and collaborative features, enabling seamless collaboration among team members. Although this aspect hasnt bee used in this solo project it is good to learn these for future projects. It allows me to track changes, manage issues, and maintain a well-organized codebase.
+   
+**AST:** 
+
+The ast (Abstract Syntax Trees) module in Python has been used to parse Python source code and extract information about the code's abstract syntax structure. The ast module is used to parse complex strings in the "Description" column during data cleaning. By utilizing the abstract syntax trees, we can handle intricate structures and perform data transformations effectively.
