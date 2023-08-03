@@ -1,6 +1,6 @@
 
 # Badges
-[![Build Status](https://travis-ci.org/Millie-Jackson/airbnb-data-analysis.svg?branch=main)](https://travis-ci.org/your-username/airbnb-data-analysis)
+[![Build Status](https://travis-ci.org/Millie-Jackson/airbnb-data-analysis.svg?branch=main)](https://travis-ci.org/Millie-Jackson/airbnb-data-analysis)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/badge/python-3.6%20|%203.7%20|%203.8%20|%203.9-blue)](https://www.python.org/downloads/)
 
@@ -13,19 +13,31 @@ The dataset used in this project contains various features related to Airbnb lis
 
 
 
-# Table of Contents
-1. [Introduction](#introduction)
-    - [Problem](#problem)
-    - [Solution](#solution)
-    - [Target Users](#targetusers)  
-2. [Major Features](#majorfeatures)
-    - [What Makes this Project Unique?](#whatmakesthisprojectunique?)  
-3. [Installation](#installation)
-4. [Usage](#usage)
-5. [Data Cleaning](#datacleaning)
-6. [Data Analysis](#dataanalysis)
-7. [Contributing](#contributing)
-8. [License](#license)
+# Table of Contents
+1. [Introduction](#introduction)
+    - [Problem](#problem)
+    - [Solution](#solution)
+    - [Target Users](#target-users)
+    - [Motivation](#motivation)
+2. [Major Features](#major-features)
+    - [Data Cleaning](#data-cleaning)
+    - [Real-World Learning Exercise](#real-world-learning-exercise)
+    - [Customizable Label Column](#customizable-label-column)
+    - [Data Saving](#data-saving)
+    - [User-Friendly Execution](#user-friendly-execution)
+    - [Modular Code Structure](#modular-code-structure)
+    - [Real-World Dataset - Airbnb](#real-world-dataset---airbnb)
+    - [What Makes this Project Unique](#what-makes-this-project-unique)
+3. [Installation](#installation)
+4. [Usage](#usage)
+5. [Contributing](#contributing)
+6. [License](#license)
+7. [Technical Breakdown](#technical-breakdown)
+    - [Data Loading](#data-loading)
+    - [Data Cleaning](#data-cleaning-1)
+    - [Save Cleaned Data](#save-cleaned-data)
+    - [Label Selection](#label-selection)
+    - [Learnings](#learnings)
 
 
 
@@ -52,9 +64,7 @@ Through the Airbnb Project, users gain access to a cleaned and structured datase
 
 Whether you are looking to optimize your rental offerings, plan your travels, or analyze investment opportunities, this project equips you with the tools to gain actionable insights from Airbnb data.
 
-
-
-# Motivation
+### Motivation
 The Airbnb Data Cleaning and Analysis Project was undertaken as part of the AiCore Data Science Specialization. It served as my first attempt at building a prediction model using neural networks and was a valuable learning exercise utilizing a real-world example.
 
 As part of the data science specialization, the project aimed to enhance my understanding of data cleaning, data analysis, and the application of neural networks for predictive modeling. By working on a real-world dataset like Airbnb data, I could explore the intricacies of handling missing data, extracting insights, and identifying trends in the vacation rental market.
@@ -62,8 +72,6 @@ As part of the data science specialization, the project aimed to enhance my unde
 Throughout the project, I gained hands-on experience in data preprocessing, data visualization, and implementing neural networks for regression tasks. The aim was to develop a comprehensive solution that could be applied to other similar datasets and provide meaningful insights to diverse stakeholders in the vacation rental market.
 
 The project's motivation was not only to build a prediction model but also to grasp the practical challenges faced while working with real data. It allowed me to refine my data science skills, learn from iterative improvements, and enhance my overall understanding of the data science workflow.
-
-
 
 ### Target Users
 The target users of this project are individuals or organizations interested in gaining a deeper understanding of the Airbnb rental market. 
@@ -76,8 +84,6 @@ Potential users include:
 **Real Estate Investors:** Investors exploring potential investment opportunities in the vacation rental market.
 
 **Data Enthusiasts:** Individuals interested in data analysis, visualization, and gaining insights from real-world datasets.
-
-
 
 ## Major Features
 **Data Cleaning:** The project includes a robust data cleaning process to handle missing values, data type conversion, and inconsistency removal. It ensures a clean and reliable dataset for analysis.
@@ -98,8 +104,6 @@ Potential users include:
 
 **Real-World Dataset - Airbnb:** The project employs a real-world dataset from Airbnb, ensuring the relevance and practical applicability of the analysis and model building.
 
-
-
 ### What Makes this Project Unique
 The project stands out due to its user-friendly implementation, allowing individuals with varying programming experience to explore the Airbnb dataset effortlessly. The ability to specify a target label column during analysis also provides users with customization options based on their specific interests and requirements.
 
@@ -109,19 +113,26 @@ The project stands out due to its user-friendly implementation, allowing individ
 To run the code in this project, you'll need to have Python installed on your system. Additionally, the following Python libraries are required and can be installed using pip:
 
 pandas
+
 numpy
+
 To install the required libraries, use the following command:
-pip install pandas numpy
+```python pip install pandas numpy```
 
 
 
 ## Usage
 Clone the repository to your local machine:
-git clone https://github.com/Millie-Jackson/airbnb-data-analysis.git
+
+```python git clone https://github.com/Millie-Jackson/airbnb-data-analysis.git```
+
 Navigate to the project directory:
-cd airbnb
+
+```python cd airbnb```
+
 Run the data cleaning and analysis scripts:
-python tabular_data.py
+
+```python python tabular_data.py```
 
 
 
@@ -137,37 +148,31 @@ This project is licensed under the MIT License.
 
 
 # Technical Breakdown
-**Load Airbnb Data:** The program starts by loading the raw Airbnb data from a CSV file ("listing.csv") using the pandas library. If the file is not found, it raises a "FileNotFoundError" and provides an appropriate error message.
+**Data Loading:** The code starts by loading the raw Airbnb data from a CSV file ("listing.csv") using the pandas library's read_csv function. It handles the case when the file is not found and raises a FileNotFoundError with an appropriate error message.
 
 **Data Cleaning:** The data cleaning process involves removing missing values, converting data types, and handling inconsistencies. 
 
-The tabular_data.py script calls the "clean_tabular_data(df)" function to perform data cleaning. 
+The tabular_data.py script calls the "clean_tabular_data(df)" function to perform data cleaning. It serves as the core data cleaning process. 
 
-A copy of the original dataframe ("df_before_update") is created to track changes. 
+Makes a copy of the original DataFrame ("df_before_update") to track changes.
 
-The program compares if the dataframe ("df") has been modified after the update.
+Calls the remove_rows_with_missing_ratings(df), combine_description_strings(df), and set_default_feature_values(df) functions to clean the data.
 
-A message is displayed indicating whether the original dataframe has been updated.
+Compares if the DataFrame ("df") has been modified after the update and displays a message indicating whether the original DataFrame has been updated.
 
-The dataframe index is reset and the old index is removed.
+Reindexes the DataFrame and removes the old index.
 ![Code Screenshot](screenshots/clean_tabular_data.png)
 
-The "remove_rows_with_missing_ratings(df)" function is called to remove rows with missing values in the rating columns.
+The "remove_rows_with_missing_ratings(df)" function is called to rows with missing values in the rating columns (Accuracy_rating, Communication_rating, Location_rating, Check-in_rating, Value_rating).
 ![Code Screenshot](screenshots/remove_rows_with_missing_ratings.png)
 
-The "combine_description_strings(df)" function is called to combine and clean the strings in the "Description" column.
+The "combine_description_strings(df)" function is called to combine and clean the strings in the "Description" column by removing missing descriptions (NaN), the prefix "'About this space'," and empty quotes from the lists in the "Description" column.
 ![Code Screenshot](screenshots/combine_description_strings.png)
 
-The "set_default_feature_values(df)" function is called to set default values for missing feature columns.
+The "set_default_feature_values(df)" function is called to set default values for the feature columns (guests, beds, bathrooms, bedrooms) to fill missing values with 1.
 ![Code Screenshot](screenshots/set_default_feature_values.png)
 
-The program compares if the dataframe ("df") has been modified after the update.
-
-A message is displayed indicating whether the original dataframe has been updated.
-
-The dataframe index is reset and the old index is removed.
-
-After data cleaning, the cleaned dataframe ("df") is saved as "clean_tabular_data.csv" using the "to_csv" method of pandas.
+**Save Cleaned Data:** After data cleaning, the cleaned DataFrame ("df") is saved as "clean_tabular_data.csv" using the to_csv method of pandas.
 
 **Label Selection:**
 The program loads the cleaned data from "clean_tabular_data.csv" using pandas to proceed with further analysis.
@@ -180,6 +185,8 @@ The program then filters out non-numeric columns to include only numerical featu
 ![Code Screenshot](screenshots/load_airbnbpng)
 
 **Data Analysis:**
+
+
 
 # Learnings
 The Airbnb Data Cleaning and Analysis Project provided a valuable learning experience as it marked several first-time achievements in my data science journey. 
