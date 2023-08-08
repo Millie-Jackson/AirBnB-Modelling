@@ -126,3 +126,7 @@ class DataCleaner:
         self.df.reset_index(drop=True, inplace=True)
 
         return self.df
+    
+
+    
+# END OF FILE

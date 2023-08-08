@@ -53,17 +53,12 @@ def load_airbnb(label="Price_Night") -> pd.DataFrame:
 
 if __name__ == "__main__":
 
-    cleaner = DataCleaner("Data/tabular_data/listing.csv")
-    df = cleaner.clean_tabular_data()
-    
     # Load the raw data
-    #df = pd.read_csv("Data/tabular_data/listing.csv")
-
-    # Clean data
-    #clean_tabular_data(df)
-
+    cleaner = DataCleaner("Data/tabular_data/listing.csv")
+    # Clean the data
+    cleaner_df = cleaner.clean_tabular_data()
     # Save processed data as a .csv
-    df.to_csv("Data/tabular_data/clean_tabular_data.csv", index=False)
+    cleaner_df.to_csv("Data/tabular_data/clean_tabular_data.csv", index=False)
 
     # Extract
     features, labels = load_airbnb()
