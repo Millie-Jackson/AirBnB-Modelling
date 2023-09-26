@@ -37,7 +37,7 @@ class DataCleaner:
         self.filename = filename 
         self.df = None
 
-    def remove_rows_with_missing_ratings(self)-> None:
+    def remove_rows_with_missing_ratings(self)-> pd.DataFrame:
     
         """
         Removes rows with missing values in the rating columns of the given dataframe.
@@ -48,16 +48,14 @@ class DataCleaner:
 
         # Put all the ratings columns in one dataframe
         df_ratings = self.df[["Accuracy_rating", "Communication_rating", "Location_rating", "Check-in_rating", "Value_rating"]]
-    
-        # Force values into floats (not needed in airbnb but here for future databases)
-        df_ratings = df_ratings.apply(pd.to_numeric, errors='coerce')
 
         # Remove missing values
         self.df.dropna(subset=df_ratings.columns, inplace=True)
+        self.df.reset_index(drop=True, inplace=True)
 
-        return None
+        return self.df
     
-    def combine_description_strings(self)-> None:
+    def combine_description_strings(self)-> pd.DataFrame:
 
         """
         Combine and clean the strings in the 'Description' column of the given DataFrame.
@@ -73,9 +71,9 @@ class DataCleaner:
         # Remove empty quotes from the lists
         self.df["Description"] = self.df["Description"].str.replace(r"['\"]\s*['\"]", "", regex=True)
 
-        return 
+        return self.df
     
-    def set_default_feature_values(self)-> None:
+    def set_default_feature_values(self)-> pd.DataFrame:
 
         """
         Sets default values for the feature columns that contain missing values (NaN) in the DataFrame.
@@ -89,9 +87,10 @@ class DataCleaner:
 
         # Replace all NaN with 1
         for column in feature_columns:
+            self.df[column].replace(0, 1, inplace=True)
             self.df[column].fillna(1, inplace=True)
-        
-        return None
+
+        return self.df
     
     def clean_tabular_data(self) -> pd.DataFrame:
 
@@ -110,9 +109,10 @@ class DataCleaner:
 
         df_before_update = self.df.copy()  # Make a copy of the original dataframe
 
-        self.remove_rows_with_missing_ratings()
-        self.combine_description_strings()
-        self.set_default_feature_values()
+        self.df.drop("Unnamed: 19", axis=1, inplace=True)
+        self.df = self.remove_rows_with_missing_ratings()
+        self.df = self.combine_description_strings()
+        self.df = self.set_default_feature_values()
 
         # Compare if 'df' has been modified after the update
         is_updated = not self.df.equals(df_before_update)
