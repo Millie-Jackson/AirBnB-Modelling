@@ -1,0 +1,8 @@
+{
+    "best_validation_RMSE": 99.17614918061162,
+    "best_params": {
+        "alpha": 0.01,
+        "learning_rate": "invscaling"
+    },
+    "cv_results": {
+        "mean_fit_time": 
