@@ -2,6 +2,8 @@ from tabular_data import load_airbnb # Data Processing
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import SGDRegressor
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 from itertools import product 
 import numpy as np
@@ -182,10 +184,18 @@ def save_model(model, hyperparameters, performance_metrics, folder='models/regre
     model_filename = os.path.join(folder, 'model.joblib')
     joblib.dump(model, model_filename)
 
+    # If necissary, convert np arrays to list, np and json arnt compatible 
+    best_hyperparameters['alpha'] = best_hyperparameters['alpha'].tolist() if isinstance(best_hyperparameters['alpha'], np.ndarray) else best_hyperparameters['alpha']
+    best_hyperparameters['learning_rate'] = best_hyperparameters['learning_rate'].tolist() if isinstance(best_hyperparameters['learning_rate'], np.ndarray) else best_hyperparameters['learning_rate']
+
+    performance_metrics['best_validation_RMSE'] = performance_metrics['best_validation_RMSE'].tolist()
+    performance_metrics['best_params'] = {key: value.tolist() if isinstance(value, np.ndarray) else value for key, value in performance_metrics['best_params'].items()}
+    performance_metrics['cv_results'] = {key: value.tolist() if isinstance (value, np.ndarray) else value for key, value in performance_metrics['cv_results'].items()}
+
     # Save the hyperparameters
     hyperparameters_filename = os.path.join(folder, 'hyperparameters.json')
     with open(hyperparameters_filename, 'w') as json_file:
-        json.dump(hyperparameters, json_file, indent=4)
+        json.dump(best_hyperparameters, json_file, indent=4)
 
     # Save the performance metrics
     metrics_filename = os.path.join(folder, 'metrics.json')
