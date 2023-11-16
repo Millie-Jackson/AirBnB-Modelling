@@ -110,17 +110,16 @@ def custom_tune_regression_model_hyperparameters(model_class, X, y, hyperparamet
 '''
 
 # Tune Using SKlearn
-def tune_regression_model_hyperparameters(model, X, y, hyperparameters, cv=5):
+#def tune_regression_model_hyperparameters(model, X, y, hyperparameters, cv=5):
+def tune_regression_model_hyperparameters(model_class, X, y):
 
     """
     Perform hyperparameter tuning using GridSearchCV.
 
     Parameters:
-    - model: The regression model (an instance, not a class).
-    - hyperparameters: The dictionary of hyperparameter values to be tried.
+    - model_class: The regression model class.
     - X: The feature matrix.
     - y: The target variable.
-    - cv: Number of cross-validation folds.
 
     Returns:
     - best_model: The best regression model.
@@ -128,8 +127,39 @@ def tune_regression_model_hyperparameters(model, X, y, hyperparameters, cv=5):
     - performance_metrics: A dictionary of performance metrics.
     """
 
-    # Instantiate the model
-    estimator = model()
+    # Specify hyperparameters for each model
+    if model_class == SGDRegressor:
+        hyperparameters = {
+            'alpha': [0.0001, 0.001, 0.01, 0.1],
+            'learning_rate': ['constant', 'optimal', 'invscaling']
+        }
+        estimator = model_class(max_iter=1000, random_state=42)
+    elif model_class == DecisionTreeRegressor:
+        hyperparameters = {
+            'max_depth': [None, 10, 20, 30],
+            'min_samples_split': [2, 5, 10],
+            'min_samples_leaf': [1, 2, 4]
+        }
+        estimator = model_class()
+    elif model_class == RandomForestRegressor:
+        hyperparameters = {
+            'n_estimators': [50, 100, 200],
+            'max_depth': [None, 10, 20, 30],
+            'min_samples_split': [2, 5, 10],
+            'min_samples_leaf': [1, 2, 4]
+        }
+        estimator = model_class()
+    elif model_class == GradientBoostingRegressor:
+        hyperparameters = {
+            'n_estimators': [50, 100, 200],
+            'learning_rate': [0.01, 0.1, 0.2],
+            'max_depth': [3, 4, 5],
+            'min_samples_split': [2, 5, 10],
+            'min_samples_leaf': [1, 2, 4]
+        }
+        estimator = model_class()
+    else:
+        raise ValueError("Unsupported model class")
 
     grid_search = GridSearchCV(estimator, hyperparameters, scoring='neg_mean_squared_error')
     grid_search.fit(X, y)
@@ -148,17 +178,6 @@ def tune_regression_model_hyperparameters(model, X, y, hyperparameters, cv=5):
     }
 
     return best_model, best_hyperparameters, performance_metrics
-
-hyperparameters = {
-    'alpha': [0.0001, 0.001, 0.01, 0.1],
-    'learning_rate': ['constant', 'optimal', 'invscaling']
-    }
-
-best_model, best_hyperparameters, performance_metrics = tune_regression_model_hyperparameters(SGDRegressor, X_train, y_train, hyperparameters)
-print(f"Best hyperparameters: {best_hyperparameters}")
-print(f"Performance_metrics: {performance_metrics}")
-
-
 
 # SAVING THE MODEL
 
@@ -204,8 +223,58 @@ def save_model(model, hyperparameters, performance_metrics, folder='models/regre
 
     print(f"Model, hyperparameter and metrics saved to {folder}")
 
-save_model(best_model, best_hyperparameters, performance_metrics)
+# EVALUATING EACH MODEL
+
+def evaluate_all_models(X_train, y_train, X_validation, y_validation, 
+                        model_classes = [SGDRegressor, DecisionTreeRegressor, RandomForestRegressor, GradientBoostingRegressor], folder='models/regression') -> None:
+
+    """
+    Evaluate different regression models, tune hyperparameters, and save the best models.
+
+    Parameters:
+    - X_train, y_train: Training data.
+    - X_validation, y_validation: Validation data.
+    - folder: The folder where model-related files should be saved.
+
+    Returns:
+    - None
+    """
+
+    # List of models to evaluate
+    models = [
+        DecisionTreeRegressor,
+        RandomForestRegressor,
+        GradientBoostingRegressor
+    ]
+
+    for model_class in models:
+        # Tune hyperparameters
+        #hyperparameters = tune_regression_model_hyperparameters(model_class, X_train, y_train)
+        best_model, best_hyperparameters, performance_metrics = tune_regression_model_hyperparameters(model_class, X_train, y_train)
+
+        # Save the model, hyperparameters, and metrics
+        model_name = model_class.__name__.lower()
+        model_folder = os.path.join(folder, model_name)
+        save_model(best_model, best_hyperparameters, performance_metrics, folder=model_folder)
+
+
+if __name__ == "__main__":
+
+    # Evaluate all models
+    evaluate_all_models(X_train, y_train, X_validation, y_validation)
+
 
 ## READ ME ##
 # I set the test size to 30% as my dataset is small (less than 900)
 # I used random_state to It's also helpful when you want to compare different models or algorithms. By using the same random_state, you can be confident that any differences in performance are due to the model and not random variations. 42 is convention
+
+'''
+OPTIONAL
+Reuse Functions: Consider creating a reusable function for hyperparameter tuning, which can be used for each model. This reduces code redundancy and makes your script more maintainable.
+Use a Dictionary for Models: Instead of a list, consider using a dictionary to map model names to their corresponding classes. This can make your code more readable and scalable.
+Logging: Add logging statements to provide information about the progress of your script. This can be helpful for debugging and understanding where your script might be spending more time.
+Comments: Some parts of your code already have comments explaining the purpose of the code, which is great. Make sure to add comments for more complex sections or to explain the rationale behind certain choices.
+Data Exploration: Consider adding a section for exploring and visualizing your data. Understanding your data better can often lead to more informed modeling decisions.
+Handle Edge Cases: Ensure that your script gracefully handles edge cases, such as cases where a folder already exists or when there's an issue with saving models.
+Flexibility: Make your script more flexible by allowing users to specify parameters such as the test size and random seed as arguments.
+'''
