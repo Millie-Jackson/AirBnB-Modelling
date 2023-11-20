@@ -204,8 +204,8 @@ def save_model(model, hyperparameters, performance_metrics, folder='models/regre
     joblib.dump(model, model_filename)
 
     # If necissary, convert np arrays to list, np and json arnt compatible 
-    best_hyperparameters['alpha'] = best_hyperparameters['alpha'].tolist() if isinstance(best_hyperparameters['alpha'], np.ndarray) else best_hyperparameters['alpha']
-    best_hyperparameters['learning_rate'] = best_hyperparameters['learning_rate'].tolist() if isinstance(best_hyperparameters['learning_rate'], np.ndarray) else best_hyperparameters['learning_rate']
+    hyperparameters['alpha'] = hyperparameters.get('alpha', []).tolist() if isinstance(hyperparameters.get('alpha', []), np.ndarray) else hyperparameters.get('alpha', [])
+    hyperparameters['learning_rate'] = hyperparameters.get('learning_rate', []).tolist() if isinstance(hyperparameters.get('learning_rate', []), np.ndarray) else hyperparameters.get('learning_rate', [])
 
     performance_metrics['best_validation_RMSE'] = performance_metrics['best_validation_RMSE'].tolist()
     performance_metrics['best_params'] = {key: value.tolist() if isinstance(value, np.ndarray) else value for key, value in performance_metrics['best_params'].items()}
@@ -214,7 +214,7 @@ def save_model(model, hyperparameters, performance_metrics, folder='models/regre
     # Save the hyperparameters
     hyperparameters_filename = os.path.join(folder, 'hyperparameters.json')
     with open(hyperparameters_filename, 'w') as json_file:
-        json.dump(best_hyperparameters, json_file, indent=4)
+        json.dump(hyperparameters, json_file, indent=4)
 
     # Save the performance metrics
     metrics_filename = os.path.join(folder, 'metrics.json')
@@ -241,15 +241,14 @@ def evaluate_all_models(X_train, y_train, X_validation, y_validation,
     """
 
     # List of models to evaluate
-    models = [
+    model_classes = [
         DecisionTreeRegressor,
         RandomForestRegressor,
         GradientBoostingRegressor
     ]
 
-    for model_class in models:
+    for model_class in model_classes:
         # Tune hyperparameters
-        #hyperparameters = tune_regression_model_hyperparameters(model_class, X_train, y_train)
         best_model, best_hyperparameters, performance_metrics = tune_regression_model_hyperparameters(model_class, X_train, y_train)
 
         # Save the model, hyperparameters, and metrics
@@ -257,11 +256,57 @@ def evaluate_all_models(X_train, y_train, X_validation, y_validation,
         model_folder = os.path.join(folder, model_name)
         save_model(best_model, best_hyperparameters, performance_metrics, folder=model_folder)
 
+    return None
 
+def find_best_model(model_folders):
+
+    """
+    Find the best model among the trained models.
+
+    Parameters:
+    - model_folders: A list of folders, each containing a trained model.
+
+    Returns:
+    - best_model: The loaded best regression model.
+    - best_hyperparameters: A dictionary of the best hyperparameter values.
+    - best_performance_metrics: A dictionary of performance metrics for the best model.
+    """
+
+    best_model = None
+    best_hyperparameters = None
+    best_performance_metrics = {'best_validation_RMSE': float('inf')}
+
+    for folder in model_folders:
+        # Load hyperparameters and performance metrics
+        hyperparameters_file = os.path.join(folder, 'hyperparameters.json')
+        performance_metrics_file = os.path.join(folder, 'metrics.json')
+
+        with open(hyperparameters_file, 'r') as json_file:
+            hyperparameters = json.load(json_file)
+
+        with open(performance_metrics_file, 'r') as json_file:
+            performance_metrics = json.load(json_file)
+
+        # Check if this model has a lower validation RMSE
+        if performance_metrics['best_validation_RMSE'] < best_performance_metrics['best_validation_RMSE']:
+            best_model = joblib.load(os.path.join(folder, 'model.joblib'))
+            best_hyperparameters = hyperparameters
+            best_performance_metrics = performance_metrics
+
+    return best_model, best_hyperparameters, best_performance_metrics
+        
 if __name__ == "__main__":
 
     # Evaluate all models
     evaluate_all_models(X_train, y_train, X_validation, y_validation)
+
+    # Find best model
+    model_folders = ['models/regression/decisiontreeregressor', 'models/regression/randomforestregressor', 'models/regression/gradientboostingregressor']
+    best_model, best_hyperparameters, best_performance_metrics = find_best_model(model_folders)
+
+    print(f"Best Model: {best_model}")
+    #print(f"Best hyperparameters: {best_hyperparameters}")
+    #print(f"Best Performace Metrics: {best_performance_metrics}")
 
 
 ## READ ME ##
