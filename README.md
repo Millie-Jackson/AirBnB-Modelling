@@ -160,7 +160,8 @@ AirBnB/
 │   └── links.txt
 │
 ├── utils/
-│   └── data_cleaner.py
+│   ├── data_cleaner.py
+│   └── tabular_data.py
 │
 ├── models/
 │   ├── regression/
@@ -177,11 +178,13 @@ AirBnB/
 │   │   │   ├── hyperparameters.json
 │   │   │   └── metrics.json
 │
+├── src/
+│   └── modelling.py
+|
 ├── .gitattributes
 ├── modelling.py
 ├── README.md
 ├── requirements.txt
-├── tabular_data.py
 └── .gitignore
 
 ## License
