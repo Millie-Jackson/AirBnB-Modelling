@@ -31,8 +31,9 @@ The dataset used in this project contains various features related to Airbnb lis
 3. [Installation](#installation)
 4. [Usage](#usage)
 5. [Contributing](#contributing)
-6. [License](#license)
-7. [Technical Breakdown](#technical-breakdown)
+6. [File Structure](#file-structure)
+7. [License](#license)
+8. [Technical Breakdown](#technical-breakdown)
     - [Data Loading](#data-loading)
     - [Data Cleaning](#data-cleaning-1)
     - [Save Cleaned Data](#save-cleaned-data)
@@ -142,6 +143,46 @@ Contributions to this project are welcome!
 If you find any issues or have suggestions for improvement, please feel free to open an issue or submit a pull request.
 
 
+
+## File Structure
+AirBnB/
+│
+├── data/
+│   ├── airbnb-property-listings/
+│   ├── images/
+│   └── tabular_data/
+│       ├── clean_tabular_data.csv
+│       ├── listing.csv
+│
+├── docs/
+│   ├── Learning Materials
+│   ├── screenshots
+│   └── links.txt
+│
+├── utils/
+│   └── data_cleaner.py
+│
+├── models/
+│   ├── regression/
+│   │   ├── decisiontreeregressor/
+│   │   │   ├── model.joblib
+│   │   │   ├── hyperparameters.json
+│   │   │   └── metrics.json
+│   │   ├── randomforestregressor/
+│   │   │   ├── model.joblib
+│   │   │   ├── hyperparameters.json
+│   │   │   └── metrics.json
+│   │   ├── gradientboostingregressor/
+│   │   │   ├── model.joblib
+│   │   │   ├── hyperparameters.json
+│   │   │   └── metrics.json
+│
+├── .gitattributes
+├── modelling.py
+├── README.md
+├── requirements.txt
+├── tabular_data.py
+└── .gitignore
 
 ## License
 This project is licensed under the MIT License.
