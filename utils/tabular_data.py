@@ -9,7 +9,7 @@ Functions:
         clean_tabular_data(): Calls all the data cleaning functions on the tabular data.
 '''
 
-def load_airbnb(label="Price_Night") -> pd.DataFrame:
+'''def load_airbnb(label="Price_Night") -> pd.DataFrame:
 
     """
     Load the cleaned Airbnb data and return numerical features and the specified column as the label.
@@ -32,7 +32,7 @@ def load_airbnb(label="Price_Night") -> pd.DataFrame:
 
     # Load cleaned data
     try:
-        df = pd.read_csv("Data/tabular_data/clean_tabular_data.csv")
+        df = pd.read_csv("data/tabular_data/clean_tabular_data.csv")
     except FileNotFoundError:
         raise FileNotFoundError("Cant find cleaned data file")
 
@@ -47,18 +47,18 @@ def load_airbnb(label="Price_Night") -> pd.DataFrame:
     features.drop(columns=[label], inplace=True, errors="ignore")
     labels = df[[label]]
 
-    return features, labels
+    return features, labels'''
 
 
 
 if __name__ == "__main__":
 
     # Load the raw data
-    cleaner = DataCleaner("Data/tabular_data/listing.csv")
+    cleaner = DataCleaner("data/tabular_data/listing.csv")
     # Clean the data
     cleaner_df = cleaner.clean_tabular_data()
     # Save processed data as a .csv
-    cleaner_df.to_csv("Data/tabular_data/clean_tabular_data.csv", index=False)
+    cleaner_df.to_csv("data/tabular_data/clean_tabular_data.csv", index=False)
 
     # Extract
     features, labels = load_airbnb()

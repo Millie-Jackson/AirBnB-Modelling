@@ -1,4 +1,11 @@
-from tabular_data import load_airbnb # Data Processing
+
+import os #  Model Saving
+import json # Model Saving
+import joblib # Model Saving
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt # Data Visualisation
+
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import SGDRegressor
@@ -6,111 +13,97 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 from itertools import product 
-import numpy as np
-import os #  Model Saving
-import joblib # Model Saving
-import json # Model Saving
-import matplotlib.pyplot as plt # Data Visualisation
 
-# Load data with price per night as the label
-features, labels = load_airbnb(label="Price_Night")
 
-# Split data into training, validation and test sets
-X_train, X_test, y_train, y_test = train_test_split(features, labels.values.ravel(), test_size=0.3, random_state=42)
-X_validation, X_final_test, y_validation, y_final_test = train_test_split(X_test, y_test, test_size=0.5, random_state=42)
 
-# Standardize the features
-scaler = StandardScaler()
-X_train = scaler.fit_transform(X_train)
-X_validation = scaler.transform(X_validation)
-X_final_test = scaler.transform(X_final_test)
+def load_airbnb_data(label="Price_Night") -> tuple:
+    """Load Airbnb data and return features and labels."""
 
-# Train a linear regression model with gradient descent
-model = SGDRegressor(max_iter=1000, random_state=42)
-model.fit(X_train, y_train)
+    # Load cleaned data
+    try:
+        df = pd.read_csv("data/tabular_data/clean_tabular_data.csv")
+    except FileNotFoundError:
+        raise FileNotFoundError("Cant find cleaned data file")
 
-# Make predictions on the training and test set
-y_train_pred = model.predict(X_train)
-y_final_test_pred = model.predict(X_final_test)
+    # Check if the label column is in the data
+    if label not in df.columns:
+        raise ValueError(f"'{label}' is not a features")
 
-# Evaluate the test set
-rmse_train = np.sqrt(mean_squared_error(y_train, y_train_pred))
-r2_train = r2_score(y_train, y_train_pred)
-print(f"Mean Squared Error (mse): {rmse_train:.2f}")
-print(f"R-squared: {r2_train:.2f}")
+    # Filter out non-numeric columns
+    features = df.select_dtypes(include=[int, float])
 
-# Evaluate the test set
-rmse_final_test = np.sqrt(mean_squared_error(y_final_test, y_final_test_pred))
-r2_final_test = r2_score(y_final_test, y_final_test_pred)
-print(f"Mean Squared Error (mse): {rmse_final_test:.2f}")
-print(f"R-squared: {r2_final_test:.2f}")
+    # Remove label column from features
+    features.drop(columns=[label], inplace=True, errors="ignore")
+    labels = df[[label]]
 
-samples = len(y_final_test_pred)
+    features, labels = load_data()
 
-plt.figure()
-plt.scatter(np.arange(samples), y_final_test_pred, c="r", label="Predictions")
-plt.scatter(np.arange(samples), y_final_test, c="b", label="Final Test Labels", marker="x")
-plt.text(0.1, 0.9, f"RMSE: {rmse_final_test:.2f}", transform=plt.gca().transAxes)
-plt.text(0.1, 0.85, f"R2: {r2_final_test:.2f}", transform=plt.gca().transAxes)
-plt.xlabel("Sample Numbers")
-plt.ylabel("Values")
-plt.legend()
-plt.show()
+    return features, labels[label]
 
-# Tune hyperparameters
+def split_data(features, labels) -> tuple:
+    """Split data into training, validation, and test sets."""
 
-# Tune From Scratch
-'''
-def custom_tune_regression_model_hyperparameters(model_class, X, y, hyperparameters):
+    return train_test_split(features, labels, test_size=0.3, random_state=42)
+
+def standardize_features(*feature_sets) -> tuple:
+    """Standardize the features."""
+
+    scalar = StandardScaler()
+    standardize_features = [scaler.fit_transform(X) for X in feature_sets]
     
-    """
-    Perform a grid search over a range of hyperparameter values for a regression model.
+    return tuple(standardize_features)
 
-    Parameters:
-    - model_class: The class of the regression model (e.g., SGDRegressor).
-    - X: The feature matrix.
-    - y: The target variable.
-    - hyperparameters: A dictionary of hyperparameter names mapping to a list of values to be tried.
+def train_model(model, X_train, y_train) -> object:
+    """Train the model."""
 
-    Returns:
-    - best_model: The best regression model.
-    - best_hyperparameters: A dictionary of the best hyperparameter values.
-    - performance_metrics: A dictionary of performance metrics.
-    """
+    model.fit(X_train, y_train)
 
-    X_train, X_temp, y_train, y_temp, = train_test_split(X, y, test_size=0.3, random_state=42)
-    X_validation, X_test, y_validation, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
+    return model
 
-    best_model = None
-    best_hyperparameters = None
-    best_rmse = float('inf')
+def predict_and_evaluate(model, X_train, y_train, X_test, y_test) -> tuple:
+    """Make predictions and evaluate the model."""
 
-    for hyperparam_values in product(*hyperparameters.values()):
-        hyperparams = dict(zip(hyperparameters.keys(), hyperparam_values))
-        model = model_class(**hyperparams)
-        model.fit(X_train, y_train)
+    # Make predictions on the training and test set
+    y_train_pred = model.predict(X_train)
+    y_test_pred = model.predict(X_test)
 
-        # Calculate RMSE on the validation set
-        y_validation_pred = model.predict(X_validation)
-        rmse = np.sqrt(mean_squared_error(y_validation, y_validation_pred))
+    # Evaluate the test set
+    rmse_train = np.sqrt(mean_squared_error(y_train, y_train_pred))
+    r2_train = r2_score(y_train, y_train_pred)
+    print(f"Mean Squared Error (mse): {rmse_train:.2f}")
+    print(f"R-squared: {r2_train:.2f}")
 
-        if rmse < best_rmse:
-            best_rmse = rmse
-            best_hyperparameters = hyperparams
-
-    y_test_pred = best_model.predict(X_test)
+    # Evaluate the test set
     rmse_test = np.sqrt(mean_squared_error(y_test, y_test_pred))
+    r2_test = r2_score(y_test, y_test_pred)
+    print(f"Mean Squared Error (mse): {rmse_test:.2f}")
+    print(f"R-squared: {r2_test:.2f}")
 
-    performance_metrics = {
-        'validation_RMSE': best_rmse,
-        'test_RSME': rmse_test,
-    }    
+    return rmse_train, r2_train, rmse_test, r2_test
 
-    return best_model, best_hyperparameters, performance_metrics
-'''
+def visualize_predictions(y_pred, y_true, rmse, r2) -> None:
+    """Visualize predictions."""
+
+    samples = len(y_pred)
+
+    plt.figure()
+    plt.scatter(np.arange(samples), y_pred, c="r", label="Predictions")
+    plt.scatter(np.arange(samples), y_true, c="b", label="True Values", marker="x")
+    plt.text(0.1, 0.9, f"RMSE: {rmse:.2f}", transform=plt.gca().transAxes)
+    plt.text(0.1, 0.85, f"R2: {r2:.2f}", transform=plt.gca().transAxes)
+    plt.xlabel("Sample Numbers")
+    plt.ylabel("Values")
+    plt.legend()
+    plt.show()
+
+    return None
+
+
+
+
+
 
 # Tune Using SKlearn
-#def tune_regression_model_hyperparameters(model, X, y, hyperparameters, cv=5):
 def tune_regression_model_hyperparameters(model_class, X, y):
 
     """
@@ -321,5 +314,13 @@ Logging: Add logging statements to provide information about the progress of you
 Comments: Some parts of your code already have comments explaining the purpose of the code, which is great. Make sure to add comments for more complex sections or to explain the rationale behind certain choices.
 Data Exploration: Consider adding a section for exploring and visualizing your data. Understanding your data better can often lead to more informed modeling decisions.
 Handle Edge Cases: Ensure that your script gracefully handles edge cases, such as cases where a folder already exists or when there's an issue with saving models.
+Consistent Hyperparameter Tuning: You are using GridSearchCV for hyperparameter tuning for some models, but you have a custom hyperparameter tuning function commented out. It's good to be consistent. Either use GridSearchCV for all or your custom function for all.
+Data Structure: Depending on the size of your dataset, you might want to split it further into train/validation/test sets, especially if you're building machine learning models.
+Error Handling: Consider adding error handling, especially when dealing with file operations, to catch and handle potential exceptions.
+File Paths: Be cautious when using file paths. In your save_model function, you are saving models and metrics to specific paths. Ensure these paths are correctly set according to your project structure.
 Flexibility: Make your script more flexible by allowing users to specify parameters such as the test size and random seed as arguments.
+Model Evaluation: Consider wrapping the model evaluation code into functions. This makes the code modular and easier to understand.
+Model Folders: Instead of hardcoding the model folders, consider dynamically obtaining them from the file system. This can be helpful when you have a growing number of models.
+Print Statements: The print statements are useful for debugging, but in a production environment or a larger project, consider using a logging framework for more control over log levels and destinations.
+Visualization: Consider creating a separate function for the visualization part. This will help if you need to reuse this code or if you decide to make changes to the visualization in the future.
 '''
