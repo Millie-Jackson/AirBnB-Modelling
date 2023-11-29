@@ -9,7 +9,7 @@ Functions:
         clean_tabular_data(): Calls all the data cleaning functions on the tabular data.
 '''
 
-'''def load_airbnb(label="Price_Night") -> pd.DataFrame:
+def load_airbnb(label="Price_Night") -> pd.DataFrame:
 
     """
     Load the cleaned Airbnb data and return numerical features and the specified column as the label.
@@ -47,7 +47,7 @@ Functions:
     features.drop(columns=[label], inplace=True, errors="ignore")
     labels = df[[label]]
 
-    return features, labels'''
+    return features, labels
 
 
 
