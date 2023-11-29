@@ -1,6 +1,8 @@
 import pandas as pd
 from data_cleaner import DataCleaner
 
+
+
 '''
 Functions:
         remove_rows_with_missing_ratings(): Removes the rows with missing values
@@ -8,6 +10,8 @@ Functions:
         set_default_feature_values(): Replace empty values from guests, beds, bathrooms an bedrooms with 1.
         clean_tabular_data(): Calls all the data cleaning functions on the tabular data.
 '''
+
+
 
 def load_airbnb(label="Price_Night") -> pd.DataFrame:
 
@@ -25,9 +29,9 @@ def load_airbnb(label="Price_Night") -> pd.DataFrame:
         ValueError: If the specified label column is not found in the data.
 
     Example:
-        features, labels = load_airbnb()
+        features, labels = load_airbnb_data()
         # or specify a different label column
-        features, labels = load_airbnb(label="Another_Label_Column")
+        features, labels = load_airbnb_data(label="Another_Label_Column")
     """
 
     # Load cleaned data
@@ -38,7 +42,7 @@ def load_airbnb(label="Price_Night") -> pd.DataFrame:
 
     # Check if the label column is in the data
     if label not in df.columns:
-        raise ValueError(f"'{label}' is not a features")
+        raise ValueError(f"'{label}' is not a valid label column")
 
     # Filter out non-numeric columns
     features = df.select_dtypes(include=[int, float])
@@ -49,19 +53,25 @@ def load_airbnb(label="Price_Night") -> pd.DataFrame:
 
     return features, labels
 
-
-
-if __name__ == "__main__":
+def main():
 
     # Load the raw data
     cleaner = DataCleaner("data/tabular_data/listing.csv")
+    
     # Clean the data
     cleaner_df = cleaner.clean_tabular_data()
+
     # Save processed data as a .csv
     cleaner_df.to_csv("data/tabular_data/clean_tabular_data.csv", index=False)
 
     # Extract
     features, labels = load_airbnb()
+
+
+
+if __name__ == "__main__":
+
+    main()
 
 
 

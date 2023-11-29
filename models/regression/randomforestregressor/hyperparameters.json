@@ -1,8 +1,6 @@
 {
-    "max_depth": 10,
+    "max_depth": 30,
     "min_samples_leaf": 4,
-    "min_samples_split": 10,
-    "n_estimators": 100,
-    "alpha": [],
-    "learning_rate": []
+    "min_samples_split": 5,
+    "n_estimators": 50
 }

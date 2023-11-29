@@ -3,6 +3,5 @@
     "max_depth": 4,
     "min_samples_leaf": 4,
     "min_samples_split": 10,
-    "n_estimators": 50,
-    "alpha": []
+    "n_estimators": 50
 }
