@@ -13,6 +13,7 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 from itertools import product 
+
 from tabular_data import load_airbnb
 
 
@@ -156,11 +157,6 @@ def tune_regression_model_hyperparameters(model_class, X, y) -> tuple:
 
     best_model = grid_search.best_estimator_
     best_hyperparameters = grid_search.best_params_
-
-    #performance_metrics = {
-    #'best_validation_RMSE': rmse,  # Root Mean Squared Error on the validation set
-    #'best_params': best_hyperparameters,  # Best hyperparameters found
-    #'cv_results': grid_search.cv_results_,}  # Cross-validated results
 
     return best_model, best_hyperparameters
 
@@ -336,3 +332,5 @@ Visualization: Consider creating a separate function for the visualization part.
             Show the best model on a graph
             Show all the models on the same graph
 '''
+
+# END OF FILE
