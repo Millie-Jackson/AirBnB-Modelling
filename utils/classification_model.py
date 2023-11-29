@@ -15,7 +15,7 @@ features, labels = load_airbnb(label="Category")
 
 # Split the data into training and test sets
 X_train, X_test, y_train, y_test = train_test_split(features, labels.values.ravel(),
-    test_size=0.2, random_state=42)
+    test_size=0.3, random_state=42)
 
 # Standardize the features
 scaler = StandardScaler()
@@ -26,23 +26,30 @@ X_test = scaler.transform(X_test)
 model = LogisticRegression(random_state=42)
 model.fit(X_train, y_train)
 
+# Make predictions on the training set
+y_train_pred = model.predict(X_train)
+
 # Make predictions on the test set
-y_pred = model.predict(X_test)
+y_test_pred = model.predict(X_test)
 
-# Evaluate the model
-accuracy = accuracy_score(y_test, y_pred)
-classification_report_str = classification_report(y_test, y_pred)
+# Evaluate on training set
+train_report = classification_report(y_train, y_train_pred)
+train_accuracy = accuracy_score(y_train, y_train_pred)
 
-# Print the evaluation metrics
-print(f"Accuracy: {accuracy:.2f}")
-print(f"Classification Report:\n{classification_report_str}")
+# Evaluate on test set
+test_report = classification_report(y_test, y_test_pred)
+test_accuracy = accuracy_score(y_test, y_test_pred)
+
+# Print the results
+print(f"Training Set:\n{train_report}\nAccuray: {train_accuracy:.2f}\n")
+print(f"Test Set:\n{test_report}\nAccuracy: {test_accuracy:.2f}")
 
 
 
 '''
 OPTIONAL
 
-Class: some of this code is also int the modeling.py maybe we should make a class and inherit from it
+Class: Some of this code is also int the modeling.py maybe we should make a class and inherit from it
 '''
 
 
