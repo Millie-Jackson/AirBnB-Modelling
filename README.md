@@ -158,12 +158,20 @@ AirBnB/
 │   ├── Learning Materials
 │   ├── screenshots
 │   └── links.txt
-│
-├── utils/
-│   ├── data_cleaner.py
-│   └── tabular_data.py
-│
 ├── models/
+│   ├── classification/
+│   │   ├── decisiontreeregressor/
+│   │   │   ├── model.joblib
+│   │   │   ├── hyperparameters.json
+│   │   ├── gradientboostingregressor/
+│   │   │   ├── model.joblib
+│   │   │   ├── hyperparameters.json
+│   │   ├── logisticregressor/
+│   │   │   ├── model.joblib
+│   │   │   ├── hyperparameters.json
+│   │   ├── randomforestregressor/
+│   │   │   ├── model.joblib
+│   │   │   ├── hyperparameters.json
 │   ├── regression/
 │   │   ├── decisiontreeregressor/
 │   │   │   ├── model.joblib
@@ -179,13 +187,18 @@ AirBnB/
 │   │   │   └── metrics.json
 │
 ├── src/
-│   └── modelling.py
+│   └── __init__.py
 |
+├── utils/
+│   └── __init__.py
+│   ├── classification_model.py
+│   ├── data_cleaner.py
+│   ├── modelling.py
+│   └── tabular_data.py
 ├── .gitattributes
-├── modelling.py
+├── .gitignore
 ├── README.md
 ├── requirements.txt
-└── .gitignore
 
 ## License
 This project is licensed under the MIT License.
