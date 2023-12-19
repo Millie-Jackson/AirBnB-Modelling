@@ -89,15 +89,21 @@ Potential users include:
 ## Major Features
 **Data Cleaning:** The project includes a robust data cleaning process to handle missing values, data type conversion, and inconsistency removal. It ensures a clean and reliable dataset for analysis.
 
+**Regression Modelling:** Tur regression modeling is tailored for predicting continuous numeric outcomes, such as pricing in the context of Airbnb listings. Leveraging advanced machine learning techniques, we utilize algorithms like Linear Regression, Decision Trees, Random Forests, and Gradient Boosting to uncover intricate patterns within the dataset. The pipeline involves meticulous data preprocessing, feature engineering, and hyperparameter tuning to ensure optimal performance. Users can easily experiment with different regression models by following a standardized process that involves model training, evaluation, and saving for future use.
+
+**Classification Modelling:** The system excels at predicting categorical outcomes, a crucial task for tasks like predicting Airbnb listing categories. We employ diverse classification algorithms, including Logistic Regression, Decision Trees, Random Forests, and Gradient Boosting. Through the use of hyperparameter tuning and careful model evaluation, users can identify the best-performing classification model for their specific use case. The provided framework allows for a seamless workflow, from loading and preprocessing data to training, evaluating, and saving classification models for deployment.
+
 **Neural Network Predictive Model:** As a significant feature, the project implements a neural network predictive model for regression tasks. It is my first attempt at building a prediction model using neural networks, providing valuable hands-on experience in machine learning.
 
 **Real-World Learning Exercise:** The project serves as a learning exercise utilizing a real-world example of Airbnb data. It allowed me to grasp practical challenges faced while working with real data and refine data science skills.
 
-**Data Analysis and Visualization:** 
+**Data Analysis:** This program employs a robust data analysis approach, primarily through exploratory data analysis (EDA). Leveraging powerful tools such as Pandas, we conduct statistical analyses to gain insights into the inherent structure of the dataset. This involves calculating key statistical measures and unraveling relationships between variables. 
+
+**Visualization:** The visualization aspect, powered by Matplotlib, plays a pivotal role in transforming intricate patterns into accessible insights. This holistic approach to data analysis and visualization not only enriches data-driven decision-making but also weaves a compelling narrative, facilitating effective communication of our findings."
 
 **Customizable Label Column:** The solution offers the flexibility to specify a target label column during analysis. Users can focus on specific aspects of the rental market by customizing the analysis based on their interests.
 
-**Data Saving:** The cleaned data is saved as "clean_tabular_data.csv" to facilitate future analysis and usage.
+**Data Saving:** The cleaned data is saved as "clean_tabular_data.csv" to facilitate future analysis and usage. Additionally, the program systematically preserves the trained model along with its associated hyperparameters and performance metrics. This includes storing the model in a designated folder, such as "models/classification/logistic_regression," and creating separate files for hyperparameters ("hyperparameters.json") and performance metrics. This meticulous approach ensures the reproducibility of results and provides a comprehensive record of the model training process.
 
 **User-Friendly Execution:** The project is designed with user-friendliness in mind, providing easy execution of data cleaning and analysis scripts. Individuals with varying programming experience can explore the Airbnb dataset effortlessly.
 
@@ -158,6 +164,7 @@ AirBnB/
 │   ├── Learning Materials
 │   ├── screenshots
 │   └── links.txt
+│
 ├── models/
 │   ├── classification/
 │   │   ├── decisiontreeregressor/
@@ -172,6 +179,7 @@ AirBnB/
 │   │   ├── randomforestregressor/
 │   │   │   ├── model.joblib
 │   │   │   ├── hyperparameters.json
+│
 │   ├── regression/
 │   │   ├── decisiontreeregressor/
 │   │   │   ├── model.joblib
@@ -195,6 +203,7 @@ AirBnB/
 │   ├── data_cleaner.py
 │   ├── modelling.py
 │   └── tabular_data.py
+│
 ├── .gitattributes
 ├── .gitignore
 ├── README.md
@@ -244,6 +253,8 @@ The program then filters out non-numeric columns to include only numerical featu
 
 **Data Analysis:**
 
+**Visualization:**
+
 
 
 # Learnings
@@ -279,3 +290,29 @@ I have utilized GitHub as the version control platform to manage the project's c
 **AST:** 
 
 The ast (Abstract Syntax Trees) module in Python has been used to parse Python source code and extract information about the code's abstract syntax structure. The ast module is used to parse complex strings in the "Description" column during data cleaning. By utilizing the abstract syntax trees, we can handle intricate structures and perform data transformations effectively.
+
+## Milestone 4:** In the process of building a regression model to predict nightly costs for Airbnb listings, the modelling.py script follows a systematic approach. Starting with the import of necessary libraries and loading data via the load_airbnb function, it utilizes the SGDRegressor class from sklearn to train a linear regression model. Subsequently, the model's performance is evaluated using metrics like RMSE and R^2 on both training and test sets, establishing a baseline for comparison. 
+
+![Code Screenshot](screenshots/train_model.png)
+![Code Screenshot](screenshots/predict_and_evaluate.png)
+
+Hyperparameter tuning is approached with tune_regression_model_hyperparameters, and an SKLearn-based method employing GridSearchCV. 
+
+![Code Screenshot](screenshots/tune_regression_model_hyperparameters.png)
+
+The save_model function is designed to store the trained model, hyperparameters, and performance metrics in a structured folder system within the 'models' directory. 
+
+![Code Screenshot](screenshots/save_model.png)
+
+Extending beyond a simple linear model, the script explores decision trees, random forests, and gradient boosting, employing the same evaluation and tuning processes for each. The evaluate_all_models function orchestrates this process, saving each model in its dedicated folder. 
+
+![Code Screenshot](screenshots/evaluate_all_models.png)
+
+Finally, the find_best_model function assesses and returns the best-performing model, allowing for a comprehensive evaluation of the regression models' effectiveness. These steps provide a thorough and adaptable framework for regression model development, tuning, evaluation, and storage.
+
+![Code Screenshot](screenshots/find_best_model.png)
+
+**Matplotlib:**
+
+**Further Development:**
+**Version 2.0:**
