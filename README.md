@@ -151,14 +151,16 @@ If you find any issues or have suggestions for improvement, please feel free to 
 
 
 ## File Structure
+
 AirBnB/
 │
 ├── data/
 │   ├── airbnb-property-listings/
-│   ├── images/
-│   └── tabular_data/
-│       ├── clean_tabular_data.csv
-│       ├── listing.csv
+│   └── images/
+│
+├── tabular_data/
+│   ├── clean_tabular_data.csv
+│   └── listing.csv
 │
 ├── docs/
 │   ├── Learning Materials
@@ -169,34 +171,34 @@ AirBnB/
 │   ├── classification/
 │   │   ├── decisiontreeregressor/
 │   │   │   ├── model.joblib
-│   │   │   ├── hyperparameters.json
+│   │   │   └── hyperparameters.json
 │   │   ├── gradientboostingregressor/
 │   │   │   ├── model.joblib
-│   │   │   ├── hyperparameters.json
+│   │   │   └── hyperparameters.json
 │   │   ├── logisticregressor/
 │   │   │   ├── model.joblib
-│   │   │   ├── hyperparameters.json
-│   │   ├── randomforestregressor/
-│   │   │   ├── model.joblib
-│   │   │   ├── hyperparameters.json
-│
-│   ├── regression/
-│   │   ├── decisiontreeregressor/
-│   │   │   ├── model.joblib
-│   │   │   ├── hyperparameters.json
-│   │   │   └── metrics.json
-│   │   ├── randomforestregressor/
-│   │   │   ├── model.joblib
-│   │   │   ├── hyperparameters.json
-│   │   │   └── metrics.json
-│   │   ├── gradientboostingregressor/
-│   │   │   ├── model.joblib
-│   │   │   ├── hyperparameters.json
-│   │   │   └── metrics.json
+│   │   │   └── hyperparameters.json
+│   │   └── randomforestregressor/
+│   │       ├── model.joblib
+│   │       └── hyperparameters.json
+│   │
+│   └── regression/
+│       ├── decisiontreeregressor/
+│       │   ├── model.joblib
+│       │   ├── hyperparameters.json
+│       │   └── metrics.json
+│       ├── randomforestregressor/
+│       │   ├── model.joblib
+│       │   ├── hyperparameters.json
+│       │   └── metrics.json
+│       └── gradientboostingregressor/
+│           ├── model.joblib
+│           ├── hyperparameters.json
+│           └── metrics.json
 │
 ├── src/
 │   └── __init__.py
-|
+│
 ├── utils/
 │   └── __init__.py
 │   ├── classification_model.py
@@ -207,7 +209,7 @@ AirBnB/
 ├── .gitattributes
 ├── .gitignore
 ├── README.md
-├── requirements.txt
+└── requirements.txt
 
 ## License
 This project is licensed under the MIT License.
@@ -311,6 +313,22 @@ Extending beyond a simple linear model, the script explores decision trees, rand
 Finally, the find_best_model function assesses and returns the best-performing model, allowing for a comprehensive evaluation of the regression models' effectiveness. These steps provide a thorough and adaptable framework for regression model development, tuning, evaluation, and storage.
 
 ![Code Screenshot](screenshots/find_best_model.png)
+
+## Milestone 5:** In implementing the classification tasks for the Airbnb dataset, I first loaded the data using the load_airbnb function, specifying "Category" as the label. To assess the model's performance, I computed key metrics such as the F1 score, precision, recall, and accuracy for both the training and test sets. To fine-tune the model's hyperparameters, I created the tune_classification_model_hyperparameters function, which, similar to its regression counterpart, conducts a grid search over a range of hyperparameter values, using accuracy as the evaluation metric. 
+
+![Code Screenshot](screenshots/tune_classification_model_hyperparameters.png)
+
+The best model, its hyperparameters, and performance metrics are then saved in a folder named after the model class within the classification directory in the models folder, specifically 'models/classification/logistic_regression'. To further enhance classification performance, I extended the evaluation to decision trees, random forests, and gradient boosting, all provided by scikit-learn. The tune_classification_model_hyperparameters function was applied to each of these models, and the results, including the models, hyperparameters, and metrics, were saved in folders corresponding to the model class within the classification directory. 
+
+The evaluate_all_models function was adapted to accept a task_folder argument to specify the relevant directory for the classification models. 
+
+*LINK SCREENSHOT
+
+Finally, the find_best_model function was modified to consider the task_folder parameter, enabling it to locate and compare models within the specified classification directory. 
+
+*LINK SCREENSHOT
+
+This entire classification pipeline ensures that the best-performing classification model is identified, along with its hyperparameters and performance metrics. The implementation demonstrates a systematic approach to building, tuning, and evaluating classification models for the given Airbnb dataset.
 
 **Matplotlib:**
 
