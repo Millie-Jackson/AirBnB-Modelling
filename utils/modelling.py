@@ -182,7 +182,7 @@ def get_estimator_params(model_class) -> dict:
     else:
         return{}
 
-def save_model(model, hyperparameters, folder='models/regression/linear_regression'):
+def save_model(model, hyperparameters, performance_metrics, folder='models/regression/linear_regression'):
     """Save the trained model, hyperparameters, and performance metrics."""
 
     # Create directory if it doesnt exist
@@ -201,11 +201,21 @@ def save_model(model, hyperparameters, folder='models/regression/linear_regressi
     #performance_metrics['best_validation_RMSE'] = performance_metrics['best_validation_RMSE'].tolist()
     #performance_metrics['best_params'] = {key: value.tolist() if isinstance(value, np.ndarray) else value for key, value in performance_metrics['best_params'].items()}
     #performance_metrics['cv_results'] = {key: value.tolist() if isinstance (value, np.ndarray) else value for key, value in performance_metrics['cv_results'].items()}
+    
+    # Convert NumPy array to list (because it isnt serializable to json)
+    if performance_metrics:
+        for key, value in performance_metrics.items():
+            if isinstance(value, np.ndarray):
+                performance_metrics[key] = value.tolist()
 
     # Save the performance metrics
-    #metrics_filename = os.path.join(folder, 'metrics.json')
-    #with open(metrics_filename, 'w') as json_file:
-    #   json.dump(performance_metrics, json_file, indent=4)
+    metrics_filename = os.path.join(folder, 'metrics.json')
+    if performance_metrics and 'beast_validation_RMSE' in performance_metrics:
+        performance_metrics['best_validation_RMSE'] = performance_metrics['best_validation_RMSE'].tolist()
+        with open(metrics_filename, 'w') as json_file:
+            json.dump(performance_metrics, json_file, indent=4)
+    else:
+        print("Error saving metrics: 'best_validation_RMSE' not found in performance metrics")
 
     print(f"Model, hyperparameter and metrics saved to {folder}")
 
@@ -293,9 +303,8 @@ if __name__ == "__main__":
     #rmse_train, r2_train, rmse_test, r2_test = predict_and_evaluate(linear_model, X_train, y_train, X_test, y_test)
 
     # Visualize predictions
-    #visualize_predictions(y_final_test_pred, y_final_test, rmse_final_test, r2_final_test)
     visualize_predictions(y_final_test_pred, y_final_test, rmse_final_test, r2_final_test)
-    #visualize_predictions(y_test_pred, y_test, rmse_test, r2_test)
+
 
     # Evaluate all models
     model_classes = [DecisionTreeRegressor, RandomForestRegressor, GradientBoostingRegressor]
@@ -317,8 +326,14 @@ if __name__ == "__main__":
 OPTIONAL
 Comments: Some parts of your code already have comments explaining the purpose of the code, which is great. Make sure to add comments for more complex sections or to explain the rationale behind certain choices.
 Consistent Hyperparameter Tuning: You are using GridSearchCV for hyperparameter tuning for some models, but you have a custom hyperparameter tuning function commented out. It's good to be consistent. Either use GridSearchCV for all or your custom function for all.Data Exploration: Consider adding a section for exploring and visualizing your data. Understanding your data better can often lead to more informed modeling decisions.
+Data Sets: Include car price dataset
+        Ask Tom if you can use his pluming dataset
 Data Structure: Depending on the size of your dataset, you might want to split it further into train/validation/test sets, especially if you're building machine learning models.
 Error Handling: Consider adding error handling, especially when dealing with file operations, to catch and handle potential exceptions.
+Features: Find the best model for each data column
+        Geographical distributions
+        Pricing trends
+        Impact of various features
 File Paths: Be cautious when using file paths. In your save_model function, you are saving models and metrics to specific paths. Ensure these paths are correctly set according to your project structure.
 Flexibility: Make your script more flexible by allowing users to specify parameters such as the test size and random seed as arguments.
 Handle Edge Cases: Ensure that your script gracefully handles edge cases, such as cases where a folder already exists or when there's an issue with saving models.
@@ -331,6 +346,7 @@ Use a Dictionary for Models: Instead of a list, consider using a dictionary to m
 Visualization: Consider creating a separate function for the visualization part. This will help if you need to reuse this code or if you decide to make changes to the visualization in the future.
             Show the best model on a graph
             Show all the models on the same graph
+            Allow visualizations to be interactive
 '''
 
 # END OF FILE
