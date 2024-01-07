@@ -63,27 +63,8 @@ Usage:
 
 
 
-def get_hyperparameters(model_class) -> dict:
-    """Return hyperparameters for the given model class."""
 
-    if model_class == SGDRegressor:
-        return {"alpha": [0.0001, 0.001, 0.01, 0.1], "learning_rate": ["constant", "optimal", "invscaling"]}
-    elif model_class == DecisionTreeRegressor:
-        return {"max_depth": [None, 10, 20, 30], "min_samples_split": [2, 5, 10], "min_samples_leaf": [1, 2, 4]}
-    elif model_class == RandomForestRegressor:
-        return {"n_estimators": [50, 100, 200], "max_depth": [None, 10, 20, 30], "min_samples_split": [2, 5, 10], "min_samples_leaf": [1, 2, 4]}
-    elif model_class == GradientBoostingRegressor:
-        return {"n_estimators": [50, 100, 200], "learning_rate": [0.01, 0.1, 0.2], "max_depth": [3, 4, 5], "min_samples_split": [2, 5, 10], "min_samples_leaf": [1, 2, 4]}
-    else:
-        raise ValueError("Unsupported model class")
 
-def get_estimator_params(model_class) -> dict:
-    """Return additional parameters for the given estimator class."""
-
-    if model_class == SGDRegressor:
-        return {"max_iter": 1000, "random_state": 42}
-    else:
-        return{}
 
 def format_hyperparameters(hyperparameters) -> dict:
     """Format hyperparameters for saving."""

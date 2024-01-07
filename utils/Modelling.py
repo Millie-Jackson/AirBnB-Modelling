@@ -6,11 +6,13 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, label_binarize
+from sklearn.linear_model import SGDRegressor
 from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor, RandomForestClassifier, GradientBoostingClassifier
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_squared_error, r2_score, accuracy_score, classification_report, confusion_matrix, roc_curve, auc
 from typing import Any, Dict, List, Tuple
+from itertools import cycle
 
 class Modelling:
     
@@ -112,7 +114,7 @@ class Modelling:
 
         return best_model, best_hyperparameters
     
-    def save_model(self, y_validation, model_classes) -> None:
+    def save_model(self, model, hyperparameters, performance_metrics, folder: str) -> None:
         """Save the trained model, hyperparameters, and performance metrics."""
 
         # Create directory if it doesnt exist
@@ -123,7 +125,7 @@ class Modelling:
         joblib.dump(model, model_filename)
 
         # Save the hyperparameters
-        hyperparameters = format_hyperparameters(hyperparameters)
+        hyperparameters = self.format_hyperparameters(hyperparameters)
         hyperparameters_filename = os.path.join(folder, 'hyperparameters.json')
         with open(hyperparameters_filename, 'w') as json_file:
             json.dump(hyperparameters, json_file, indent=4)
@@ -151,19 +153,33 @@ class Modelling:
 
         return None
     
-    def evaluate_all_models(self, X_train, y_train, X_validation, model_classes, label_col) -> None:
+    def evaluate_all_models(self, X_train, y_train, X_validation, y_validation, model_classes, label_col) -> None:
         """Evaluate different models and save the best models."""
 
         for model_class in model_classes:
             # Tune hyperparameters
             best_model, best_hyperparameters = self.tune_model_hyperparameters(model_class, model_folder, label_col)
 
+            # Train model
+            trained_model = self.train_model(best_model, X_train, y_train)
+
+            # Make predictions on validation set
+            y_validation_pred = trained_model.predict(X_validation)
+
+            # Evaluate validation set
+            rmse_validation, r2_validation, _, _ = self.predict_and_evaluate(trained_model, X_train, y_train, X_validation, y_validation)
+            print(f"Validation Mean Squared Error: {rmse_validation: .2f}")
+            print(f"Validation R-squared: {r2_validation: .2f}")
+
             # Save the model, hyperparameters and metrics
             model_name, = model_class.__name__.lower()
             model_folder = os. path.join(self.task_folder, model_name)
             self.save_model(best_model, best_hyperparameters, X_validation, y_validation, model_class, model_folder, label_col)
 
-            return None
+            # Visualize predictions
+            self.visualize_predictions(y_validation_pred, y_validation, rmse_validation, r2_validation)
+
+        return None
     
     def find_best_model(self, folders: List[str]) -> Tuple[Any, Dict[str, Any]]:
         """Find the best model among the trained models."""
@@ -187,24 +203,36 @@ class Modelling:
 
         return best_model, best_hyperparameters
     
+    def get_hyperparameters(self, model_class) -> Dict[str, Any]:
+        """Return hyperparameters for the given model class."""
+
+        if model_class == SGDRegressor:  
+            return {"alpha": [0.0001, 0.001, 0.01, 0.1], "learning_rate": ["constant", "optimal", "invscaling"]}
+        elif model_class == DecisionTreeRegressor:
+            return {"max_depth": [None, 10, 20, 30], "min_samples_split": [2, 5, 10], "min_samples_leaf": [1, 2, 4]}
+        elif model_class == RandomForestRegressor:
+            return {"n_estimators": [50, 100, 200], "max_depth": [None, 10, 20, 30], "min_samples_split": [2, 5, 10], "min_samples_leaf": [1, 2, 4]}
+        elif model_class == GradientBoostingRegressor:
+            return {"n_estimators": [50, 100, 200], "learning_rate": [0.01, 0.1, 0.2], "max_depth": [3, 4, 5], "min_samples_split": [2, 5, 10], "min_samples_leaf": [1, 2, 4]}
+        else:
+            raise ValueError("Unsupported model class")
+        
+        return None
+    
+    def get_estimator_params(self, model_class) -> Dict[str, Any]:
+        """Return additional parameters for the given estimator class."""
+
+        if model_class == SGDRegressor:
+            return {"max_iter": 1000, "random_state": 42}
+        else:
+            return {}
+        
+        return None
+    
 class RegressionModelling(Modelling):
 
     def __init__(self, task_folder: str):
         super().__init__(task_folder)
-    
-    def evaluate_all_models(self, X_train, y_train, X_validation, model_classes) -> None:
-        """Evaluate different regression models and save the best models."""
-
-        for model_class in model_classes:
-            # Tune hyperparameters
-            best_model, best_hyperparameters = tune_model_hyperparameters(model_class, X_train, y_train)
-
-            # Save the model, hyperparameters, and metrics
-            model_name = model_class.__name__.lower()
-            folder = os.path.join("models/regression", model_name)
-            save_model(best_model, best_hyperparameters, folder=folder)
-
-        return None
     
 class ClassificationModelling(Modelling):
     
@@ -212,23 +240,83 @@ class ClassificationModelling(Modelling):
         super().__init__(task_folder)
     
     def evaluate_all_models(self, X_train, y_train, X_validation, y_validation, model_classes) -> None:
-        """Evaluate different classification models and save the best models."""
+        """Evaluate different models, visualize and save the best models."""
 
-        metrics_comparison = []
-
+        for model_class in model_classes:
             # Tune hyperparameters
-            best_model, best_hyperparameters, best_performance_metrics = tune_model_hyperparameters(model_class, X_train, y_train, X_validation, y_validation, hyperparameters[model_name], folder= None)
+            best_model, best_hyperparameters = self.tune_model_hyperparameters(model_class, X_train, y_train)
 
-            # Save the model, hyperparameters, and metrics
-            folder = os.path.join(task_folder, model_name)
-            save_model(best_model, best_hyperparameters, best_performance_metrics, folder=folder)
+            # Train model
+            trained_model = self.train_model(best_model, X_train, y_train)
 
-            # Compare metrics
-            metrics_comparison.append({
-                'model': model_name,
-                'validation_accuracy': best_performance_metrics['validation_accuracy'],
-                'best_params': best_hyperparameters,
-                'cv_results': best_performance_metrics['cv_results']
-            })
+            # Make predictions on validation set
+            y_validation_pred = trained_model.predict(X_validation)
 
-        return metrics_comparison
+            # Evaluate validation set
+            accuracy = accuracy_score(y_validation, y_validation_pred)
+            print(f"Validation Accuracy: {accuracy: .2%}")
+            report = classification_report(y_validation, y_validation_pred)
+            print("Classification Report:\n", report)
+            cm = confusion_matrix(y_validation, y_validation_pred)
+            print("Confusion Matrix:\n", cm)
+
+
+            # Save the model, hyperparameters and metrics
+            model_name, = model_class.__name__.lower()
+            model_folder = os. path.join(self.task_folder, model_name)
+            self.save_model(best_model, best_hyperparameters, X_validation, y_validation, model_class, model_folder, label_col)
+
+            # Visualize predictions
+            self.visualize_predictions(y_validation_pred, y_validation, None, None)
+
+        return None
+    
+    def visualize_predictions(self, model, y_pred, y_true, rmse, r2, X_test, y_test) -> None:
+        """Visualize predictions."""
+
+        # CONFUSION MATRIX
+        if classes is None:
+            classes = np.unique(y_true)
+
+        # Plot predictions
+        cm = confusion_matrix(y_true, y_pred, labels=classes)
+        plt.figure(figsize=(8,6))
+        im = plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+        plt.title("Confusion Matrix")
+        plt.colorbar(im, fraction=0.046, pad=0.04)
+        plt.xlabel("Predicted")
+        plt.ylabel("True")
+
+        # Add class labels
+        tick_marks = np.aranger(len(classes))
+        plt.xticks(tick_marks, classes)
+        plt.yticks(tick_marks, classes)
+
+        # Add annotations
+        for i in range(len(classes)):
+            for j in range(len(classes)):
+                plt.text(j, i, str(cm[i, j]), ha='center', va='center', color='w')
+
+        plt.show()
+
+        # RECIEVER OPERATING CHARACTERISTIC (ROC) CURVE
+        samples =len(y_pred)
+
+        # Plot predictions
+        plt.figure(figsize=(10, 5))
+        plt.subplot(1, 2, 3)
+        plt.scatter(np.arange(samples), y_pred, c="r", label="Predictions")
+        plt.scatter(np.arange(samples), y_true, c="b", label="True Values", marker="x")
+        plt.text(0.1, 0.9, f"RMSE: {rmse:.2f}", transform=plt.gca().transAxes)
+        plt.text(0.1, 0.85, f"R2: {r2:.2f}", transform=plt.gca().transAxes)
+        plt.xlabel("Sample Numbers")
+        plt.ylabel("Values")
+        plt.legend()
+
+        plt.subplot(1, 2, 3)
+        self.visualize_roc_curve(model, X_test, y_test)
+        plt.show()
+
+        # Plot precision-recall curve
+        
+        return None
