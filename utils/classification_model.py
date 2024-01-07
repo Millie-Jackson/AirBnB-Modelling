@@ -24,26 +24,6 @@ lr_hyperparameters = {'penalty': ['l2', 'l1'], 'C': [0.001, 0.01, 0.1, 1, 10, 10
 
 # Train a logistic regression model
 model = LogisticRegression(random_state=42)
-#model.fit(X_train, y_train)
-
-# Make predictions on the training set
-#y_train_pred = model.predict(X_train)
-
-# Make predictions on the test set
-#y_test_pred = model.predict(X_test)
-
-
-# Evaluate on training set
-#train_report = classification_report(y_train, y_train_pred)
-#train_accuracy = accuracy_score(y_train, y_train_pred)
-
-# Evaluate on test set
-#test_report = classification_report(y_test, y_test_pred)
-#test_accuracy = accuracy_score(y_test, y_test_pred)
-
-# Print the results
-#print(f"Training Set:\n{train_report}\nAccuray: {train_accuracy:.2f}\n")
-#print(f"Test Set:\n{test_report}\nAccuracy: {test_accuracy:.2f}")
 
 
 
@@ -90,16 +70,21 @@ def tune_classification_model_hyperparameters(model_class, X_train, y_train, X_v
     for key, value in performance_metrics.items():
         if isinstance(value, np.ndarray):
             performance_metrics[key] = value.tolist()
-    for key, value in performance_metrics['cv_results'].items():
-        if isinstance(value, np.ndarray):
-            performance_metrics['cv_results'][key] = value.tolist()
+
 
     # Error handeling to find which NumPy array wont save
     try:
         # Save performance metrics
         metrics_file_path = os.path.join(folder, 'metrics.json')
-        with open(metrics_file_path, 'w') as json_file:
-            json.dump(performance_metrics, json_file)
+        # Error handeling to find which folder doesnt exist
+        try:
+            with open(metrics_file_path, 'w') as json_file:
+                    if 'best_validation_RMSE' in performance_metrics:
+                        performance_metrics['best_validation_RMSE'] = performance_metrics['best_validation_RMSE'].tolist()
+                    json.dump(performance_metrics, json_file)
+        except Exception as e:
+            print(f"Problematic key: 'best_validation_RMSE'")
+            print(f"Problematic value: {performance_metrics.get('best_validation_RMSE')}")
     except Exception as e:
         print(f"Error saving metrics: {e}")
         print(f"Problematic key: {key}")
@@ -107,48 +92,13 @@ def tune_classification_model_hyperparameters(model_class, X_train, y_train, X_v
 
     return best_model, best_hyperparameters, performance_metrics
 
-def evaluate_all_models(X_train, y_train, X_validation, y_validation, model_classes, task_folder) -> None:
-    """Evaluate different classification models and save the best models."""
-
-    hyperparameters = {}
-    metrics_comparison = []
-
-    for model_class in model_classes:
-        model_name = model_class.__name__.lower()
-
-        # Define hyperparameters for each model
-        if model_class == LogisticRegression:
-            hyperparameters[model_name] = {'penalty': ['l1', 'l2'], 'C': [0.001, 0.01, 0.1, 1, 10, 100]}
-        elif model_class == DecisionTreeClassifier:
-            hyperparameters[model_name] = {'max_depth': [None, 10, 20, 30]}
-        elif model_class == RandomForestClassifier:
-            hyperparameters[model_name] = {'n_estimators': [50, 100, 150], 'max_depth': [None, 10, 20, 30]}
-        elif model_class == GradientBoostingClassifier:
-            hyperparameters[model_name] = {'n_estimators': [50, 100, 150], 'learning_rate': [0.01, 0.1, 0.2]}
-
-        # Tune hyperparameters
-        best_model, best_hyperparameters, best_performance_metrics = tune_classification_model_hyperparameters(model_class, X_train, y_train, X_validation, y_validation, hyperparameters[model_name], folder= None)
-
-        # Save the model, hyperparameters, and metrics
-        model_folder = os.path.join(task_folder, model_name)
-        save_model(best_model, best_hyperparameters, best_performance_metrics, folder=model_folder)
-
-        # Compare metrics
-        metrics_comparison.append({
-            'model': model_name,
-            'validation_accuracy': best_performance_metrics['validation_accuracy'],
-            'best_params': best_hyperparameters,
-            'cv_results': best_performance_metrics['cv_rerults']
-        })
-
-    return metrics_comparison
-
 def find_best_model(task_folder, metric='validation_accuracy') -> tuple:
     """Find the best model among the trained models in the specified task folder."""
 
     best_model = None
     best_hyperparameters = None
-    best_accuracy = 0.0
+    best_metric_value = 0.0
+    best_performance_metrics = None
 
     model_folders = [os.path.join(task_folder, model_name) for model_name in os.listdir(task_folder) if os.path.isdir(os.path.join(task_folder, model_name))]
 
@@ -157,32 +107,39 @@ def find_best_model(task_folder, metric='validation_accuracy') -> tuple:
         hyperparameters_file = os.path.join(folder, 'hyperparameters.json')
         metrics_file_path = os.path.join(folder, 'metrics.json')
 
-        with open(hyperparameters_file, 'r') as json_file:
-            hyperparameters = json.load(json_file)
+        try:
+            with open(hyperparameters_file, 'r') as json_file:
+                hyperparameters = json.load(json_file)
 
-        # Convert NumPy array to list (because it isnt serializable to json
-        for key, value in hyperparameters.items():
-            if isinstance(value, np.ndarray):
-                hyperparameters[key] = value.tolist()
+            # Convert NumPy array to list (because it isnt serializable to json
+            for key, value in hyperparameters.items():
+                if isinstance(value, np.ndarray):
+                    hyperparameters[key] = value.tolist()
 
-        with open(metrics_file_path, 'r') as json_file:
-            performance_metrics = json.load(json_file)
+            with open(metrics_file_path, 'r') as json_file:
+                performance_metrics = json.load(json_file)
 
-        # Convert NumPy array to list (because it isnt serializable to json)
-        for key, value in performance_metrics.items():
-            if isinstance(value, np.ndarray):
-                performance_metrics[key] = value.tolist()
+            # Convert NumPy array to list (because it isnt serializable to json)
+            for key, value in performance_metrics.items():
+                if isinstance(value, np.ndarray):
+                    performance_metrics[key] = value.tolist()
 
-        # Extract the metric value
-        metric_value = performance_metrics.get(metric_value, 0.0)
+            # Extract the metric value
+            metric_value = performance_metrics.get(metric, 0.0)
 
-        # Check if this model has a higher metric value
-        if metric_value > best_metric_value:
-            best_model = joblib.load(os.path.join(folder, 'model.joblib'))
-            best_hyperparameters = hyperparameters
-            best_metric_value = metric_value
+            # Check if this model has a higher metric value
+            if metric_value > best_metric_value:
+                best_model = joblib.load(os.path.join(folder, 'model.joblib'))
+                best_hyperparameters = hyperparameters
+                best_metric_value = metric_value
+                best_performance_metrics = performance_metrics
 
-    return best_model, best_hyperparameters
+        except FileNotFoundError:
+            print(f"Metrics file not found for {folder}")
+        except json.decoder.JSONDecodeError:
+            print(f"Error loading metrics from {metrics_file_path}")
+
+    return best_model, best_hyperparameters, best_performance_metrics
 
 
 if __name__=="__main__":
@@ -235,13 +192,14 @@ if __name__=="__main__":
     save_model(gb_model, gb_hyperparams, gb_metrics, folder='models/classification/gradient_boosting')
 
     # Compare models
-    metrics_comparison = compare_models(X_train, y_train, X_validation, y_validation, model_classes, task_folder='models/classification')
+    metrics_comparison = evaluate_all_models(X_train, y_train, X_validation, y_validation, model_classes, task_folder='models/classification')
 
     # Evaluate all models
     evaluate_all_models(X_test, y_test, X_validation, y_validation, model_classes, task_folder='models/classification')
-    best_model, best_hyperparameters = find_best_model(task_folder='models/classification', metric='validation_accuracy')
-    print("Best Classification Model, best_model")
+    best_model, best_hyperparameters, best_performance_metrics = find_best_model(task_folder='models/classification', metric='validation_accuracy')
+    print("Best Classification Model: ", best_model)
     print("Best hyperparameters:", best_hyperparameters)
+    print("Best Performance Metrics: ", best_performance_metrics)
 
 
 '''
