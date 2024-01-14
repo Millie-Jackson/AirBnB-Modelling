@@ -158,6 +158,7 @@ Visualization: Consider creating a separate function for the visualization part.
             Show the best model on a graph
             Show all the models on the same graph
             Allow visualizations to be interactive
+            Have a function that decides which visualisation would be best
 '''
 
 # END OF FILE

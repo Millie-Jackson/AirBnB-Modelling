@@ -13,7 +13,7 @@ def main():
     classification_model = ClassificationModelling(task_folder)
 
     # Load data
-    features, labels = classification_model.load_data(label="Catagory")
+    features, labels = classification_model.load_data(label="Category")
 
     # Split data
     X_train, X_validation, y_train, y_validation = classification_model.split_data(features, labels)
