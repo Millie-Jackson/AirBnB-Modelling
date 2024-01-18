@@ -97,9 +97,25 @@ Potential users include:
 
 **Real-World Learning Exercise:** The project serves as a learning exercise utilizing a real-world example of Airbnb data. It allowed me to grasp practical challenges faced while working with real data and refine data science skills.
 
-**Data Analysis:** This program employs a robust data analysis approach, primarily through exploratory data analysis (EDA). Leveraging powerful tools such as Pandas, we conduct statistical analyses to gain insights into the inherent structure of the dataset. This involves calculating key statistical measures and unraveling relationships between variables. 
+**Exploratory Data Analysis:** This program employs a comprehensive data analysis approach, primarily driven by exploratory data analysis (EDA). Leveraging the powerful Pandas library, we conduct in-depth statistical analyses to extract meaningful insights from the dataset.
 
-**Visualization:** The visualization aspect, powered by Matplotlib, plays a pivotal role in transforming intricate patterns into accessible insights. This holistic approach to data analysis and visualization not only enriches data-driven decision-making but also weaves a compelling narrative, facilitating effective communication of our findings."
+- **Descriptive Statistics:**
+  - Utilizing Pandas, we calculate key descriptive statistics such as mean, median, standard deviation, and quartiles. These measures provide a summary of the central tendency and dispersion of numerical features.
+
+- **Correlation Analysis:**
+  - We delve into the relationships between variables by computing correlation coefficients. This allows us to identify patterns and dependencies among different features.
+
+- **Distribution Analysis:**
+  - Employing histograms and kernel density plots, we visualize the distribution of numerical variables. This aids in understanding the data's underlying structure and potential skewness.
+
+
+**Visualization:** The visualization aspect, powered by Matplotlib, plays a pivotal role in transforming intricate patterns into accessible insights. This holistic approach to data analysis and visualization not only enriches data-driven decision-making but also weaves a compelling narrative, facilitating effective communication of our findings.
+
+- **Pairwise Scatter Plots:**
+  - We create scatter plots to visualize pairwise relationships between numerical features. This enables us to identify potential patterns, clusters, or outliers.
+ 
+- **Categorical Data Analysis:**
+  - For categorical variables, we generate bar charts and frequency tables to explore the distribution of different categories and understand their impact on the target variable.
 
 **Customizable Label Column:** The solution offers the flexibility to specify a target label column during analysis. Users can focus on specific aspects of the rental market by customizing the analysis based on their interests.
 
@@ -142,6 +158,13 @@ Run the data cleaning and analysis scripts:
 
 ```python python tabular_data.py```
 
+Run the script for regression modeling to train and evaluate machine learning models for predicting nightly prices:
+
+    ```bash python regression_modelling.py```
+
+Run the script for classification modeling to train and evaluate machine learning models for predicting catagories:
+
+    ```bash python classification_modelling.py```
 
 
 ## Contributing
@@ -203,7 +226,7 @@ AirBnB/
 │   └── __init__.py
 │   ├── classification_model.py
 │   ├── data_cleaner.py
-│   ├── modelling.py
+│   ├── Modelling.py
 │   └── tabular_data.py
 │
 ├── .gitattributes
@@ -254,8 +277,103 @@ The program then filters out non-numeric columns to include only numerical featu
 ![Code Screenshot](screenshots/load_airbnbpng)
 
 **Data Analysis:**
+Key statistical measures, including mean, median, standard deviation, and quartiles, are calculated to provide a summary of the data distribution.
 
-**Visualization:**
+Correlation matrices and visualizations are employed to unravel relationships between variables. This helps in understanding how different features interact with each other.
+
+Insights are extracted by identifying trends, patterns, and potential factors influencing the target variable (e.g., nightly prices). This understanding is crucial for formulating hypotheses for machine learning modeling.
+
+#### Regression Modelling
+A linear regression model using SGDRegressor from scikit-learn is trained to predict the "Price_Night" feature.
+
+A custom grid search is implemented to find optimal hyperparameters for the regression model. This involves tuning parameters like learning rate and regularization.
+
+Key performance metrics, including RMSE and R^2, are computed for both training and test sets to assess the baseline model's performance.
+
+Decision trees, random forests, and gradient boosting regression models are trained and tuned for improved performance.
+
+The best models, along with their hyperparameters and performance metrics, are saved in dedicated folders.
+
+#### Classification Modelling
+
+The dataset is preprocessed to handle categorical features and encode the target variable for classification.
+
+Logistic Regression, Random Forest Classifier, and Gradient Boosting Classifier are chosen as classification models.
+
+Hyperparameters for each classification model are tuned using the custom grid search.
+
+Accuracy, classification report, and confusion matrix are computed to evaluate the performance of each classification model.
+
+The best classification models, hyperparameters, and performance metrics are saved in dedicated folders.
+
+
+**Visualization:** Visualizations play a crucial role in understanding the distribution, relationships, and patterns within the Airbnb dataset. Leveraging the Matplotlib library, a variety of visualizations are created to enhance data interpretation.
+
+The visualize_predictions method generates a scatter plot showing predicted values in red and true values in blue. It includes the Root Mean Squared Error (RMSE) and R-squared values.
+Confusion Matrix:
+
+The plot_confusion_matrix method generates a confusion matrix for classification models.
+ROC Curve:
+
+The visualize_roc_curve method creates a Receiver Operating Characteristic (ROC) curve for binary classification models.
+Precision-Recall Curve:
+
+The visualize_precision_recall_curve method generates a precision-recall curve for binary classification models.
+
+
+**Refactoring:** The project underwent a refactoring process to enhance code structure, improve modularity, and introduce better organization. The refactoring aimed to address several aspects:
+
+1. **Modularization of Code:**
+   - Code was organized into modular functions and classes, providing a clearer structure.
+   - Distinct functionalities, such as data loading, model training, and hyperparameter tuning, were encapsulated into separate functions and classes.
+
+2. **Code Reusability:**
+   - Functions were designed to be more generic, promoting reusability across different models and datasets.
+   - The `Modelling` class now serves as a foundation for both regression and classification tasks, enabling shared functionalities.
+
+3. **Consistent Naming Conventions:**
+   - Ensured consistent naming conventions for variables, functions, and classes to improve code readability.
+
+4. **Hyperparameter Tuning:**
+   - Implemented two hyperparameter tuning functions: `custom_tune_regression_model_hyperparameters` for manual tuning and `tune_regression_model_hyperparameters` utilizing SKLearn's `GridSearchCV` for automated tuning.
+
+5. **Folder Structure:**
+   - Created a `models` folder to store trained models, hyperparameters, and metrics.
+   - Within the `models` folder, separate subfolders were designated for each type of model (e.g., `regression`).
+
+6. **Documentation:**
+   - Improved code comments and added explanatory comments to aid understanding.
+   - Updated the README file to reflect the new structure, functions, and their purposes.
+
+## How to Use
+
+1. **Load Data:**
+   - Ensure your data loading function or script is compatible with the structure in `modelling.py`.
+
+2. **Train and Evaluate Models:**
+   - Utilize the `evaluate_all_models` function by providing your training and validation datasets.
+   - This function will train multiple regression models, tune hyperparameters, and save models along with their metrics.
+
+
+![Code Screenshot](screenshots/how-to-use: train and evaluate.png)
+
+4. **Find the Best Model:**
+   - After running the `evaluate_all_models` function, use `find_best_model` to identify the best-performing model.
+  
+![Code Screenshot](screenshots/how-to-use: find the best model.png)
+
+5. **Custom Hyperparameter Tuning:**
+   - If desired, you can use `custom_tune_regression_model_hyperparameters` for manual hyperparameter tuning.
+
+![Code Screenshot](screenshots/how-to-use: custom hyperparameter tuning.png)
+
+6. **SKLearn Grid Search:**
+   - Alternatively, use `tune_regression_model_hyperparameters` for automated hyperparameter tuning using SKLearn's `GridSearchCV`.
+  
+![Code Screenshot](screenshots/how-to-use: cGridSearch.png)
+
+Refer to the code comments and function docstrings for more detailed information.
+
 
 
 
@@ -322,7 +440,8 @@ The best model, its hyperparameters, and performance metrics are then saved in a
 
 The evaluate_all_models function was adapted to accept a task_folder argument to specify the relevant directory for the classification models. 
 
-*LINK SCREENSHOT
+Classification: evaluate_all_models.png
+![Code Screenshot](screenshots/Classification: evaluate_all_models.png.png)
 
 Finally, the find_best_model function was modified to consider the task_folder parameter, enabling it to locate and compare models within the specified classification directory. 
 
