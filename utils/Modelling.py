@@ -328,6 +328,34 @@ class RegressionModelling(Modelling):
 
     def __init__(self, task_folder: str):
         super().__init__(task_folder)
+
+    def evaluate_all_models(self, X_train, y_train, X_validation, y_validation, model_classes) -> None:
+        """Evaluate different models and save the best models."""
+
+        for model_class in model_classes:
+            # Tune hyperparameters
+            best_model, best_hyperparameters = self.tune_model_hyperparameters(model_class, X_train, y_train)
+
+            # Train model
+            trained_model = self.train_model(best_model, X_train, y_train)
+
+            # Make predictions on validation set
+            y_validation_pred = trained_model.predict(X_validation)
+
+            # Evaluate validation set
+            rmse_validation, r2_validation, _, _ = self.predict_and_evaluate(trained_model, X_train, y_train, X_validation, y_validation)
+            print(f"Validation Mean Squared Error: {rmse_validation: .2f}")
+            print(f"Validation R-squared: {r2_validation: .2f}")
+
+            # Save the model, hyperparameters and metrics
+            model_name = model_class.__name__.lower()
+            model_folder = os. path.join(self.task_folder, model_name)
+            self.save_model(best_model, best_hyperparameters, X_validation, y_validation, model_class, model_folder)
+
+            # Visualize predictions
+            self.visualize_predictions(y_validation_pred, y_validation, rmse_validation, r2_validation)
+
+        return None
     
 class ClassificationModelling(Modelling):
     

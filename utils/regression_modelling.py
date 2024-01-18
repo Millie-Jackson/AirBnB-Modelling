@@ -14,7 +14,8 @@ from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 from itertools import product 
 
-from tabular_data import load_airbnb
+#from tabular_data import load_airbnb
+from Modelling import RegressionModelling
 
 
 
@@ -63,65 +64,46 @@ Usage:
 
 
 
+def main():
 
+    task_folder = "/home/millie/Documents/GitHub/AirBnB/models/regression"
 
-
-def format_hyperparameters(hyperparameters) -> dict:
-    """Format hyperparameters for saving."""
-
-    formatted_hyperparameters = {key: value.tolist() if isinstance(value, np.ndarray) else value for key, value in hyperparameters.items()}
-
-    return formatted_hyperparameters
-
-if __name__ == "__main__":
+    # Create instance
+    regression_model = RegressionModelling(task_folder)
 
     # Load data
-    features, labels = load_airbnb_data()
+    features, labels = regression_model.load_data(label="Price_Night")
 
     # Split data
-    X_train, X_test, y_train, y_test = split_data(features, labels)
-    X_validation, X_final_test, y_validation, y_final_test = split_data(X_test, y_test)
+    X_train, X_validation, y_train, y_validation = regression_model.split_data(features, labels)
 
     # Standardize features
-    X_train, X_validation, X_final_test = standardize_features(X_train, X_validation, X_final_test)
+    X_train, X_validation = regression_model.standardize_features(X_train, X_validation)
 
-    # Train a linear regression model with gradient descent
-    model = SGDRegressor(max_iter=1000, random_state=42)
-    model.fit(X_train, y_train)
+    # Define regression model classes
+    model_classes = [SGDRegressor, RandomForestRegressor, GradientBoostingRegressor]
 
-    # Make predictions on the training and test set
-    y_train_pred = model.predict(X_train)
-    y_final_test_pred = model.predict(X_final_test)
+    # Evaluate regression models
+    metrics_comparison = regression_model.evaluate_all_models(X_train, y_train, X_validation, y_validation, model_classes)
 
-    # Evaluate the training set
-    rmse_train = np.sqrt(mean_squared_error(y_train, y_train_pred))
-    r2_train = r2_score(y_train, y_train_pred)
-    print(f"Mean Squared Error (mse): {rmse_train:.2f}")
-    print(f"R-squared: {r2_train:.2f}")
-    
-    # Evaluate the test set
-    rmse_final_test = np.sqrt(mean_squared_error(y_final_test, y_final_test_pred))
-    r2_final_test = r2_score(y_final_test, y_final_test_pred)
-    print(f"Mean Squared Error (mse): {rmse_final_test:.2f}")
-    print(f"R-squared: {r2_final_test:.2f}")
+    # Print and save the metrics comparison results
+    for metric_result in metrics_comparison:
+        print(metric_result)
 
-    # Evaluate the model
-    rmse_train, r2_train, rmse_final_test, r2_final_test = predict_and_evaluate(model, X_train, y_train, X_final_test, y_final_test)
-    #rmse_train, r2_train, rmse_test, r2_test = predict_and_evaluate(linear_model, X_train, y_train, X_test, y_test)
+    # Find the best model
+    model_folders = [
+        os.path.join(task_folder, 'models/regression/sgdregressor'),
+        os.path.join(task_folder, 'models/regression/randomforestregressor'),
+        os.path.join(task_folder, 'models/regression/gradientboostingregressor')
+    ]
 
-    # Visualize predictions
-    visualize_predictions(y_final_test_pred, y_final_test, rmse_final_test, r2_final_test)
-
-
-    # Evaluate all models
-    model_classes = [DecisionTreeRegressor, RandomForestRegressor, GradientBoostingRegressor]
-    evaluate_all_models(X_train, y_train, X_validation, y_validation, model_classes)
-
-    # Find best model
-    model_folders = ['models/regression/decisiontreeregressor', 'models/regression/randomforestregressor', 'models/regression/gradientboostingregressor']
-    best_model, best_hyperparameters = find_best_model(model_folders)
-
+    best_model, best_hyperparameters = regression_model.find_best_model(model_folders)
     print(f"Best Model: {best_model}")
+
+
+
+if __name__ == "__main__":
+    main()
 
 
 
@@ -129,36 +111,6 @@ if __name__ == "__main__":
 # I set the test size to 30% as my dataset is small (less than 900)
 # I used random_state to It's also helpful when you want to compare different models or algorithms. By using the same random_state, you can be confident that any differences in performance are due to the model and not random variations. 42 is convention
 
-'''
-OPTIONAL
-Comments: Some parts of your code already have comments explaining the purpose of the code, which is great. Make sure to add comments for more complex sections or to explain the rationale behind certain choices.
-Configuration Handling: If there are constants or configurations that might change, consider handling them in a separate configuration file. This can include things like file paths, hyperparameter search spaces, or any other settings.
-Consistent Hyperparameter Tuning: You are using GridSearchCV for hyperparameter tuning for some models, but you have a custom hyperparameter tuning function commented out. It's good to be consistent. Either use GridSearchCV for all or your custom function for all.Data Exploration: Consider adding a section for exploring and visualizing your data. Understanding your data better can often lead to more informed modeling decisions.
-Data Analysis: Add more metrics to each model
-Data Sets: Include car price dataset
-        Ask Tom if you can use his pluming dataset
-Data Structure: Depending on the size of your dataset, you might want to split it further into train/validation/test sets, especially if you're building machine learning models.
-Error Handling: Consider adding error handling, especially when dealing with file operations, to catch and handle potential exceptions.
-Experiment Tracking: If you are running multiple experiments, you might want to look into experiment tracking tools or frameworks (e.g., MLflow, TensorBoard) to log and compare your experiments easily.
-Features: Find the best model for each data column
-        Geographical distributions
-        Pricing trends
-        Impact of various features
-File Paths: Be cautious when using file paths. In your save_model function, you are saving models and metrics to specific paths. Ensure these paths are correctly set according to your project structure.
-Flexibility: Make your script more flexible by allowing users to specify parameters such as the test size and random seed as arguments.
-Handle Edge Cases: Ensure that your script gracefully handles edge cases, such as cases where a folder already exists or when there's an issue with saving models.
-Logging: Add logging statements to provide information about the progress of your script. This can be helpful for debugging and understanding where your script might be spending more time.
-Model Evaluation: Consider wrapping the model evaluation code into functions. This makes the code modular and easier to understand.
-Model Folders: Instead of hardcoding the model folders, consider dynamically obtaining them from the file system. This can be helpful when you have a growing number of models.
-Print Statements: The print statements are useful for debugging, but in a production environment or a larger project, consider using a logging framework for more control over log levels and destinations.
-Reuse Functions: Consider creating a reusable function for hyperparameter tuning, which can be used for each model. This reduces code redundancy and makes your script more maintainable.
-Unit Testing: Consider writing unit tests for your classes and methods. This will help ensure that each part of your code works as expected, and it makes it easier to catch regressions when you modify the code.
-Use a Dictionary for Models: Instead of a list, consider using a dictionary to map model names to their corresponding classes. This can make your code more readable and scalable.
-Visualization: Consider creating a separate function for the visualization part. This will help if you need to reuse this code or if you decide to make changes to the visualization in the future.
-            Show the best model on a graph
-            Show all the models on the same graph
-            Allow visualizations to be interactive
-            Have a function that decides which visualisation would be best
-'''
+
 
 # END OF FILE
