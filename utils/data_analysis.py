@@ -17,3 +17,7 @@ for batch in train_loader:
     
 for batch in validation_loader:
     features, labels = batch'''
+
+'''Example NN
+model = TabularModel(imput_size= ,hidden_size=64, output_size=1)
+train(model, your_train_dataloader, num_epochs=1)'''
