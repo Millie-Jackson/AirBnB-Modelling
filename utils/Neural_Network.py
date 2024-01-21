@@ -1,7 +1,13 @@
+
 import torch
 import torch.nn as nn
-from torch.utils.data import Dataset, DataLoader, random_split
+import torch.optim as optim
 import pandas as pd
+
+from torch.utils.data import Dataset, DataLoader, random_split
+#from torch.autograd import Variable
+
+
 
 class AirbnbnightlyPriceRegressionDataset(Dataset):
 
@@ -24,7 +30,7 @@ class AirbnbnightlyPriceRegressionDataset(Dataset):
         label = self.labels[idx]
 
         return features, label
-       
+   
 def create_data_loaders(dataset, train_size=0.8, batch_size=64, shuffle=True, random_seed=42):
 
     # Calculate the sizes of train, validation and test sets
@@ -43,11 +49,11 @@ def create_data_loaders(dataset, train_size=0.8, batch_size=64, shuffle=True, ra
 
 
 class TabularModel(nn.Module):
-    def __init__(self, input_size, hidden_size, Output_size):
-        super(TabularModel, self). __init__()
+    def __init__(self, input_size, hidden_size, output_size):
+        super(TabularModel, self).__init__()
         self.fc1 = nn.Linear(input_size, hidden_size)
-        self.relu = nn nn.ReLu()
-        self.fc2 = nn.Linear(hidden_size, Output_size)
+        self.re1u = nn.ReLu()
+        self.fc2 = nn.Linear(hidden_size, output_size)
 
     def forward(self, x):
 
@@ -57,15 +63,29 @@ class TabularModel(nn.Module):
 
         return x
     
-def train(model, dataloader, num_epochs):
+def train(model, train_loader, validation_loader, num_epochs=10, learning_rate=0.001):
     
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
     # Define loss function and optimizer
-    criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(model.parapeters(), lr=0.001)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    criterion = torch.nn.MSELoss()
+
+    model.to(device)
+    criterion.to(device)
 
     # Training loop
     for epoch in range(num_epochs):
-        for i, (features, labels) in enumerate(dataloader):
+
+        # Training
+        model.train()
+        running_loss = 0.0
+
+        for batch_idx, (features, labels) in enumerate(train_loader):
+            features, labels = features.to(device, labels.to(device))
+
+            optimizer.zero_grad()
+
             # Forward pass
             outputs = model(features)
 
@@ -73,10 +93,32 @@ def train(model, dataloader, num_epochs):
             loss = criterion(outputs, labels)
 
             # Backward pass and optimization
-            optimizer.zero_grad()
+            #optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 
-            if (i+1) % 10 == 0:
-                print(f'Epocj [{epoch+1}/{num_epochs}], Step [{i+1}/{len(dataloader)}], Loss: {loss.item():.4f}')
-                
+            running_loss = running_loss / len(train_loader)
+            average_loss += loss.item()
+
+        average_loss = running_loss / len(train_loader)
+        print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {average_loss:.4}")
+
+        # Validation
+        model.eval()
+        validation_loss = 0.0
+
+        with torch.no_grad():
+            for features, labels in validation_loader:
+                features, labels = features.to(device), labels.to(device)
+
+                outputs = model(features)
+                loss = criterion(outputs, labels)
+
+                validation_loss += loss.item()
+
+        average_validation_loss = validation_loss / len(validation_loader)
+        print(f"Validation Loss: {average_validation_loss:.4f}")
+
+    print("Training Complete")
+
+# END OF FILE
