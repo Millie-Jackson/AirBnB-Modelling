@@ -1,15 +1,26 @@
 from torch.utils.data import DataLoader
-from Neural_Network import AirbnbnightlyPriceRegressionDataset, create_data_loaders
+from Neural_Network import AirbnbnightlyPriceRegressionDataset, create_data_loaders, TabularModel, train
 
 # Create instance of dataset
-dataset = AirbnbnightlyPriceRegressionDataset
+dataset = AirbnbnightlyPriceRegressionDataset(csv_file='/home/millie/Documents/GitHub/AirBnB/data/tabular_data/clean_tabular_data.csv')
 
 # Create data loaders
 train_loader, validation_loader = create_data_loaders(dataset)
 
+# Create instance of model
+input_size = 9
+hidden_size = 64
+output_size = 1
+
+model = TabularModel(input_size, hidden_size, output_size)
+
+# Train the model
+num_epochs = 10
+learning_rate = 0.001
+
+train(model, train_loader, validation_loader, num_epochs, learning_rate)
 
 '''# Example of using a dataloader
-batch_size = 64
 dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
 for batch in train_loader:
@@ -18,6 +29,4 @@ for batch in train_loader:
 for batch in validation_loader:
     features, labels = batch'''
 
-'''Example NN
-model = TabularModel(imput_size= ,hidden_size=64, output_size=1)
-train(model, your_train_dataloader, num_epochs=1)'''
+# END OF FILE
