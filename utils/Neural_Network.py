@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 import pandas as pd
 import os
+import yaml
 
 from torch.utils.data import Dataset, DataLoader, random_split
 from torch.utils.tensorboard import SummaryWriter
@@ -54,6 +55,13 @@ def create_data_loaders(dataset, train_size=0.8, batch_size=64, shuffle=True, ra
 
     return train_loader, validation_loader   
 
+def get__nn__config(config_file='nn_config.yaml') -> None:
+
+    with open(config_file, 'r') as file:
+        nn_config = yaml.safe_load(file)
+
+    return nn_config
+
 
 
 class TabularModel(nn.Module):
@@ -72,7 +80,34 @@ class TabularModel(nn.Module):
 
         return x
     
-def train(model, train_loader, validation_loader, num_epochs=10, learning_rate=0.001):
+def train(model, train_loader, validation_loader, num_epochs=10, learning_rate=0.001, config_file=None) -> None:
+    
+    # Check if there is a config file
+    if config_file:
+        config = get__nn__config(config_file)
+        optimizer_name = config.get('optimiser', 'adam')
+        learning_rate = config.get('learning_rate', 0.001)
+        hidden_size = config.get('hidden_layer_width', 64)
+        depth = config.get('depth', 2)
+    
+        # Use config to set hyperparameter
+        if optimizer_name.lower() == 'adam':
+            optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+        elif optimizer_name.lower() == 'sgd':
+            optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+        else:
+            raise ValueError(f"Unknown optimizer: {optimizer_name}")
+        
+        input_size = 9
+        
+        hidden_layers = []
+        for _ in range(depth):
+            hidden_layers.append(nn.Linear(input_size, hidden_size))
+            hidden_layers.append(nn.ReLU())
+            input_size = hidden_size
+
+        # Add the hidden layers to the model
+        model.hidden_layers = nn.Sequential(*hidden_layers)
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 

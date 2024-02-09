@@ -1,0 +1,6 @@
+# nn_config.yaml
+
+optimiser: adam
+learning_rate: 0.001
+hidden_layer_width: 64
+depth: 2
