@@ -5,10 +5,13 @@ import torch.optim as optim
 import pandas as pd
 import os
 import yaml
+import json
+import time
 
 from torch.utils.data import Dataset, DataLoader, random_split
 from torch.utils.tensorboard import SummaryWriter
 from subprocess import Popen, PIPE
+from datetime import datetime
 
 
 
@@ -118,6 +121,9 @@ def train(model, train_loader, validation_loader, num_epochs=10, learning_rate=0
     model.to(device)
     criterion.to(device)
 
+    # Record start time for training duration
+    start_time = time.time()  
+
     # Create a SummaryWriter for with a log directory
     writer = SummaryWriter('runs')
     log_dir = 'runs'
@@ -177,7 +183,7 @@ def train(model, train_loader, validation_loader, num_epochs=10, learning_rate=0
         average_validation_loss = validation_loss / len(validation_loader)
         writer.add_scalar('Loss/Validation', average_validation_loss, epoch)
 
-        #print(f"Validation Loss: {average_validation_loss:.4f}")
+        print(f"Validation Loss: {average_validation_loss:.4f}")
 
     # Close SummaryWriter
     writer.close()
@@ -185,5 +191,56 @@ def train(model, train_loader, validation_loader, num_epochs=10, learning_rate=0
     tensorboard_process.terminate()
 
     print("Training Complete")
+
+    # Save the model
+
+    # Calculate training duration
+    training_duration = time.time() - start_time
+
+    # Create hyperparameters dictionarie
+    hyperparameters = {
+        'num_epochs': num_epochs,
+        'learning_rate': learning_rate,
+        'optimizer': optimizer_name,
+        'hidden_size': hidden_size,
+        'depth': depth
+    }
+
+    # Create performance_metrics dictionarie
+    performance_metrics = {
+        'training_loss': average_loss,
+        'validation_loss': average_validation_loss,
+        'training_duration': training_duration
+    }
+
+    current_datetime = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+    folder = os.path.join('models', 'neural_networks', 'regression', current_datetime)
+    save_model(model, hyperparameters, performance_metrics, folder)
+
+def save_model(model, hyperparameters, performance_metrics, folder: str) -> None:
+    """Save the trained model, hyperparameters, and performance metrics."""
+
+    # Create directory if it doesnt exist
+    os.makedirs(folder, exist_ok=True)
+
+    # Check if the model is a PyTorch module
+    if isinstance(model, torch.nn.Module):
+        # Save moduel
+        model_filename = os.path.join(folder, 'model.pt')
+        torch.save(model.state_dict(), model_filename)
+
+    # Save the hyperparameters
+    hyperparameters_filename = os.path.join(folder, 'hyperparameters.json')
+    with open(hyperparameters_filename, 'w') as json_file:
+        json.dump(hyperparameters, json_file, indent=4)
+        
+    # Save the performance metrics
+    metrics_filename = os.path.join(folder, 'metrics.json')
+    with open(metrics_filename, 'w') as json_file:
+        json.dump(performance_metrics, json_file, indent=4)
+
+    print(f"Model, hyperparameter and metrics saved to {folder}")
+
+    return None
 
 # END OF FILE
