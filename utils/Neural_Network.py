@@ -83,17 +83,17 @@ class TabularModel(nn.Module):
 
         return x
     
-def train(model, train_loader, validation_loader, num_epochs=10, learning_rate=0.001, config_file=None) -> None:
+def train(model, train_loader, validation_loader, num_epochs=10, learning_rate=0.001, config=None) -> None:
     
     # Check if there is a config file
-    if config_file:
-        config = get__nn__config(config_file)
+    if config:
+        # Get hyperparameters
         optimizer_name = config.get('optimiser', 'adam')
         learning_rate = config.get('learning_rate', 0.001)
         hidden_size = config.get('hidden_layer_width', 64)
         depth = config.get('depth', 2)
     
-        # Use config to set hyperparameter
+        # Set hyperparameter
         if optimizer_name.lower() == 'adam':
             optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
         elif optimizer_name.lower() == 'sgd':
@@ -101,8 +101,8 @@ def train(model, train_loader, validation_loader, num_epochs=10, learning_rate=0
         else:
             raise ValueError(f"Unknown optimizer: {optimizer_name}")
         
+        # Initializae model with hidden layers
         input_size = 9
-        
         hidden_layers = []
         for _ in range(depth):
             hidden_layers.append(nn.Linear(input_size, hidden_size))
@@ -111,7 +111,7 @@ def train(model, train_loader, validation_loader, num_epochs=10, learning_rate=0
 
         # Add the hidden layers to the model
         model.hidden_layers = nn.Sequential(*hidden_layers)
-    
+
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # Define loss function and optimizer
@@ -193,11 +193,10 @@ def train(model, train_loader, validation_loader, num_epochs=10, learning_rate=0
     print("Training Complete")
 
     # Save the model
-
     # Calculate training duration
     training_duration = time.time() - start_time
 
-    # Create hyperparameters dictionarie
+    # Create hyperparameters dictionary
     hyperparameters = {
         'num_epochs': num_epochs,
         'learning_rate': learning_rate,
@@ -206,7 +205,7 @@ def train(model, train_loader, validation_loader, num_epochs=10, learning_rate=0
         'depth': depth
     }
 
-    # Create performance_metrics dictionarie
+    # Create performance_metrics dictionary
     performance_metrics = {
         'training_loss': average_loss,
         'validation_loss': average_validation_loss,
@@ -216,6 +215,8 @@ def train(model, train_loader, validation_loader, num_epochs=10, learning_rate=0
     current_datetime = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
     folder = os.path.join('models', 'neural_networks', 'regression', current_datetime)
     save_model(model, hyperparameters, performance_metrics, folder)
+
+    return model, performance_metrics, hyperparameters
 
 def save_model(model, hyperparameters, performance_metrics, folder: str) -> None:
     """Save the trained model, hyperparameters, and performance metrics."""
@@ -242,5 +243,69 @@ def save_model(model, hyperparameters, performance_metrics, folder: str) -> None
     print(f"Model, hyperparameter and metrics saved to {folder}")
 
     return None
+
+def generate_nn_configs() -> None:
+    '''Generate different configurations for the neural network'''
+
+    configs = []
+
+    # Define the range of hyperparameters to explore
+    learning_rates = [0.001, 0.01]
+    hidden_layer_widths = [32, 64]
+    depths = [2, 3]
+    optimizers = ['adam', 'sgd']
+
+    # Generate configurations
+    for lr in learning_rates:
+        for hidden_size in hidden_layer_widths:
+            for depth in depths:
+                for optimizer in optimizers:
+                    config = {
+                        'learning_rate': lr,
+                        'hidden_layer_width': hidden_size,
+                        'depth': depth,
+                        'optimizer': optimizer}
+                    configs.append(config)
+
+    return configs
+
+def find_best_nn(train_function, model_class, train_loader, validation_loader):
+    '''Train models with different configurations to find the best'''
+
+    best_model = None
+    best_metrics = None
+    best_hyperparameters = None
+    best_performance = float('inf')
+
+    configs = generate_nn_configs()
+
+    for i, config in enumerate(configs):
+        print(f"Training model {i+1}/{len(configs)} with config: {config}")
+
+        # Train the model with current configuration
+        model, metrics, hyperparameters = train_function(
+            model_class, train_loader, validation_loader, config=config)
+        
+        # Save the hyperparameters used for training
+        current_datetime = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+        folder = os.path.join('models', 'neural_networks', 'regression', current_datetime)
+        os.makedirs(folder, exist_ok=True)
+        with open(os.path.join(folder, 'hyperparameters.json'), 'w') as f:
+            json.dump(config, f, indent=4)
+
+        # Check if the current model performs better than the previous best model
+        if metrics['validation_loss'] < best_performance:
+            best_model = model
+            best_metrics = metrics
+            best_hyperparameters = hyperparameters
+            best_performance = metrics['validation_loss']
+
+    # Save the best model
+    if best_model is not None:
+        save_model(best_model, best_hyperparameters, best_metrics, folder)
+
+    return best_model, best_metrics, best_hyperparameters
+
+
 
 # END OF FILE
