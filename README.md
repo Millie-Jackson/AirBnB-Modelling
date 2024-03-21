@@ -109,6 +109,7 @@ Potential users include:
   - Employing histograms and kernel density plots, we visualize the distribution of numerical variables. This aids in understanding the data's underlying structure and potential skewness.
 
 
+
 **Visualization:** The visualization aspect, powered by Matplotlib, plays a pivotal role in transforming intricate patterns into accessible insights. This holistic approach to data analysis and visualization not only enriches data-driven decision-making but also weaves a compelling narrative, facilitating effective communication of our findings.
 
 - **Pairwise Scatter Plots:**
@@ -120,6 +121,8 @@ Potential users include:
 **Customizable Label Column:** The solution offers the flexibility to specify a target label column during analysis. Users can focus on specific aspects of the rental market by customizing the analysis based on their interests.
 
 **Data Saving:** The cleaned data is saved as "clean_tabular_data.csv" to facilitate future analysis and usage. Additionally, the program systematically preserves the trained model along with its associated hyperparameters and performance metrics. This includes storing the model in a designated folder, such as "models/classification/logistic_regression," and creating separate files for hyperparameters ("hyperparameters.json") and performance metrics. This meticulous approach ensures the reproducibility of results and provides a comprehensive record of the model training process.
+
+**Neural Network Training:** The Neural_Network.py script contains functions for training neural networks on the cleaned tabular data. You can train a model using the train function and specify hyperparameters in a YAML config file.
 
 **User-Friendly Execution:** The project is designed with user-friendliness in mind, providing easy execution of data cleaning and analysis scripts. Individuals with varying programming experience can explore the Airbnb dataset effortlessly.
 
@@ -135,13 +138,20 @@ The project stands out due to its user-friendly implementation, allowing individ
 ## Installation
 To run the code in this project, you'll need to have Python installed on your system. Additionally, the following Python libraries are required and can be installed using pip:
 
-pandas
+Before running the code, ensure you have the following dependencies installed:
 
-numpy
+- Python 3.x
+- PyTorch
+- pandas
+- NumPy
+- scikit-learn
+- matplotlib
+- tensorboard
 
-To install the required libraries, use the following command:
+You can install the dependencies using pip:
 
-```python pip install pandas numpy```
+```bash
+pip install -r requirements.txt
 
 
 
@@ -160,11 +170,15 @@ Run the data cleaning and analysis scripts:
 
 Run the script for regression modeling to train and evaluate machine learning models for predicting nightly prices:
 
-    ```bash python regression_modelling.py```
+```bash python regression_modelling.py```
 
 Run the script for classification modeling to train and evaluate machine learning models for predicting catagories:
 
-    ```bash python classification_modelling.py```
+```bash python classification_modelling.py```
+
+Train the neural network:
+
+'''python Neural_Network.py'''
 
 
 ## Contributing
@@ -225,8 +239,11 @@ AirBnB/
 ├── utils/
 │   └── __init__.py
 │   ├── classification_model.py
+│   ├── data_analysis.py
 │   ├── data_cleaner.py
 │   ├── Modelling.py
+│   ├── Neural_network.py
+│   ├── nn_config.yaml
 │   └── tabular_data.py
 │
 ├── .gitattributes
@@ -441,7 +458,7 @@ The best model, its hyperparameters, and performance metrics are then saved in a
 The evaluate_all_models function was adapted to accept a task_folder argument to specify the relevant directory for the classification models. 
 
 Classification: evaluate_all_models.png
-![Code Screenshot](screenshots/Classification: evaluate_all_models.png.png)
+![Code Screenshot](screenshots/Classification: evaluate_all_models.png)
 
 Finally, the find_best_model function was modified to consider the task_folder parameter, enabling it to locate and compare models within the specified classification directory. 
 
@@ -450,6 +467,33 @@ Finally, the find_best_model function was modified to consider the task_folder p
 This entire classification pipeline ensures that the best-performing classification model is identified, along with its hyperparameters and performance metrics. The implementation demonstrates a systematic approach to building, tuning, and evaluating classification models for the given Airbnb dataset.
 
 **Matplotlib:**
+
+## Milestone 6:** In this step, we set up the foundational components for training a PyTorch neural network to predict the nightly price of Airbnb listings based on tabular data. We began by creating a PyTorch Dataset named AirbnbNightlyPriceRegressionDataset, which loads the dataset from a CSV file and returns tuples of features and labels. These features represent the numerical tabular data of the Airbnb listings, while the labels correspond to the price per night. Additionally, we defined data loaders to handle the training and testing datasets, with the training set further split into training and validation sets. The neural network architecture, encapsulated within the TabularModel class, was designed to initially ingest only numerical tabular data and consists of fully connected layers with ReLU activation functions. Subsequently, we implemented the training process in the train function, performing forward passes, loss calculation, and optimization of model parameters using gradient descent. Hyperparameters, such as the optimizer, learning rate, and network architecture, were specified in a YAML configuration file. Lastly, we introduced functions for evaluating model performance, saving models and their associated metadata, and conducting hyperparameter tuning to find the optimal network configuration. This step laid the groundwork for subsequent iterations and improvements to the neural network model.
+
+**Neural Network:**
+
+The neural network model is defined in the TabularModel class. Currently, it only ingests the numerical tabular data. The architecture consists of fully connected layers (linear layers) with ReLU activation functions.
+
+![Code Screenshot](screenshots/TabularModel_Class.png)
+
+The training process is defined in the train function. It takes the model, data loader, number of epochs, learning rate, and an optional configuration file (nn_config.yaml). The function performs a forward pass on a batch of data, calculates the loss, and optimizes the model parameters using gradient descent. The training loop iterates through every batch in the dataset for the specified number of epochs and evaluates the model performance on the validation dataset after each epoch. TensorBoard is used to visualize the training curves and accuracy on both the training and validation sets.
+
+![Code Screenshot](screenshots/train.png)
+
+The neural network architecture and hyperparameters are specified in a YAML file called nn_config.yaml. It defines:
+
+- The name of the optimizer used (optimiser)
+- The learning rate
+- The width of each hidden layer (hidden_layer_width)
+- The depth of the model
+
+![Code Screenshot](screenshots/nn_config.png)
+
+The save_model function saves the trained model, hyperparameters, and performance metrics to files. Performance metrics include RMSE loss, R^2 score, training duration, and inference latency.
+
+To find the best neural network configuration, the find_best_nn function trains models with different configurations specified in nn_config.yaml. It sequentially trains models with each configuration, saves the configuration used, and returns the best model, metrics, and hyperparameters.
+
+
 
 **Further Development:**
 **Version 2.0:**
