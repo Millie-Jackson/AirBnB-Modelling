@@ -21,12 +21,18 @@ class AirbnbNightlyPriceRegressionDataset(Dataset):
     def __init__(self, csv_file):
         
         self.data = pd.read_csv(csv_file) # Loads the data
+        # Assume 'Category' is the column name for the previous label
         
         # Select only numerical columns
         numeric_columns = self.data.select_dtypes(include=['float64', 'float32', 'int64', 'int32']).columns
         self.data = self.data[numeric_columns]
-        self.features = torch.tensor(self.data.drop('Price_Night', axis=1).values, dtype=torch.float32)
-        self.labels = torch.tensor(self.data['Price_Night'].values, dtype=torch.float32).view(-1, 1)
+        #self.features = torch.tensor(self.data.drop('Price_Night', axis=1).values, dtype=torch.float32)
+        #self.labels = torch.tensor(self.data['Price_Night'].values, dtype=torch.float32).view(-1, 1)
+        self.features = torch.tensor(self.data.drop('beds', axis=1).values, dtype=torch.float32)
+        self.labels = torch.tensor(self.data['beds'].values, dtype=torch.float32).view(-1, 1)
+        
+        print('Label: ', self.data['beds'].name)
+        print('Feature Names:', list(self.data.drop('beds', axis=1).columns))
 
     def __len__(self):
         '''Returns the length of the dataset'''
@@ -186,64 +192,6 @@ class Trainer:
 
         self.hyperparameters = None
         self.metrics = None
-
-    '''def train(model, train_loader, validation_loader, num_epochs=10, learning_rate=0.001, config=None) -> None:
-
-        # Record start time for training duration
-        start_time = time.time()  
-
-        # Create a SummaryWriter for with a log directory
-        if not os.path.exists(log_dir):
-            print(f"Warning: The '{log_dir} directory was not created")
-        else:
-            print(f"Logs will be stored in '{log_dir}'.")
-    
-
-        # Training loop
-        for epoch in range(num_epochs):
-
-            # Log the training loss
-            
-            # Validation
-            model.eval()
-            validation_loss = 0.0
-
-            with torch.no_grad():
-                for features, labels in validation_loader:
-                    features, labels = features.to(device), labels.to(device)
-
-                    outputs = model(features)
-                    loss = criterion(outputs, labels)
-
-                    validation_loss += loss.item()
-
-            # Log the validation loss
-            average_validation_loss = validation_loss / len(validation_loader)
-            writer.add_scalar('Loss/Validation', average_validation_loss, epoch)
-
-            print(f"Validation Loss: {average_validation_loss:.4f}")
-
-        # Save the model
-        # Calculate training duration
-        training_duration = time.time() - start_time
-
-        # Create hyperparameters dictionary
-        #hyperparameters = {
-        #    'num_epochs': num_epochs,
-        #    'learning_rate': learning_rate,
-        #    'optimizer': optimizer_name,
-        #    'hidden_size': hidden_size,
-        #    'depth': depth
-        }
-
-        # Create performance_metrics dictionary
-        #performance_metrics = {
-        #    'training_loss': average_loss,
-        #    'validation_loss': average_validation_loss,
-        #    'training_duration': training_duration
-        }
-
-        return model, performance_metrics, hyperparameters'''
 
     def train_model(self, train_loader, num_epochs):
             

@@ -45,6 +45,7 @@ Training Code: The training logic in Trainer.train_model and train_and_save is r
 Model Configuration: The code to create the model, criterion, optimizer, and writer is similar in both files. Extract this into a helper function.
 
 Model Evaluation: The code to find the best model based on validation metrics is repeated in both files. Extract this into a separate function.
+    Write a function that displays the 'answer'
 
 Main Function: The main() function in data_analysis.py contains the overall workflow, including training, model evaluation, and saving. 
     Consider breaking this down into smaller, more focused functions.
