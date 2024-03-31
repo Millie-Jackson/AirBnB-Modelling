@@ -493,6 +493,10 @@ The save_model function saves the trained model, hyperparameters, and performanc
 
 To find the best neural network configuration, the find_best_nn function trains models with different configurations specified in nn_config.yaml. It sequentially trains models with each configuration, saves the configuration used, and returns the best model, metrics, and hyperparameters.
 
+## Milestone 7:**
+
+In this project, I modified the code to utilize a different label, 'beds', for the prediction task instead of the previous label. By updating the dataset loading process in the AirbnbNightlyPriceRegressionDataset class, I ensured that the 'beds' column from the dataset is now used as the label for training the models. Additionally, I adjusted the feature selection process to include the previous label ('Category') as one of the features in the dataset. After these modifications, I ran the entire pipeline to train various models and determine the best one for the updated task. The models successfully trained on the new data with the 'beds' column as the label, demonstrating the adaptability and effectiveness of the model to different prediction tasks within the Airbnb nightly price regression context.
+
 
 
 **Further Development:**
