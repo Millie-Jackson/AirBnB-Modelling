@@ -2,7 +2,6 @@
 
 import yaml
 import torch
-
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from Neural_Network import AirbnbNightlyPriceRegressionDataset, create_data_loaders, TabularModel, Trainer, save_model, find_best_nn
@@ -10,13 +9,13 @@ from Neural_Network import AirbnbNightlyPriceRegressionDataset, create_data_load
 
 
 # Create instance of import osdataset
-dataset = AirbnbNightlyPriceRegressionDataset(csv_file='/home/millie/Documents/GitHub/AirBnB/data/tabular_data/clean_tabular_data.csv')
+dataset = AirbnbNightlyPriceRegressionDataset(csv_file='/home/millie/Documents/GitHub/AirBnB/data/processed_data/clean_tabular_data.csv')
 
 # Create data loaders
 train_loader, validation_loader = create_data_loaders(dataset)
 
 # Load model configuration
-with open('utils/nn_config.yaml', 'r') as file:
+with open('nn_config.yaml', 'r') as file:
     config = yaml.safe_load(file)
 
 # Create instance of model

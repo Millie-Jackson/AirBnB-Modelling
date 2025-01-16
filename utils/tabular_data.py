@@ -1,3 +1,5 @@
+# utils/tabular_data.py
+
 import pandas as pd
 from data_cleaner import DataCleaner
 
@@ -36,7 +38,7 @@ def load_airbnb(label="Price_Night") -> pd.DataFrame:
 
     # Load cleaned data
     try:
-        df = pd.read_csv("data/tabular_data/clean_tabular_data.csv")
+        df = pd.read_csv("data/processed_data/clean_tabular_data.csv")
     except FileNotFoundError:
         raise FileNotFoundError("Cant find cleaned data file")
 
@@ -55,14 +57,20 @@ def load_airbnb(label="Price_Night") -> pd.DataFrame:
 
 def main():
 
+    import os
+    print("Current Working Directory:", os.getcwd())
+
+
     # Load the raw data
-    cleaner = DataCleaner("data/tabular_data/listing.csv")
+    #cleaner = DataCleaner("data/raw_data/tabular_data/listing.csv")
+    cleaner = DataCleaner(os.path.join(os.path.dirname(__file__), "../data/raw_data/tabular_data/listing.csv"))
+
     
     # Clean the data
     cleaner_df = cleaner.clean_tabular_data()
 
     # Save processed data as a .csv
-    cleaner_df.to_csv("data/tabular_data/clean_tabular_data.csv", index=False)
+    cleaner_df.to_csv("data/processed_data/clean_tabular_data.csv", index=False)
 
     # Extract
     features, labels = load_airbnb()

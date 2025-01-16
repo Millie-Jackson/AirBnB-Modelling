@@ -105,6 +105,7 @@ class DataCleaner:
         # Load data
         try:
             self.df = pd.read_csv(self.filename)
+            print(f"Looking for data file at: {self.filename}")
         except FileNotFoundError:
             raise FileNotFoundError("Can't find data file")
 

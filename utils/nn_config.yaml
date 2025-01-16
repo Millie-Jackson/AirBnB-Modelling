@@ -1,4 +1,4 @@
-# nn_config.yaml
+# utils/nn_config.yaml
 
 optimiser: adam
 learning_rate: 0.001

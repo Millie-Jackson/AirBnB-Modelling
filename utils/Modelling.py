@@ -24,7 +24,7 @@ class Modelling:
 
         # Load cleaned data
         try:
-            df = pd.read_csv("data/tabular_data/clean_tabular_data.csv")
+            df = pd.read_csv("data/processed_data/clean_tabular_data.csv")
         except FileNotFoundError:
             raise FileNotFoundError("Can't find cleaned data file")
         
