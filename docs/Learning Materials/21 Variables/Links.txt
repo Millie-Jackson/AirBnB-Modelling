@@ -1,2 +1,0 @@
-Arithmetic Variable Assignment and Strings
-https://www.youtube.com/watch?v=VTcVnkgt-OE
