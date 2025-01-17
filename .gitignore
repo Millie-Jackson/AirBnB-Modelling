@@ -1,1 +1,22 @@
+# Ignore Conda environments
 .conda
+
+# Ignore Python cache files
+__pycache__/
+
+# Ignore binary/model files
+*.joblib
+
+# Ignore temporary directories or files
+.runs/
+.images/
+
+# Ignore everything under models except important files
+models/**
+
+# Include specific files
+!models/classification/hyperparameters.json
+
+# Ignore logs and temporary files
+*.log
+*.tmp
