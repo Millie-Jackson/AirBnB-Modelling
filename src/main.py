@@ -54,7 +54,7 @@ def main():
 
     # Step 7: Train the model
     print("Training model...")
-    best_model, best_hyperparameter, best_metric = trainer.train_and_save(train_loader, config)
+    best_model, best_hyperparameter, best_metric = trainer.train_and_save(train_loader, validation_loader, config)
 
     # Step 8: Save the best model
     if best_model is not None:

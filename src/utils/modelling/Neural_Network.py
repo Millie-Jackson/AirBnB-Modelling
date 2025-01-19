@@ -50,6 +50,8 @@ class AirbnbNightlyPriceRegressionDataset(Dataset):
 
         return features, label
    
+
+
 def create_data_loaders(dataset, train_size=0.8, batch_size=64, shuffle=True, random_seed=42):
 
     # Calculate the sizes of train, validation and test sets
@@ -65,12 +67,12 @@ def create_data_loaders(dataset, train_size=0.8, batch_size=64, shuffle=True, ra
 
     return train_loader, validation_loader   
 
-def get__nn__config(config_file='src/utils/nn_config.yaml') -> None:
+'''def get__nn__config(config_file='src/utils/config/nn_config.yaml') -> None:
 
     with open(config_file, 'r') as file:
         nn_config = yaml.safe_load(file)
 
-    return nn_config
+    return nn_config'''
 
 
 
@@ -123,8 +125,8 @@ def generate_nn_configs() -> None:
     configs = []
 
     # Define the range of hyperparameters to explore
-    learning_rates = [0.001, 0.01]
-    hidden_layer_widths = [32, 64]
+    learning_rates = [0.001, 0.01, 0.1]
+    hidden_layer_widths = [32, 64, 128]
     depths = [2, 3]
     optimizers = ['adam', 'sgd']
 
@@ -142,40 +144,32 @@ def generate_nn_configs() -> None:
 
     return configs
 
-def find_best_nn(train_function, model_class, train_loader, validation_loader, config):
-    '''Train models with different configurations to find the best'''
+def find_best_nn(train_function, validation_loader):
+    """
+    Train models with different configurations to find the best one.
 
-    best_model = None
-    best_metrics = None
-    best_hyperparameters = None
-    best_performance = float('inf')
+    Args:
+        train_loader (DataLoader): Training data loader.
+        validation_loader (DataLoader): Validation data loader.
+
+    Returns:
+        tuple: Best model, metrics, and hyperparameters.
+    """
 
     configs = generate_nn_configs()
+    best_model, best_metrics, best_hyperparameters = None, None, None
+    best_performance = float('inf')
 
-    for i, config in enumerate(configs):
-        print(f"Training model {i+1}/{len(configs)} with config: {config}")
+    for config in configs:
+        print(f"Training with config: {config}")
 
         # Train the model with current configuration
-        model, metrics, hyperparameters = train_function(
-            model_class, train_loader, validation_loader, config=config)
-        
-        # Save the hyperparameters used for training
-        current_datetime = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
-        folder = os.path.join('models', 'neural_networks', 'regression', current_datetime)
-        os.makedirs(folder, exist_ok=True)
-        with open(os.path.join(folder, 'hyperparameters.json'), 'w') as f:
-            json.dump(config, f, indent=4)
+        model, metrics, hyperparameters = train_function(train_loader, validation_loader, config)
 
         # Check if the current model performs better than the previous best model
         if metrics['validation_loss'] < best_performance:
-            best_model = model
-            best_metrics = metrics
-            best_hyperparameters = hyperparameters
             best_performance = metrics['validation_loss']
-
-    # Save the best model
-    if best_model is not None:
-        save_model(best_model, best_hyperparameters, best_metrics, folder)
+            best_model, best_metrics, best_hyperparameters = model, metrics, hyperparameters
 
     return best_model, best_metrics, best_hyperparameters
 
@@ -216,6 +210,25 @@ class Trainer:
     
         return self.model, self.hyperparameters, self.metrics
 
+    def initilize_model(self, config):
+        """
+        Initialize a neural network model, optimizer, and criterion based on the config.
+
+        Args:
+            config (dict): Hyperparameter configuration.
+
+        Returns:
+            model: Initialized neural network model.
+            optimizer: Optimizer object.
+            criterion: Loss function.
+        """
+
+        model = NeuralNetwork(config['hidden-layer_width'], config['depth'])
+        optimizer = torch.optim.Adam(model.parameters(), lr=config['learning-rate']) if config['optimizer'] == 'adam' else torch.optim.SGD(model.parameters(), lr=config['learning_rate'])
+        criterion = nn.MSELoss()
+
+        return model, optimizer, criterion
+
     def train_one_epoch(self, train_loader, device):
 
         self.model.train() # Set model to training mode
@@ -254,64 +267,83 @@ class Trainer:
         
         # Calculate average validation loss for the epoch
         return running_loss / len(validation_loader)
-
-    def train_and_save(self, train_loader, config):
-        
-        # Initialize variables
-        trained_model = None
-        training_hyperparameters = None
-        training_metrics = None
-
-        # Create model
-        input_size = 9
-        hidden_size = config.get('hidden_layer_width', 64)
-        output_size = 1
-        model = TabularModel(input_size, hidden_size, output_size)
-
-        # Create loss function and optimizer
-        criterion = torch.nn.MSELoss()
-        optimizer_name = config.get('optimiser', 'adam')
-        learning_rate = config.get('learning_rate', 0.001)
-        num_epochs = config.get('num_epochs', 10)
-        depth = config.get('depth', 2)
-
-        # Set optimizer
-        if optimizer_name.lower() == 'adam':
-            optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-        elif optimizer_name.lower() == 'sgd':
-            optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
-        else:
-            raise ValueError(f"Unknown optimizer: {optimizer_name}")
-
-        # Start Tensorboard in background
-        writer = SummaryWriter('runs')
-        tensorboard_process = Popen(["tensorboard", "--logdir=runs"], stdout=PIPE, stderr=PIPE)
-
-        try:
-            # Train model
-            trainer = Trainer(model, criterion, optimizer, writer)
-            trained_model, training_hyperparameters, training_metrics = trainer.train_model(train_loader, num_epochs)
-
-            print("Training Complete")
-
-            # Save the model
-            current_datetime = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
-            folder = os.path.join('models', 'neural_networks', 'regression', current_datetime)
-            os.makedirs(folder, exist_ok=True)
-            save_model(trained_model, training_hyperparameters, training_metrics, folder)
-
-            print("Model Saved")
-        except Exception as e:
-            print(f"An error occured during training and saving: {e}")
-        finally:
-            # Close SummaryWriter and TensorBoard
-            writer.close()
-            if tensorboard_process is not None:
-                tensorboard_process.terminate()
-                tensorboard_process.wait() # Wait for tensorboard to finish closeing before moving on
-        
-        return trained_model, training_hyperparameters, training_metrics
     
+    def train_and_save(self, train_loader, validation_loader, config):
+        """
+        Train a model with given hyperparameters, evaluate it, and save results.
+
+        Args:
+            train_loader (DataLoader): Training data loader.
+            validation_loader (DataLoader): Validation data loader.
+            config (dict): Hyperparameter configuration.
+
+        Returns:
+            trained_model: The trained PyTorch model.
+            training_hyperparameters: Hyperparameters used for training.
+            training_metrics: Metrics collected during training.
+        """
+
+        model, optimizer, criterion = self.initilize_model(config)
+
+        # Train the model
+        training_metrics = train_single_model(model, train_loader, optimizer, criterion, config)
+        # Evaluate the model
+        validation_loss = evaluate_model(model, validation_loader, criterion)
+        # Save results
+        training_metrics['validation_loss'] = validation_loss
+        save_hyperparameters_model_metrics(model, config, training_metrics)
+
+        return model, config, training_metrics
+
+    def evaluate_model(self, model, validation_loader, criterion):
+        """
+        Evaluate the model on validation data.
+
+        Args:
+            model: Neural network model.
+            validation_loader (DataLoader): Validation data loader.
+            criterion: Loss function.
+
+        Returns:
+            float: Validation loss.
+        """
+
+        model.eval()
+        total_loss = 0.0
+        with tourch.no_grad(): # No gradient needed
+            for inputs, targets in validation_loader:
+                inputs, targets = inputs.to('cpu'), targets.to('cpu')
+                outputs = model(inputs)
+                loss = criterion(outputs, targets)
+                total_loss += loss.item()
+
+        return total-loss / len(validation_loader)
+
+    def save_hyperparameters_model_metrics(self, model, config, metrics):
+        """
+        Save the trained model, hyperparameters, and metrics.
+
+        Args:
+            model: Trained PyTorch model.
+            config (dict): Hyperparameter configuration.
+            metrics (dict): Training and validation metrics.
+        """
+
+        current_datetime = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+        folder = os.path.join('models', 'neural_networks', 'regression', current_datetime)
+        os.makedirs(folder, exist_ok=True)
+
+        # Save the model
+        torch.save(model.state_dict(), os.path.join(folder, 'model.pth'))
+        # Save hyperparameters
+        with open(os.path.join(folder, 'hyperparameters.json'), 'w') as f:
+            json.dump(config, f, indent=4)
+        # Save metrics
+        with open(os.path.join(folder, 'metrics.json'), 'w') as f:
+            json.dump(metrics, f, indent=4)
+        
+        print(f"Model, hyperparameters and metrics saved in {folder}")
+
 
 
 # END OF FILE
