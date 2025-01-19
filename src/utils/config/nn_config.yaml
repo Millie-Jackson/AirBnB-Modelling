@@ -1,6 +1,13 @@
-# utils/nn_config.yaml
+# src/utils/config/nn_config.yaml
 
 optimiser: adam
 learning_rate: 0.001
-hidden_layer_width: 64
-depth: 2
+hidden_layer_width: 64 # How many neurons in each layer
+depth: 2 # how many layers
+
+#Purpose: Contains the configuration for the neural network, such as hyperparameters for training.
+
+#Usage:
+#- The configuration is read by data_analysis.py to adjust model training parameters (e.g., learning rate, batch size, number of epochs).
+
+#Next Step: Modify the yaml file to experiment with different training configurations.
