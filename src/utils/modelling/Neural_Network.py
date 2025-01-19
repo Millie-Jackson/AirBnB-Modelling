@@ -1,4 +1,4 @@
-# Neural_Network.py
+# src/utils/modelling/Neural_Network.py
 
 import torch
 import torch.optim as optim
@@ -65,7 +65,7 @@ def create_data_loaders(dataset, train_size=0.8, batch_size=64, shuffle=True, ra
 
     return train_loader, validation_loader   
 
-def get__nn__config(config_file='nn_config.yaml') -> None:
+def get__nn__config(config_file='src/utils/nn_config.yaml') -> None:
 
     with open(config_file, 'r') as file:
         nn_config = yaml.safe_load(file)
@@ -98,7 +98,7 @@ def save_model(model, hyperparameters, performance_metrics, folder: str) -> None
 
     # Check if the model is a PyTorch module
     if isinstance(model, torch.nn.Module):
-        # Save moduel
+        # Save model
         model_filename = os.path.join(folder, 'model.pt')
         torch.save(model.state_dict(), model_filename)
 
@@ -187,61 +187,81 @@ class Trainer:
         self.model = model
         self.criterion = criterion
         self.optimizer = optimizer
-        self.writer = writer
+        self.writer = writer # For TensorBoard
         self.tensorboard_process = tensorboard_process
 
         self.hyperparameters = None
         self.metrics = None
 
-    def train_model(self, train_loader, num_epochs):
+    def train_model(self, train_loader, validation_loader, num_epochs):
             
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model.to(device)
         self.criterion.to(device)
 
-        # Initialize hyperparameters
-        self.hyperparameter = {
-            'num_epochs': num_epochs,
-            'optimizer': type(self.optimizer).__name__
-        }
-        # Initialize metics
-        self.metrics = {
-            'train_loss': []
-        }
+        # Initialize hyperparameters and metrics
+        self.hyperparameter = {'num_epochs': num_epochs,'optimizer': type(self.optimizer).__name__}
+        self.metrics = {'train_loss': [], 'validation_loss': []}
 
         for epoch in range(num_epochs):
-            running_loss = 0.0
-            self.model.train()
+            # Train model for one epoch
+            train_loss= self.train_one_epoch(train_loader, device)
+            self.metrics['train_loss'].append(train_loss)
+            self.writer.add_scalar('Loss/Train', train_loss, epoch)
 
-            for batch_idx, (features, labels) in enumerate(train_loader):
-                features, labels = features.to(device), labels.to(device)
-
-                self.optimizer.zero_grad()
-
-                # Forward pass
-                outputs = self.model(features)
-                # Compute the loss
-                loss = self.criterion(outputs, labels)
-                # Backward pass
-                loss.backward()
-                # Optimization: Update model parameters
-                self.optimizer.step()
-
-                running_loss += loss.item()
-
-            # Calculate average loss for the epoch
-            average_loss = running_loss / len(train_loader)
-            # Log average loss for the epoch
-            self.writer.add_scalar('Loss/Train', average_loss, epoch)
-            # Store training loss for each epoch
-            self.metrics['train_loss'].append(average_loss)
-
-            #loss =  running_loss / len(train_loader)
-        
+            # Validate the model after training one epoch
+            val_loss = validate_one_epoch / len(validation_loader, device)
+            self.metrics['validation_loss'].append(val_loss)
+            self.writer.add_scalar('Loss/Validation', val_loss, epoch) 
+    
         return self.model, self.hyperparameters, self.metrics
+
+    def train_one_epoch(self, train_loader, device):
+
+        self.model.train() # Set model to training mode
+        running_loss = 0.0
+
+        for features, labels in train_loader:
+            features, labels = features.to(device), labels.to(device)
+
+            self.optimizer.zero_grad()
+
+            # Forward pass
+            outputs = self.model(features)
+            # Compute the loss
+            loss = self.criterion(outputs, labels)
+            # Backward pass
+            loss.backward()
+            # Optimization: Update model parameters
+            self.optimizer.step()
+
+            running_loss += loss.item()
+
+        # Calculate average training loss for the epoch
+        return running_loss / len(train_loader)
+
+    def validate_one_epoch(self, validation_loader, device):
+
+        self.model.eval() # Set model to evaluation mode
+        running_loss = 0.0
+
+        with torch.no_grad(): # No gradients needed for validation
+            for features, labels in validation_loader:
+                features, labels = features.to(device), labels.to(device)
+                outputs = self.model(features)
+                val_loss = self.criterion(outputs, labels)
+                running_loss += val_loss.item()
+        
+        # Calculate average validation loss for the epoch
+        return running_loss / len(validation_loader)
 
     def train_and_save(self, train_loader, config):
         
+        # Initialize variables
+        trained_model = None
+        training_hyperparameters = None
+        training_metrics = None
+
         # Create model
         input_size = 9
         hidden_size = config.get('hidden_layer_width', 64)
@@ -255,7 +275,7 @@ class Trainer:
         num_epochs = config.get('num_epochs', 10)
         depth = config.get('depth', 2)
 
-        # Set hyperparameters
+        # Set optimizer
         if optimizer_name.lower() == 'adam':
             optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
         elif optimizer_name.lower() == 'sgd':
@@ -270,7 +290,6 @@ class Trainer:
         try:
             # Train model
             trainer = Trainer(model, criterion, optimizer, writer)
-            #trained_model, training_metrics, training_hyperparameters = trainer.train_model(train_loader, num_epochs)
             trained_model, training_hyperparameters, training_metrics = trainer.train_model(train_loader, num_epochs)
 
             print("Training Complete")
@@ -292,7 +311,28 @@ class Trainer:
                 tensorboard_process.wait() # Wait for tensorboard to finish closeing before moving on
         
         return trained_model, training_hyperparameters, training_metrics
-
+    
 
 
 # END OF FILE
+
+"""
+Purpose: Contains the neural network model, dataset class, training logic, and utility functions.
+
+Functionality:
+
+Dataset Class (AirbnbNightlyPriceRegressionDataset):
+- Defines how the tabular data is loaded, processed, and fed into the model.
+
+Model Class (TabularModel):
+- Defines the architecture of the neural network for price prediction.
+
+Training Class (Trainer):
+- Manages the training loop, including forward and backward passes, loss computation, and optimizer updates.
+
+Model Saving (save_model):
+- Saves the trained model, its hyperparameters, and evaluation metrics.
+
+Hyperparameter Tuning (find_best_nn):
+- Likely used for tuning the best hyperparameters for the model
+"""
