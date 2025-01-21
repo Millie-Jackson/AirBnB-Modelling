@@ -1,3 +1,4 @@
+# src/utils/modeling/Modeling.py
 
 import os
 import json
@@ -10,7 +11,9 @@ from sklearn.preprocessing import StandardScaler, label_binarize
 from sklearn.linear_model import SGDRegressor, LogisticRegression
 from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor, RandomForestClassifier, GradientBoostingClassifier
-from sklearn.metrics import mean_squared_error, r2_score, accuracy_score, classification_report, confusion_matrix, roc_curve, precision_recall_curve, auc
+from sklearn.metrics import mean_squared_error, r2_score, accuracy_score, classification_report, confusion_matrix, roc_curve, RocCurveDisplay, precision_recall_curve, PrecisionRecallDisplay, auc
+from sklearn.exceptions import NotFittedError
+from sklearn.utils.validation import check_is_fitted
 from typing import Any, Dict, List, Tuple
 from itertools import cycle
 
@@ -19,12 +22,76 @@ class Modelling:
     def __init__(self, task_folder: str):
         self.task_folder = task_folder
 
+    def get_model_scores(model, X) -> None:
+        """
+        Fetch prediction scores from the model.
+        Tries `predict_proba` first, then falls back to `decision_function`.
+        """
+
+        if hasattr(model, "predict_proba"):
+            y_scores = model.predict_proba(X)[:, 1]
+        elif hasattr(model, "decision_function"):
+            y_scores = model.decision_funtion(X)
+        else:
+            raise AttributeError("Model does not support predict_proba or decision_function.")
+
+    def save_to_json(data:Dict[str, Any], filename: str) -> None:
+        """Helper function to save any dictionary to JSON file."""
+
+        with open(filename, 'w') as json_file:
+            json.dump(data, json_file, indent=4)
+    
+    def save_to_joblib(model: Any, filename: str) -> None:
+        """Helper function to save models to joblib."""
+
+        joblib.dump(model, filename)
+
+    def evaluate_model_performance(y_true, y_pred) -> Tuple[float, float]:
+        """Helper function to evaluate model's performance (RMSE, R2)."""
+
+        rmse = np.sqrt(mean_squared_error(y_true, y_pred))
+        r2 = r2_score(y_true, y_pred)
+
+        return rmse, r2
+    
+    def visualize_confusion_matrix(self, y_true, y_pred, classes) -> None:
+        """Helper function to plot confusion matrix."""
+
+        cm = confusion_matrix(y_true, y_pred, labels=classes)
+        plt.figure(figsize=(8, 6))
+        im = plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+        plt.title("Confusion Matrix")
+        plt.colorbar(im, fraction=0.046, pad=0.04)
+        plt.xlabel("Predicted")
+        plt.ylabel("True")
+
+        # Add annotations
+        for i in range(len(classes)):
+            for j in range(len(classes)):
+                plt.text(j, i, str(cm[i, j]), ha='center', va='center', color='w')
+        
+        plot.show()
+
+    def visualize_roc_curve(self, model, y_test, y_scores) -> None:
+        """Helper function to plot ROC curve."""
+
+        fpr, tpr, _ = roc_curve(y_test, y_scores)
+        RocCurveDisplay(fpr=fpr, tpr=tpr).plot()
+    
+    def visualize_precision_recall_curve(self, y_test, y_scores) -> None:
+        """Helper function to plot Precision-Recall curve."""
+
+        precision, recall, _ = precision_recall_curve(y_test, y_scores)
+        PrecisionRecallDisplay(precision=precision, recall=recall).plot()
+
+
+
     def load_data(self, label: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """Load data and return features and labels."""
 
         # Load cleaned data
         try:
-            df = pd.read_csv("data/processed_data/clean_tabular_data.csv")
+            df = pd.read_csv("data/processed/clean_tabular_data.csv")
         except FileNotFoundError:
             raise FileNotFoundError("Can't find cleaned data file")
         
@@ -70,19 +137,15 @@ class Modelling:
         y_test_pred = model.predict(X_test)
 
         # Evaluate the test set
-        rmse_train = np.sqrt(mean_squared_error(y_train, y_train_pred))
-        r2_train = r2_score(y_train, y_train_pred)
-        print(f"Mean Squared Error (mse): {rmse_train:.2f}")
-        print(f"R-squared: {r2_train:.2f}")
+        rmse, r2 = evaluate_model_performance(y_train, y_train_pred)
+        print(f"RMSE: {rmse}, R2: {r2}")
 
         # Evaluate the test set
-        rmse_test = np.sqrt(mean_squared_error(y_test, y_test_pred))
-        r2_test = r2_score(y_test, y_test_pred)
-        print(f"Mean Squared Error (mse): {rmse_test:.2f}")
-        print(f"R-squared: {r2_test:.2f}")
+        rmse, r2 = evaluate_model_performance(y_test, y_test_pred)
+        print(f"RMSE: {rmse}, R2: {r2}")
 
         return rmse_train, r2_train, rmse_test, r2_test
-    
+
     def visualize_predictions(self, model, y_pred, y_true, rmse, r2, X_test, y_test, classes=None) -> None:
         """Visualize predictions."""
 
@@ -103,86 +166,11 @@ class Modelling:
             classes = np.unique(y_true)
         
         # Plot confusion matrix
-        self.plot_confusion_matric(y_true, y_pred, classes)
-
+        self.visualize_confusion_matrix(y_true, y_pred, classes)
         # ROC CURVE
         self.visualize_roc_curve(model, X_test, y_test)
-
         # PRECISION-RECALL CURVE
         self.visualize_precision_recall_curve(model, X_test, y_test)
-
-        plt.show()
-
-        return None
-    
-    def plot_confusion_matrix(self, y_true, y_pred, classes) -> None:
-        """Plot the confusion matrix"""
-
-        cm = confusion_matrix(y_true, y_pred, labels=classes)
-        plt.figure(figsize=(8,6))
-        im = plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
-        plt.title("Confusion Matrix")
-        plt.colorbar(im, fraction=0.046, pad=0.04)
-        plt.xlabel("Predicted")
-        plt.ylabel("True")
-
-        # Add annotations
-        for i in range(len(classes)):
-            for j in range(len(classes)):
-                plt.text(j, i, str(cm[i, j]), ha='center', va='center', color='w')
-
-    def visualize_roc_curve(self, model, X_test, y_test) -> None:
-        """Visualize the ROC curve"""
-
-        # Predict probabilities
-        y_pred_prob = model.predict_proba(X_test)[:, 1]
-
-        # Compute ROC curve and ROC area
-        fpr, tpr, _ = roc_curve(y_test, y_pred_prob)
-        roc_auc = auc(fpr, tpr)
-
-        # Plot predictions
-        plt.figure(figsize=(8, 6))
-        plt.plot(fpr, tpr, color='darkorange', lw=2, label='ROC curve (area = {:.2f})'.format(roc_auc))
-        plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-        plt.xlim([0.0, 1.0])
-        plt.ylim([0.0, 1.05])
-        plt.xlabel("False Positive Rate")
-        plt.ylabel("True Positive Rate")
-        plt.title('Receiver Operating Characteristic (ROC) Curve')
-        plt.legend(loc="lower right")
-        plt.show()
-
-        return None
-
-    def visualize_precision_recall_curve(self, model, X_test, y_test) -> None:
-        """Visualize the precision-recall curve"""
-
-        # Binarize the output
-        y_bin = label_binarize(y_test, classes=np.unique(y_test))
-
-        # Compute for each class
-        precision = dict()
-        recall = dict()
-        average_precisions = dict()
-        n_classes = y_bin.shape[1]
-
-        for i in range(n_classes):
-            precision[i], recall[i], _ = precision_recall_curve(y_bin[:, i], model.predict_proba(X_test)[:, i])
-            average_precisions[i] = auc(recall[i], precision[i])
-
-        # Plot for each class
-        plt.figure(figsize=(8, 6))
-        colors = cycle(['navy', 'turquoise', 'darkorange', 'cornflowerblue', 'teal'])
-        for i, color in zip(range(n_classes), colors):
-            plt.plot(recall[i], precision[i], color=color, lw=2, label='Precision-recall cirve for class {0} (area = {1:0.2f}'.format(i, average_precisions[i]))
-        
-        plt.xlim([0.0, 1.0])
-        plt.ylim([0.0, 1.05])
-        plt.xlabel('Recall')
-        plt.ylabel('Precision')
-        plt.title('Precision-Recall Curve')
-        plt.legend(loc="lower right")
 
         plt.show()
 
@@ -203,22 +191,18 @@ class Modelling:
         return best_model, best_hyperparameters
     
     def save_model(self, model, hyperparameters, X_validation, y_validation, model_class, folder: str) -> None:
-    #def save_model(self, model, hyperparameters, performance_metrics, folder: str) -> None:
         """Save the trained model, hyperparameters, and performance metrics."""
 
         # Create directory if it doesnt exist
         os.makedirs(folder, exist_ok=True)
 
         # Save the trained model
-        model_filename = os.path.join(folder, 'model.joblib')
-        joblib.dump(model, model_filename)
+        self.save_to_joblib(model, 'model.joblib')
 
         # Save the hyperparameters
-        #hyperparameters = self.format_hyperparameters(hyperparameters)
         hyperparameters = self.get_hyperparameters(hyperparameters)
         hyperparameters_filename = os.path.join(folder, 'hyperparameters.json')
-        with open(hyperparameters_filename, 'w') as json_file:
-            json.dump(hyperparameters, json_file, indent=4)
+        self.save_to_json(hyperparameters, hyperparameters_filename)
 
         performance_metrics['best_validation_RMSE'] = performance_metrics['best_validation_RMSE'].tolist()
         performance_metrics['best_params'] = {key: value.tolist() if isinstance(value, np.ndarray) else value for key, value in performance_metrics['best_params'].items()}
@@ -234,14 +218,13 @@ class Modelling:
         metrics_filename = os.path.join(folder, 'metrics.json')
         if performance_metrics and 'beast_validation_RMSE' in performance_metrics:
             performance_metrics['best_validation_RMSE'] = performance_metrics['best_validation_RMSE'].tolist()
-            with open(metrics_filename, 'w') as json_file:
-                json.dump(performance_metrics, json_file, indent=4)
+            self.save_to_json(performance_metrics, metrics_filename)
         else:
             print("Error saving metrics: 'best_validation_RMSE' not found in performance metrics")
 
         print(f"Model, hyperparameter and metrics saved to {folder}")
 
-        return None
+        return None    
     
     def evaluate_all_models(self, X_train, y_train, X_validation, y_validation, model_classes, label_col) -> None:
         """Evaluate different models and save the best models."""
@@ -264,7 +247,7 @@ class Modelling:
             # Save the model, hyperparameters and metrics
             model_name, = model_class.__name__.lower()
             model_folder = os. path.join(self.task_folder, model_name)
-            self.save_model(best_model, best_hyperparameters, X_validation, y_validation, model_class, model_folder, label_col)
+            #self.save_model(best_model, best_hyperparameters, X_validation, y_validation, model_class, model_folder, label_col)
 
             # Visualize predictions
             self.visualize_predictions(y_validation_pred, y_validation, rmse_validation, r2_validation)
@@ -352,7 +335,7 @@ class RegressionModelling(Modelling):
             # Save the model, hyperparameters and metrics
             model_name = model_class.__name__.lower()
             model_folder = os. path.join(self.task_folder, model_name)
-            self.save_model(best_model, best_hyperparameters, X_validation, y_validation, model_class, model_folder)
+            #self.save_model(best_model, best_hyperparameters, X_validation, y_validation, model_class, model_folder)
 
             # Visualize predictions
             self.visualize_predictions(y_validation_pred, y_validation, rmse_validation, r2_validation)
@@ -389,12 +372,16 @@ class ClassificationModelling(Modelling):
             # Save the model, hyperparameters and metrics
             model_name, = model_class.__name__.lower()
             model_folder = os. path.join(self.task_folder, model_name)
-            self.save_model(best_model, best_hyperparameters, X_validation, y_validation, model_class, model_folder, label_col)
+            #self.save_model(best_model, best_hyperparameters, X_validation, y_validation, model_class, model_folder, label_col)
 
             # Visualize predictions
             self.visualize_predictions(y_validation_pred, y_validation, None, None)
 
         return None
+
+
+
+# END OF FILE
     
 
 
@@ -428,4 +415,16 @@ Visualization: Consider creating a separate function for the visualization part.
             Show all the models on the same graph
             Allow visualizations to be interactive
             Have a function that decides which visualisation would be best
+'''
+
+'''
+Unused/Unfinished Code:
+
+Several sections (like evaluate_all_models) have placeholder or unused variables like label_col. Remove or revise these.
+Performance Metrics Handling:
+
+Be consistent with how metrics are stored and serialized. Avoid errors like checking performance_metrics and 'beast_validation_RMSE', which contains a typo.
+Class Structure:
+
+Break the class into smaller, single-responsibility classes (e.g., DataLoader, Visualizer, ModelTrainer).
 '''

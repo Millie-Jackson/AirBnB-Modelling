@@ -1,9 +1,10 @@
 # src/utils/config/nn_config.yaml
 
-optimiser: adam
+optimizer: adam
 learning_rate: 0.001
 hidden_layer_width: 64 # How many neurons in each layer
-depth: 2 # how many layers
+depth: 2 # How many layers
+num_epochs: 50
 
 #Purpose: Contains the configuration for the neural network, such as hyperparameters for training.
 

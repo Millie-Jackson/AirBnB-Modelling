@@ -6,15 +6,66 @@ import pandas as pd
 import os
 import yaml
 import json
-import time
 
 from torch.utils.data import Dataset, DataLoader, random_split
 from torch.utils.tensorboard import SummaryWriter
 from torch import nn
-from subprocess import Popen, PIPE
+from subprocess import PIPE
 from datetime import datetime
 
 
+
+class NeuralNetwork(nn.Module):
+
+    def __init__(self, config):
+        """
+        Initialize the Neural Network with configurable depth, hidden layer size, and input/output sizes.
+
+        Args:
+            config (dict): A dictionary containing the hyperparameters:
+                - input_size (int): Number of input features.
+                - output_size (int): Number of output features.
+                - hidden_layer_width (int): Number of neurons in hidden layers.
+                - depth (int): Number of hidden layers.
+        """
+
+        super(NeuralNetwork, self).__init__()
+
+        layers = []
+        input_size = config.get('input_size', 10) # Default input size
+        output_size = config.get('output_size', 1) # Default output size
+        hidden_layer_width = config.get('hidden_layer_width', 64)
+        depth = config.get('depth', 2)
+
+        # Create the hidden layers
+        for _ in range(depth):
+            layers.append(nn.Linear(input_size, hidden_layer_width))
+            layers.append(nn.ReLU())
+            input_size = hidden_layer_width
+
+        # Create the output layer
+        layers.append(nn.Linear(input_size, output_size))
+
+        # Define the model
+        #self.model = nn.Sequential(*layers)
+        self.model = nn.Sequential(
+            nn.Linear(9, 64),
+            nn.ReLU(),
+            nn.Linear(64, 10)
+        )
+
+    def forward(self, x):
+        """
+        Perform a forward pass through the network.
+
+        Args:
+            x (torch.Tensor): The input data.
+
+        Returns:
+            torch.Tensor: The output predictions.
+        """
+
+        return self.model(x)
 
 class AirbnbNightlyPriceRegressionDataset(Dataset):
 
@@ -176,39 +227,35 @@ def find_best_nn(train_function, validation_loader):
 
 
 class Trainer:
-    def __init__(self, model, criterion, optimizer, writer, tensorboard_process=None) -> None:
+    def __init__(self, model, criterion, optimizer, writer=None) -> None:
         
         self.model = model
         self.criterion = criterion
         self.optimizer = optimizer
-        self.writer = writer # For TensorBoard
-        self.tensorboard_process = tensorboard_process
+        self.writer = writer or SummaryWriter() # For TensorBoard
+        #self.tensorboard_process = tensorboard_process
 
-        self.hyperparameters = None
-        self.metrics = None
+        #self.hyperparameters = None
+        self.metrics = {"train_loss": [], "validation_loss": []}
 
-    def train_model(self, train_loader, validation_loader, num_epochs):
-            
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    def train_model(self, train_loader, validation_loader, num_epochs, device):
+
         self.model.to(device)
-        self.criterion.to(device)
-
-        # Initialize hyperparameters and metrics
-        self.hyperparameter = {'num_epochs': num_epochs,'optimizer': type(self.optimizer).__name__}
-        self.metrics = {'train_loss': [], 'validation_loss': []}
 
         for epoch in range(num_epochs):
+
             # Train model for one epoch
             train_loss= self.train_one_epoch(train_loader, device)
-            self.metrics['train_loss'].append(train_loss)
-            self.writer.add_scalar('Loss/Train', train_loss, epoch)
-
+            validation_loss = self.validate_one_epoch(validation_loader, device)
+            
             # Validate the model after training one epoch
-            val_loss = validate_one_epoch / len(validation_loader, device)
-            self.metrics['validation_loss'].append(val_loss)
-            self.writer.add_scalar('Loss/Validation', val_loss, epoch) 
+            self.metrics['train_loss'].append(train_loss)
+            self.metrics['validation_loss'].append(validation_loss)
+            self.writer.add_scalars("Loss", {"Train": train_loss, "Validation": validation_loss}, epoch) 
     
-        return self.model, self.hyperparameters, self.metrics
+            print(f"Epoch {epoch+1}/{num_epochs}: Train Loss = {train_loss:.4f}, Validation Loss = {validation_loss:.4}")
+        
+        return self.metrics
 
     def initilize_model(self, config):
         """
@@ -223,8 +270,8 @@ class Trainer:
             criterion: Loss function.
         """
 
-        model = NeuralNetwork(config['hidden-layer_width'], config['depth'])
-        optimizer = torch.optim.Adam(model.parameters(), lr=config['learning-rate']) if config['optimizer'] == 'adam' else torch.optim.SGD(model.parameters(), lr=config['learning_rate'])
+        model = NeuralNetwork(config)
+        optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate']) if config['optimizer'] == 'adam' else torch.optim.SGD(model.parameters(), lr=config['learning_rate'])
         criterion = nn.MSELoss()
 
         return model, optimizer, criterion
@@ -262,8 +309,8 @@ class Trainer:
             for features, labels in validation_loader:
                 features, labels = features.to(device), labels.to(device)
                 outputs = self.model(features)
-                val_loss = self.criterion(outputs, labels)
-                running_loss += val_loss.item()
+                validation_loss = self.criterion(outputs, labels)
+                running_loss += validation_loss.item()
         
         # Calculate average validation loss for the epoch
         return running_loss / len(validation_loader)
@@ -286,12 +333,14 @@ class Trainer:
         model, optimizer, criterion = self.initilize_model(config)
 
         # Train the model
-        training_metrics = train_single_model(model, train_loader, optimizer, criterion, config)
+        config['num_epochs'] = 50
+        config['device'] = 'cpu'  # or 'cuda' if using GPU
+        training_metrics = self.train_model(train_loader, validation_loader, config['num_epochs'] , config['device'] )
         # Evaluate the model
-        validation_loss = evaluate_model(model, validation_loader, criterion)
+        validation_loss = self.evaluate_model(model, validation_loader, criterion)
         # Save results
         training_metrics['validation_loss'] = validation_loss
-        save_hyperparameters_model_metrics(model, config, training_metrics)
+        self.save_hyperparameters_model_metrics(model, config, training_metrics)
 
         return model, config, training_metrics
 
@@ -310,14 +359,14 @@ class Trainer:
 
         model.eval()
         total_loss = 0.0
-        with tourch.no_grad(): # No gradient needed
+        with torch.no_grad(): # No gradient needed
             for inputs, targets in validation_loader:
                 inputs, targets = inputs.to('cpu'), targets.to('cpu')
                 outputs = model(inputs)
                 loss = criterion(outputs, targets)
                 total_loss += loss.item()
 
-        return total-loss / len(validation_loader)
+        return total_loss / len(validation_loader)
 
     def save_hyperparameters_model_metrics(self, model, config, metrics):
         """
