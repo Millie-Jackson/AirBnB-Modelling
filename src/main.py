@@ -6,7 +6,9 @@ import torch
 from torch.utils.tensorboard import SummaryWriter
 from utils.data.data_cleaner import DataCleaner
 from utils.data.tabular_data import load_airbnb
-from utils.modelling.Neural_Network import AirbnbNightlyPriceRegressionDataset, create_data_loaders, TabularModel, Trainer, save_model
+from utils.modeling.Neural_Network import AirbnbNightlyPriceRegressionDataset, create_data_loaders, TabularModel, Trainer, save_model
+from utils.modeling import Modeling
+from utils.tensorboard_util import get_tensorboard_writer
 
 
 
@@ -29,34 +31,40 @@ def main():
     # Step 3: Load data
     print("Loading cleaned data...")
     features, labels = load_airbnb(label="Price_Night")
+    input_size = features.shape[1]  # Number of numerical features
 
-    # Step 4: Set up dataset and data loaders
-    print("Creating dataset and data loaders...")
-    dataset = AirbnbNightlyPriceRegressionDataset(csv_file=processed_data_path)
-    train_loader, validation_loader = create_data_loaders(dataset)
-
-    # Step 5: Load configuration
+    # Step 4: Load configuration
     print("Loading model configuration...")
     with open(config_path, "r") as file:
         config = yaml.safe_load(file)
 
-    input_size = features.shape[1] # Number of numerical features
     hidden_size = config["hidden_layer_width"]
     output_size = 1
     learning_rate = config["learning_rate"]
 
-    # Step 6: Initialize model, loss, optimizer and trainer
+    # Step 5: Initialize model
     print("Initializing model...")
     model = TabularModel(input_size, hidden_size, output_size)
+
+    # Step 6: Set up TensorBoard
+    writer = get_tensorboard_writer() # Initialize
+    dummy_input = torch.randn(1, input_size) # Show model structure
+    writer.add_graph(model, dummy_input)
+
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     loss_fn = torch.nn.MSELoss()
-    trainer = Trainer(model, loss_fn, optimizer, SummaryWriter("runs"))
+    trainer = Trainer(model, loss_fn, optimizer, writer)
 
-    # Step 7: Train the model
+    # Step 7: Set up dataset and data loaders
+    print("Creating dataset and data loaders...")
+    dataset = AirbnbNightlyPriceRegressionDataset(csv_file=processed_data_path)
+    train_loader, validation_loader = create_data_loaders(dataset)
+
+    # Step 8: Train the model
     print("Training model...")
     best_model, best_hyperparameter, best_metric = trainer.train_and_save(train_loader, validation_loader, config)
 
-    # Step 8: Save the best model
+    # Step 9: Save the best model
     if best_model is not None:
         os.makedirs(os.path.dirname(model_save_path), exist_ok=True)
         save_model(best_model, best_hyperparameter, best_metric, model_save_path)
@@ -65,6 +73,7 @@ def main():
         print("No model was saved")
     
     print("Pipeline complete!")
+    writer.close() # Close Tensorboard
 
 
 

@@ -1,4 +1,4 @@
-# src/utils/modelling/Neural_Network.py
+# src/utils/modeling/Neural_Network.py
 
 import torch
 import torch.optim as optim
@@ -12,7 +12,7 @@ from torch.utils.tensorboard import SummaryWriter
 from torch import nn
 from subprocess import PIPE
 from datetime import datetime
-
+from utils.tensorboard_util import log_model_histograms, log_training_metrics
 
 
 class NeuralNetwork(nn.Module):
@@ -47,7 +47,6 @@ class NeuralNetwork(nn.Module):
         layers.append(nn.Linear(input_size, output_size))
 
         # Define the model
-        #self.model = nn.Sequential(*layers)
         self.model = nn.Sequential(
             nn.Linear(9, 64),
             nn.ReLU(),
@@ -227,16 +226,21 @@ def find_best_nn(train_function, validation_loader):
 
 
 class Trainer:
-    def __init__(self, model, criterion, optimizer, writer=None) -> None:
+    def __init__(self, model, criterion, optimizer, writer) -> None:
         
-        self.model = model
+        self.model = model 
         self.criterion = criterion
         self.optimizer = optimizer
-        self.writer = writer or SummaryWriter() # For TensorBoard
-        #self.tensorboard_process = tensorboard_process
+        self.writer = writer # For TensorBoard
+        self.total_loss = 0.0 # Shared variables for loss
+        self.total_rmse = 0.0 # Shared variables for RMSE
 
-        #self.hyperparameters = None
-        self.metrics = {"train_loss": [], "validation_loss": []}
+        self.metrics = {
+            "train_loss": [],
+            "train_rmse": [],
+            "validation_loss": [],
+            "validation_rmse": []
+        }
 
     def train_model(self, train_loader, validation_loader, num_epochs, device):
 
@@ -245,13 +249,27 @@ class Trainer:
         for epoch in range(num_epochs):
 
             # Train model for one epoch
-            train_loss= self.train_one_epoch(train_loader, device)
+            train_loss, train_rmse = self.train_one_epoch(train_loader, device)
             validation_loss = self.validate_one_epoch(validation_loader, device)
             
+            # Log weight and bias histograms on TensorBoard
+            for name, param in self.model.named_parameters():
+                self.writer.add_histogram(name, param, epoch)
+            self.writer.add_scalar('Training loss', train_loss, epoch)
+
             # Validate the model after training one epoch
             self.metrics['train_loss'].append(train_loss)
             self.metrics['validation_loss'].append(validation_loss)
-            self.writer.add_scalars("Loss", {"Train": train_loss, "Validation": validation_loss}, epoch) 
+
+            # Append metrics
+            self.metrics["train_loss"].append(train_loss)
+            self.metrics["train_rmse"].append(train_rmse)
+
+            # Log metrics to TensorBoard
+            log_model_histograms(self.writer, self.model, epoch)
+            log_training_metrics(self.writer, epoch, train_loss, validation_loss, train_rmse)
+            self.writer.add_scalars("Loss", {"Train": train_loss, "Validation": validation_loss}, epoch)
+            self.writer.add_scalar("RMSE", train_rmse, epoch)
     
             print(f"Epoch {epoch+1}/{num_epochs}: Train Loss = {train_loss:.4f}, Validation Loss = {validation_loss:.4}")
         
@@ -279,41 +297,56 @@ class Trainer:
     def train_one_epoch(self, train_loader, device):
 
         self.model.train() # Set model to training mode
-        running_loss = 0.0
+        self.metrics["batch_loss"], self.metrics["batch_rmse"] = 0.0, 0.0
 
         for features, labels in train_loader:
             features, labels = features.to(device), labels.to(device)
 
-            self.optimizer.zero_grad()
-
             # Forward pass
             outputs = self.model(features)
+            
             # Compute the loss
             loss = self.criterion(outputs, labels)
-            # Backward pass
+            self.metrics["batch_loss"] += loss.item()
+
+            # Compute RMSE
+            rmse = torch.sqrt(torch.mean((outputs - labels) ** 2))
+            self.metrics["batch_rmse"] += rmse.item()
+            
+            # Backpropagation
+            self.optimizer.zero_grad()
             loss.backward()
-            # Optimization: Update model parameters
             self.optimizer.step()
 
-            running_loss += loss.item()
-
         # Calculate average training loss for the epoch
-        return running_loss / len(train_loader)
+        average_loss = self.metrics["batch_loss"] / len(train_loader)
+        average_rmse = self.metrics["batch_rmse"] / len(train_loader)
+
+        return average_loss, average_rmse
 
     def validate_one_epoch(self, validation_loader, device):
 
         self.model.eval() # Set model to evaluation mode
-        running_loss = 0.0
+        total_loss, total_rmse = 0.0, 0.0
 
         with torch.no_grad(): # No gradients needed for validation
             for features, labels in validation_loader:
                 features, labels = features.to(device), labels.to(device)
                 outputs = self.model(features)
+                
+                # Compute the loss
                 validation_loss = self.criterion(outputs, labels)
-                running_loss += validation_loss.item()
+                total_loss += validation_loss.item()
+
+                # Compute RMSE
+                rmse = torch.sqrt(torch.mean((outputs - labels) ** 2))
+                total_rmse += rmse.item()
         
         # Calculate average validation loss for the epoch
-        return running_loss / len(validation_loader)
+        average_loss = total_loss / len(validation_loader)
+        average_rmse = total_rmse / len(validation_loader)
+
+        return total_loss / len(validation_loader)
     
     def train_and_save(self, train_loader, validation_loader, config):
         """
@@ -327,24 +360,39 @@ class Trainer:
         Returns:
             trained_model: The trained PyTorch model.
             training_hyperparameters: Hyperparameters used for training.
-            training_metrics: Metrics collected during training.
+            metrics: Metrics collected during training.
         """
 
+        # Initialize model, optimizer and criterion
         model, optimizer, criterion = self.initilize_model(config)
 
         # Train the model
         config['num_epochs'] = 50
         config['device'] = 'cpu'  # or 'cuda' if using GPU
-        training_metrics = self.train_model(train_loader, validation_loader, config['num_epochs'] , config['device'] )
+        metrics = self.train_model(train_loader, validation_loader, config['num_epochs'] , config['device'] )
+        
         # Evaluate the model
-        validation_loss = self.evaluate_model(model, validation_loader, criterion)
+        validation_loss, validation_rmse = self.evaluate_model(model, validation_loader, criterion)
+
+        # Log metrics to TensorBoard
+        for epoch in range(config['num_epochs']):
+
+            train_loss = metrics["train_loss"][epoch]
+            train_rmse = metrics["train_rmse"][epoch]
+
+            self.writer.add_scalars("Loss", {"Train": train_loss, "Validation": validation_loss}, epoch)
+            self.writer.add_scalars("RMSE", {"Train": train_rmse, "Validation": validation_rmse}, epoch)
+        
+        # Log hyperparameters and best metric
+        self.writer.add_hparams(hparam_dict=config, metric_dict={"hparam/best_metric": validation_loss})
+
         # Save results
-        training_metrics['validation_loss'] = validation_loss
-        self.save_hyperparameters_model_metrics(model, config, training_metrics)
+        metrics['validation_loss'] = validation_loss
+        self.save_hyperparameters_model_metrics(model, config, metrics)
 
-        return model, config, training_metrics
+        return model, config, metrics
 
-    def evaluate_model(self, model, validation_loader, criterion):
+    def evaluate_model(self, model, validation_loader, criterion) -> tuple:
         """
         Evaluate the model on validation data.
 
@@ -354,19 +402,30 @@ class Trainer:
             criterion: Loss function.
 
         Returns:
-            float: Validation loss.
+            float: Validation loss, Validation RMSE.
         """
 
         model.eval()
-        total_loss = 0.0
+        total_loss, total_rmse = 0.0, 0.0
+
         with torch.no_grad(): # No gradient needed
             for inputs, targets in validation_loader:
                 inputs, targets = inputs.to('cpu'), targets.to('cpu')
                 outputs = model(inputs)
+                
+                # Compute the loss
                 loss = criterion(outputs, targets)
                 total_loss += loss.item()
 
-        return total_loss / len(validation_loader)
+                # Compute RMSE
+                rmse = torch.sqrt(torch.mean((outputs - targets) ** 2))
+                total_rmse += rmse.item()
+
+        # Calculate average validation loss for the epoch
+        average_loss = total_loss / len(validation_loader)
+        average_rmse = total_rmse / len(validation_loader)
+
+        return average_loss, average_rmse
 
     def save_hyperparameters_model_metrics(self, model, config, metrics):
         """
